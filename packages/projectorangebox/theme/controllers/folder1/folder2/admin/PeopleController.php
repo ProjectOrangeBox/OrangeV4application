@@ -10,7 +10,7 @@ class PeopleController extends Controller {
 
 		echo findView('cats');
 
-		$auth = ci('event');
+		$event = ci('event');
 
 		echo __METHOD__;
 	}

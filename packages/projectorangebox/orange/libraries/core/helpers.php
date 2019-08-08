@@ -90,25 +90,13 @@ if (!function_exists('findView'))
 {
 	function findView(string $path) : string
 	{
-		$cacheFilePath = configKey('cache_path').'/views.php';
+		$views = loadConfigArray('views');
 
-		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
-			$found = applicationSearch('(.*)/views/(.*)\.php',function($realPath) {
-				return [strtolower(substr($realPath,strpos($realPath,'/views/') + 7,-4)) => substr($realPath,strlen(__ROOT__))];
-			});
-
-			varExportFile($cacheFilePath,$found);
-		} else {
-			$found = include $cacheFilePath;
-		}
-
-		$path = strtolower(trim(str_replace('.php', '', $path),'/'));
-
-		if (!isset($found[$path])) {
+		if (!isset($views[$path])) {
 			throw new \Exception('Find view could not locate "'.$path.'".');
 		}
 
-		return $found[$path];
+		return $views[$path];
 	}
 }
 

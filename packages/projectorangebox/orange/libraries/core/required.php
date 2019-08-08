@@ -126,6 +126,37 @@ if (!function_exists('loadConfig'))
 }
 
 /**
+ *
+ * Low Level configuration file loader
+ * this does NOT include any database configurations
+ * this is used for straight up returned config arrays
+ *
+ * @param string $name filename
+ *
+ * @return array
+ *
+ */
+if (!function_exists('loadConfigArray'))
+{
+	function loadConfigArray(string $name) : array
+	{
+		$name = strtolower($name);
+
+		$applicationConfig = $envConfig = [];
+
+		if (file_exists(APPPATH.'config/'.$name.'.php')) {
+			$applicationConfig = require APPPATH.'config/'.$name.'.php';
+		}
+
+		if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/'.$name.'.php')) {
+			$envConfig = require APPPATH.'config/'.ENVIRONMENT.'/'.$name.'.php';
+		}
+
+		return $applicationConfig + $envConfig;
+	}
+}
+
+/**
  * Low Level configuration value loader
  * Grab a single value from the base config.php configuration file
  * When using this function naturally database entries will not be included

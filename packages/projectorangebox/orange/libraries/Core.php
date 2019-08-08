@@ -21,10 +21,10 @@ if (!function_exists('ci'))
 			/* has this service been attached yet? */
 			if (!isset($instance->$serviceName)) {
 				/* is it a named service? */
-				$config = loadConfig('services');
+				$servicesConfig = loadConfigArray('services');
 
-				if (isset($config['services'][$name])) {
-					$name = $config['services'][$name];
+				if (isset($servicesConfig[$name])) {
+					$name = $servicesConfig[$name];
 				}
 
 				/* try to let composer autoload load it */
