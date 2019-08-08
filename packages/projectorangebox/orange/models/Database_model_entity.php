@@ -89,38 +89,35 @@ abstract class Database_model_entity
 		$primary_id = $this->_model_ref->get_primary_key();
 
 		/* if save columns is set then only use those properties */
-		if ($this->_save_columns) {
+		if (is_array($this->_save_columns)) {
 			foreach ($this->_save_columns as $col) {
 				$data[$col] = $this->$col;
 			}
 		} else {
-			/* use all public properties */
+			/* else use all public properties */
 			$data = get_object_vars($this);
 		}
 
-		/* default responds */
-		$success = false;
-
-		/* if the primary id is empty then insert the entity */
-		if ($data[$primary_id] == null) {
-			/* make sure the primary id is not set */
-			unset($data[$primary_id]);
-
-			/* insert the record and return the inserted record primary id */
-			$success = $this->_model_ref->insert($data);
-
-			/* if success is not false (fail) then set the primary_id to success - inserted record primary id */
-			if ($success !== false) {
-				$this->$primary_id = $success;
-
-				$success = true;
-			}
+		/**
+		 * if the primary id is empty then insert the entity
+		 * The following values are considered to be empty:
+		 *
+		 * "" (an empty string)
+		 * 0 (0 as an integer)
+		 * 0.0 (0 as a float)
+		 * "0" (0 as a string)
+		 * NULL
+		 * FALSE
+		 * array() (an empty array)
+		 */
+		if (empty($data[$primary_id])) {
+			$success = $this->$primary_id = $this->_model_ref->insert($data);
 		} else {
 			/* else it's a update */
 			$success = $this->_model_ref->update($data);
 		}
 
-		/* return success */
+		/* return boolean success */
 		return (bool)$success;
 	}
 } /* end class */

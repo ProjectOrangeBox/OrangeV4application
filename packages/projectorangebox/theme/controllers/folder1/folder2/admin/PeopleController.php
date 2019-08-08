@@ -1,8 +1,8 @@
 <?php
 
-use packages\projectorangebox\orange\libraries\Controller;
+use projectorangebox\orange\library\Controller;
 
-class WelcomeController extends Controller {
+class PeopleController extends Controller {
 
 	public function index()
 	{

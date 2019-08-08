@@ -1,12 +1,26 @@
 <?php
 
-$config['services'] = [
-	'auth'=>'packages\projectorangebox\orange\libraries\Auth',
-	'cache'=>'packages\projectorangebox\orange\libraries\Cache',
-	'errors'=>'packages\projectorangebox\orange\libraries\Errors',
-	'event'=>'packages\projectorangebox\orange\libraries\Event',
-	'page'=>'packages\projectorangebox\orange\libraries\Page',
-	'validate'=>'packages\projectorangebox\orange\libraries\Validate',
-	'wallet'=>'packages\projectorangebox\orange\libraries\Wallet',
-	'session'=>'packages\projectorangebox\orange\libraries\Session',
+/*
+$config['named'] = [
+	'auth'=>'\projectorangebox\orange\library\Auth',
+	'cache'=>'\projectorangebox\orange\library\Cache',
+	'errors'=>'\projectorangebox\orange\library\Errors',
+	'event'=>'\projectorangebox\orange\library\Event',
+	'page'=>'\projectorangebox\orange\library\Page',
+	'validate'=>'\projectorangebox\orange\library\Validate',
+	'wallet'=>'\projectorangebox\orange\library\Wallet',
+	'session'=>'\projectorangebox\orange\library\Session',
+
+	'o_user_model'=>'\projectorangebox\orange\model\O_user_model',
+];
+*/
+
+$config['named'] = [
+	'auth'=> function($ci) {
+		return new \projectorangebox\orange\library\Auth($ci->config->dotItem('auth'),$ci);
+	},
+	'example'=> function($ci) {
+		return new \projectorangebox\orange\library\Example($ci);
+	},
+
 ];

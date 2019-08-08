@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library;
 
+use projectorangebox\orange\library\input\RequestRemap;
+
 /**
  * Orange
  *
@@ -280,7 +282,7 @@ class Input extends \CI_Input
 	 */
 	public function requestRemap(array $remap,bool $replace = true) : array
 	{
-		$formData = (new input\RequestRemap)->processRaw($remap,$this->_raw_input_stream);
+		$formData = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream);
 
 		if ($replace) {
 			$this->_request = $formData->get();

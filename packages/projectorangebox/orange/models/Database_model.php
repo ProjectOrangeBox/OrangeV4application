@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\model;
 
+use projectorangebox\orange\library\Model;
+
 /**
  * Orange
  *
@@ -27,7 +29,7 @@ namespace projectorangebox\orange\model;
  * @throws Exception
  *
  */
-class Database_model extends \MY_Model
+class Database_model extends Model
 {
 	/**
 	 * Database config to use for _database if other than default
@@ -244,6 +246,10 @@ class Database_model extends \MY_Model
 			throw new \Exception('Database model table not specified.');
 		}
 
+		if (empty($this->db_group)) {
+			$this->db_group = 'default';
+		}
+
 		/* models aren't always database tables so set the object name to the table name */
 		$this->object = strtolower($this->table);
 
@@ -251,21 +257,12 @@ class Database_model extends \MY_Model
 		$this->cache_prefix = trim('database.'.$this->object.'.'.trim($this->additional_cache_tags, '.'), '.');
 
 		/* is db group set? then that's the connection config we will use */
-		if (isset($this->db_group)) {
-			log_message('debug', 'Database Model using "'.$this->object.'::'.$this->db_group.'" connection.');
+		log_message('debug', 'Database Model using "'.$this->object.'::'.$this->db_group.'" connection.');
 
-			/* use our specified connection */
-			$this->_database = &$this->load->database($this->db_group, true);
-			$this->read_database = &$this->_database;
-			$this->write_database = &$this->_database;
-		} else {
-			log_message('debug', 'Database Model using '.$this->object.'::default connection.');
-
-			/* use default */
-			$this->_database = &$this->db;
-			$this->read_database = &$this->_database;
-			$this->write_database = &$this->_database;
-		}
+		/* use our specified connection */
+		$this->_database = $this->db = &$this->load->database($this->db_group, true);
+		$this->read_database = &$this->_database;
+		$this->write_database = &$this->_database;
 
 		/* is read db group set? then that's the connection config we will use for reads */
 		if (isset($this->read_db_group)) {

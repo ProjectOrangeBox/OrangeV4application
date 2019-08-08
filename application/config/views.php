@@ -1,0 +1,15 @@
+<?php return array (
+  'cats' => '/packages/projectorangebox/theme/views/cats.php',
+  'form' => '/application/views/form.php',
+  'welcome_message' => '/application/views/welcome_message.php',
+  'errors/html/error_db' => '/application/views/errors/html/error_db.php',
+  'errors/html/error_404' => '/application/views/errors/html/error_404.php',
+  'errors/html/error_php' => '/application/views/errors/html/error_php.php',
+  'errors/html/error_exception' => '/application/views/errors/html/error_exception.php',
+  'errors/html/error_general' => '/application/views/errors/html/error_general.php',
+  'errors/cli/error_db' => '/application/views/errors/cli/error_db.php',
+  'errors/cli/error_404' => '/application/views/errors/cli/error_404.php',
+  'errors/cli/error_php' => '/application/views/errors/cli/error_php.php',
+  'errors/cli/error_exception' => '/application/views/errors/cli/error_exception.php',
+  'errors/cli/error_general' => '/application/views/errors/cli/error_general.php',
+);

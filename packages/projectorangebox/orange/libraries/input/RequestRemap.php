@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library\input;
 
+use \projectorangebox\orange\library\Dot;
+
 /**
 <form method="post" action="/form/output">
 
@@ -45,8 +47,6 @@ $remap = ['model.repeatable.#.parent_id'=>'model.id','model.copied'=>'model.move
 $output = ci('input')->requestRemap($remap); /* optional boolean replace input request
 
 */
-
-use \packages\projectorangebox\orange\libraries\Dot;
 
 class RequestRemap {
 	/**

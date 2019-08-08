@@ -39,6 +39,7 @@
 |
 */
 $autoload['packages'] = [
+	'packages/projectorangebox/orange',
 	'packages/projectorangebox/theme',
 ];
 

@@ -120,6 +120,7 @@ if (!function_exists('_assert_handler'))
 	}
 }
 
-require_once 'Core_Global_Functions.php';
+require_once 'core/required.php';
+require_once 'core/helpers.php';
 
 require_once BASEPATH.'core/CodeIgniter.php';

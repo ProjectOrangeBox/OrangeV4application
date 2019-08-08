@@ -8,9 +8,13 @@
  *
  */
 
-$route['form/input'] = 'formController::index';
-$route['form/output']['post'] = 'formController::post';
-$route['form/dn'] = 'formController::dotnotation';
+$route['form/input'] = 'FormController::index';
+$route['form/output']['post'] = 'FormController::post';
+$route['form/dn'] = 'FormController::dotnotation';
+
+$route['inject'] = 'FormController::inject';
+
+$route['search'] = 'FormController::searchApplication';
 
 $route['user/drpepper'] = 'don::index';
 
@@ -25,8 +29,8 @@ $route['product/(:num)'] = 'product/edit/$1';
 $route['products/delete/(:num)'] = 'product/edit$Httpmethod/$1';
 
 $route['welcome/index'] = 'welcomeController::index';
-$route['welcome/index2'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\welcomeController::index';
-$route['welcome/index3'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\welcomeController::index';
+$route['welcome/index2'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\PeopleController::index';
+$route['welcome/index3'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\PeopleController::index';
 
 $route['welcome/remap'] = '\packages\projectorangebox\theme\controllers\welcomeController::remap';
 

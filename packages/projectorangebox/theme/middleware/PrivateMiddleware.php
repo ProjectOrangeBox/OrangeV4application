@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\orange\theme\middleware;
+namespace packages\projectorangebox\theme\middleware;
 
 class PrivateMiddleware
 {

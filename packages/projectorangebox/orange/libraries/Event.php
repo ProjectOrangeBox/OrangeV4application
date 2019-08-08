@@ -299,4 +299,5 @@ class Event
 
 		return $listeners;
 	}
+
 } /* end class */

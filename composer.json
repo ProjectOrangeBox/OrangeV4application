@@ -1,16 +1,17 @@
 {
-	"name": "OFW",
+	"name": "projectorangebox",
 	"description": "Orange Framework",
 	"autoload": {
 		"classmap": [
-			"packages/projectorangebox/theme/libraries",
-			"packages/projectorangebox/theme/middleware",
 			"vendor/codeigniter/framework/system/core",
 			"vendor/codeigniter/framework/system/libraries"
 		],
 		"psr-4": {
 			"projectorangebox\\orange\\library\\": "packages/projectorangebox/orange/libraries",
-			"projectorangebox\\orange\\model\\": "packages/projectorangebox/orange/models"
+			"projectorangebox\\orange\\model\\": "packages/projectorangebox/orange/models",
+			"projectorangebox\\theme\\middleware\\": "packages/projectorangebox/theme/middleware",
+			"projectorangebox\\theme\\library\\": "packages/projectorangebox/theme/libraries",
+			"projectorangebox\\theme\\model\\": "packages/projectorangebox/theme/models"
     }
 	},
 	"require": {
