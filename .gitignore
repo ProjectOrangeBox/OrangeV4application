@@ -1,0 +1,6 @@
+/.env
+/vendor
+/var
+/node_modules
+/public/dist
+/public/fonts

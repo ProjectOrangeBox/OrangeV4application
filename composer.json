@@ -1,0 +1,17 @@
+{
+	"name": "OFW",
+	"description": "Orange Framework",
+	"autoload": {
+		"classmap": [
+			"packages/projectorangebox/theme/libraries",
+			"packages/projectorangebox/theme/middleware",
+			"packages/projectorangebox/orange/libraries",
+			"packages/projectorangebox/orange/models",
+			"vendor/codeigniter/framework/system/core",
+			"vendor/codeigniter/framework/system/libraries"
+		]
+	},
+	"require": {
+		"codeigniter/framework": "^3.1"
+	}
+}
