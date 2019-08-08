@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\model;
+
+use projectorangebox\orange\model\Database_model;
+
 /**
  * O_permission_model
  * Insert description here
@@ -18,7 +23,7 @@
  * functions:
  *
  */
-class O_permission_model extends \Database_model
+class O_permission_model extends Database_model
 {
 	protected $table;
 	protected $additional_cache_tags = '.acl';
@@ -65,7 +70,7 @@ class O_permission_model extends \Database_model
 	 * @throws
 	 * @example
 	 */
-	public function roles($role)
+	public function roles($role_id)
 	{
 		$dbc = $this->_database
 			->from(config('auth.role permission table'))

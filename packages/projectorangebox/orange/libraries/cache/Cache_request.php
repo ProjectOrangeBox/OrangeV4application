@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\orange\libraries\cache;
+namespace projectorangebox\orange\library\cache;
 
 /**
  * Orange

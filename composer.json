@@ -5,11 +5,13 @@
 		"classmap": [
 			"packages/projectorangebox/theme/libraries",
 			"packages/projectorangebox/theme/middleware",
-			"packages/projectorangebox/orange/libraries",
-			"packages/projectorangebox/orange/models",
 			"vendor/codeigniter/framework/system/core",
 			"vendor/codeigniter/framework/system/libraries"
-		]
+		],
+		"psr-4": {
+			"projectorangebox\\orange\\library\\": "packages/projectorangebox/orange/libraries",
+			"projectorangebox\\orange\\model\\": "packages/projectorangebox/orange/models"
+    }
 	},
 	"require": {
 		"codeigniter/framework": "^3.1"

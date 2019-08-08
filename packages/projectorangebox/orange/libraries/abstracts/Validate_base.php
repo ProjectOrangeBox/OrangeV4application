@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\orange\libraries\abstracts;
+namespace projectorangebox\orange\library\abstracts;
 
 /**
  * Orange

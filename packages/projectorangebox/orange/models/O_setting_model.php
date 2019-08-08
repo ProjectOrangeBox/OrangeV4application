@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\model;
+
+use projectorangebox\orange\model\Database_model;
+
 /**
  * O_setting_model
  * Insert description here
@@ -18,7 +23,7 @@
  * functions:
  *
  */
-class O_setting_model extends \Database_model
+class O_setting_model extends Database_model
 {
 	protected $table = 'orange_settings';
 	protected $has = [

@@ -1,5 +1,7 @@
 <?php
 
+namespace projectorangebox\orange\model;
+
 /**
  * Orange
  *

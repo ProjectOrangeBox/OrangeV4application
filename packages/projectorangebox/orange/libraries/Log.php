@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\orange\libraries;
+namespace projectorangebox\orange\library;
 
 /**
  * Orange

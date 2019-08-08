@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\orange\libraries;
+namespace projectorangebox\orange\library;
 
 class Controller extends \CI_Controller
 {

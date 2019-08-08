@@ -6,7 +6,8 @@
  * @link    https://github.com/adbario/php-dot-notation
  * @license https://github.com/adbario/php-dot-notation/blob/2.x/LICENSE.md (MIT License)
  */
-namespace packages\projectorangebox\orange\libraries;
+
+namespace projectorangebox\orange\library;
 
 use Countable;
 use ArrayAccess;
