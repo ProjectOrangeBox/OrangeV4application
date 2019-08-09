@@ -128,7 +128,11 @@ if (!function_exists('applicationSearch'))
 			$files = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__ROOT__.'/'.$package)),'#^('.__ROOT__.'/)'.$regex.'$#Di');
 
 			foreach ($files as $file) {
-				$found += $closure(getAppPath($file->getRealPath()));
+				$returned = $closure(getAppPath($file->getRealPath()));
+
+				if (is_array($returned)) {
+					$found += $returned;
+				}
 			}
 		}
 
