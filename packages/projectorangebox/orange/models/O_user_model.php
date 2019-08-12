@@ -25,7 +25,7 @@ use projectorangebox\orange\model\Database_model;
  */
 class O_user_model extends Database_model
 {
-	protected $table;
+	protected $table; /* picked up from auth config */
 	protected $additional_cache_tags = '.acl';
 	protected $has = [
 		'read_role'=>'read_role_id',
@@ -40,7 +40,7 @@ class O_user_model extends Database_model
 		'deleted_by'=>'deleted_by',
 		'deleted_on'=>'deleted_on',
 		'deleted_ip'=>'deleted_ip',
-		'is_deleted'=>'is_deleted',
+		'is_deleted'=>'is_deleted', /* soft deleted */
 	];
 	protected $entity = 'o_user_entity';
 	protected $rules = [
@@ -68,15 +68,19 @@ class O_user_model extends Database_model
 	 */
 	public function __construct()
 	{
+		/* get the table name from the auth config file */
 		$this->table = config('auth.user table');
 
+		/* let the parent do it's work */
 		parent::__construct();
 
+		/* attach the user password validation from the config */
 		ci('validate')->attach('user_password', function (&$field, &$param, &$error_string, &$field_data, &$validate) {
 			$error_string = 'Your password is not in the correct format.';
 			return (bool) preg_match(config('auth.password regex'), $field);
 		});
 
+		/* ready to go */
 		log_message('info', 'o_user_model Class Initialized');
 	}
 
@@ -219,10 +223,6 @@ class O_user_model extends Database_model
 	 */
 	public function add_role(int $user_id, $role)
 	{
-		if ((int) $user_id < 0) {
-			throw new \Exception(__METHOD__.' please provide an integer for the user id');
-		}
-
 		if (is_array($role)) {
 			foreach ($role as $role_id) {
 				$this->add_role($user_id, $role_id);
@@ -231,7 +231,7 @@ class O_user_model extends Database_model
 			return;
 		}
 
-		return $this->_database->replace(config('auth.user role table'), ['role_id' => (int) $this->_find_role_id($role), 'user_id' => (int) $user_id]);
+		return $this->_database->replace(config('auth.user role table'), ['role_id' => (int) ci('o_role_model')->find_role_id($role), 'user_id' => (int) $user_id]);
 	}
 
 	/**
@@ -250,10 +250,6 @@ class O_user_model extends Database_model
 	 */
 	public function remove_role(int $user_id, $role = null)
 	{
-		if ((int) $user_id < 0) {
-			throw new \Exception(__METHOD__.' please provide an integer for the user id');
-		}
-
 		if (is_array($role)) {
 			foreach ($role as $role_id) {
 				$this->remove_role($user_id, $role_id);
@@ -265,7 +261,7 @@ class O_user_model extends Database_model
 		if ($role === null) {
 			$success = $this->_database->delete(config('auth.user role table'), ['user_id' => (int) $user_id]);
 		} else {
-			$success = $this->_database->delete(config('auth.user role table'), ['user_id' => (int) $user_id, 'role_id' => (int) $this->_find_role_id($role)]);
+			$success = $this->_database->delete(config('auth.user role table'), ['user_id' => (int) $user_id, 'role_id' => (int) ci('o_role_model')->find_role_id($role)]);
 		}
 
 		return $success;
@@ -393,39 +389,4 @@ class O_user_model extends Database_model
 		return ci('errors')->has();
 	}
 
-	/**
-	 * _find_role_id
-	 * Insert description here
-	 *
-	 * @param $role
-	 *
-	 * @return
-	 *
-	 * @access
-	 * @static
-	 * @throws
-	 * @example
-	 */
-	public function _find_role_id($role) : int
-	{
-		return (int) (is_numeric($role)) ? $role : ci('o_role_model')->column('id')->get_by(['name' => $role]);
-	}
-
-	/**
-	 * _find_permission_id
-	 * Insert description here
-	 *
-	 * @param $permission
-	 *
-	 * @return
-	 *
-	 * @access
-	 * @static
-	 * @throws
-	 * @example
-	 */
-	public function _find_permission_id($permission) : int
-	{
-		return (int) (is_numeric($permission)) ? (int)$permission : ci('o_permission_model')->column('id')->get_by(['key' => $permission]);
-	}
-}
+} /* end class */

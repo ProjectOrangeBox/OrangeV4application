@@ -104,7 +104,7 @@ class Router {
     log_message('debug','Route: HTTP Method:'.$this->requestMethod.' / Is XHR:'.$this->isXHR);
 
 		/* load our routes from the routes configuration file */
-		$this->loadConfig();
+		$this->loadRouterConfig();
 
 		/* convert the URL to Controller / Method */
 		list($callback,$params) = $this->dispatch($this->getSearch('routes'));
@@ -160,12 +160,12 @@ class Router {
 	 *
 	 * @return void
 	 */
-	protected function loadConfig() : void
+	protected function loadRouterConfig() : void
 	{
 		/* !todo CACHE hum... what about closure routes? https://github.com/brick/varexporter */
 
 		/* where is the cache file? */
-		$cacheFilePath = configKey('cache_path').'/routes.php';
+		$cacheFilePath = configFile('config.cache_path').'/routes.php';
 
 		/* are we in development mode or is the cache file missing */
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {

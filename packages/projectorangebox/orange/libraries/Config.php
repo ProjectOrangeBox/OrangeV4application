@@ -147,7 +147,7 @@ class Config extends \CI_Config
 
 		$this->loaded = false;
 
-		$cacheFilePath = configKey('cache_path').'/config.php';
+		$cacheFilePath = configFile('config.cache_path').'/config.php';
 
 		return (file_exists($cacheFilePath)) ? unlink($cacheFilePath) : true;
 	}
@@ -166,7 +166,7 @@ class Config extends \CI_Config
 		if (!$this->loaded) {
 			$this->loaded = true;
 
-			$cacheFilePath = configKey('cache_path').'/config.php';
+			$cacheFilePath = configFile('config.cache_path').'/config.php';
 
 			if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 				/* no - so we need to build our dynamic configuration */

@@ -5,13 +5,25 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
 
 define('__ROOT__',realpath('../'));
+
+chdir(__ROOT__);
+
+/* .env file */
+if (!file_exists('.env')) {
+	echo getcwd().'/.env file missing.';
+	exit(1); // EXIT_ERROR
+}
+
+/* bring in the system .env files */
+$_ENV = array_merge($_ENV,parse_ini_file('.env',true,INI_SCANNER_TYPED));
+
 define('APPPATH',__ROOT__.'/application/');
+define('ENVIRONMENT', isset($_ENV['CI_ENV']) ? $_ENV['CI_ENV'] : 'development');
+
+require __ROOT__.'/packages/projectorangebox/orange/libraries/CoreCommon.php';
 
 echo 'Application Root: '.__ROOT__.PHP_EOL.PHP_EOL;
 echo '-- Cut & Paste as needed --'.PHP_EOL.PHP_EOL;
-
-require __ROOT__.'/packages/projectorangebox/orange/libraries/core/required.php';
-require __ROOT__.'/packages/projectorangebox/orange/libraries/core/helpers.php';
 
 /**
  *
@@ -22,7 +34,15 @@ require __ROOT__.'/packages/projectorangebox/orange/libraries/core/helpers.php';
  * Auto replace URL with the folder path inside the controllers folder
  * Auto replace Controller with the Directory path based on the ROOT level unless it is in application
  * Auto replace Method with the next found public method
+ *
  * @httpGet ~ => *::*
+ * @httpPost
+ * @httpDelete
+ * @httpPut
+ * @httpPatch
+ *
+ * @cli
+ *
  *
  */
 
@@ -31,6 +51,7 @@ applicationSearch('(.*)/controllers/(.*)\.php',function($realPath) {
 	$lines = file(__ROOT__.$realPath);
 
 	foreach ($lines as $line) {
+
 		if (preg_match_all('%[^\@]+@(http|cli)(\S*) (\S*) => (\S*)%i',$line, $match, PREG_SET_ORDER, 0)) {
 			/* found another route */
 			println($last);

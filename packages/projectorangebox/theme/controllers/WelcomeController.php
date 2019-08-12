@@ -6,10 +6,6 @@ class WelcomeController extends \CI_Controller {
 
 	public function index() : void
 	{
-
-
-
-
 		$this->load->view('welcome_message');
 	}
 

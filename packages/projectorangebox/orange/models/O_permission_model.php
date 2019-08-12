@@ -25,7 +25,7 @@ use projectorangebox\orange\model\Database_model;
  */
 class O_permission_model extends Database_model
 {
-	protected $table;
+	protected $table; /* picked up from auth config */
 	protected $additional_cache_tags = '.acl';
 	protected $entity = 'o_permission_entity';
 	protected $rules = [
@@ -50,10 +50,13 @@ class O_permission_model extends Database_model
 	 */
 	public function __construct()
 	{
+		/* get the table name from the auth config file */
 		$this->table = config('auth.permission table');
 
+		/* let the parent do it's work */
 		parent::__construct();
 
+		/* ready to go */
 		log_message('info', 'o_permission_model Class Initialized');
 	}
 
@@ -82,25 +85,7 @@ class O_permission_model extends Database_model
 	}
 
 	/**
-	 * _find_role_id
-	 * Insert description here
-	 *
-	 * @param $role
-	 *
-	 * @return
-	 *
-	 * @access
-	 * @static
-	 * @throws
-	 * @example
-	 */
-	public function _find_role_id($role)
-	{
-		return (int) ((int) $role > 0) ? $role : $this->o_role_model->column('id')->get_by(['name' => $role]);
-	}
-
-	/**
-	 * _find_permission_id
+	 * find_permission_id
 	 * Insert description here
 	 *
 	 * @param $permission
@@ -112,7 +97,7 @@ class O_permission_model extends Database_model
 	 * @throws
 	 * @example
 	 */
-	public function _find_permission_id($permission)
+	public function find_permission_id($permission) : int
 	{
 		return (int) ((int) $permission > 0) ? $permission : $this->o_permission_model->column('id')->get_by(['key' => $permission]);
 	}
@@ -133,6 +118,7 @@ class O_permission_model extends Database_model
 	public function insert(array $data)
 	{
 		$success = parent::insert($data);
+
 		$this->_refresh();
 		$this->delete_cache_by_tags();
 
@@ -155,6 +141,7 @@ class O_permission_model extends Database_model
 	public function update(array $data)
 	{
 		$success = parent::update($data);
+
 		$this->_refresh();
 		$this->delete_cache_by_tags();
 
@@ -211,4 +198,5 @@ class O_permission_model extends Database_model
 
 		return $success;
 	}
-}
+
+} /* end class */

@@ -5,45 +5,27 @@ ini_set('display_errors', 1);
 error_reporting(E_ALL ^ E_NOTICE);
 
 define('__ROOT__',realpath('../'));
+
+chdir(__ROOT__);
+
+/* .env file */
+if (!file_exists('.env')) {
+	echo getcwd().'/.env file missing.';
+	exit(1); // EXIT_ERROR
+}
+
+/* bring in the system .env files */
+$_ENV = array_merge($_ENV,parse_ini_file('.env',true,INI_SCANNER_TYPED));
+
 define('APPPATH',__ROOT__.'/application/');
+define('ENVIRONMENT', isset($_ENV['CI_ENV']) ? $_ENV['CI_ENV'] : 'development');
+
+require __ROOT__.'/packages/projectorangebox/orange/libraries/CoreCommon.php';
 
 echo 'Application Root: '.__ROOT__.PHP_EOL;
 
-require __ROOT__.'/packages/projectorangebox/orange/libraries/core/required.php';
-require __ROOT__.'/packages/projectorangebox/orange/libraries/core/helpers.php';
+foreach (['views','filters','validations','pear_plugins'] as $folder) {
+	varExportFile(APPPATH.'config/'.$folder.'.php',applicationSearch('(.*)/'.$folder.'/(.*)\.php',null,'/'.$folder.'/'));
 
-configExportFile('views',applicationSearch('(.*)/views/(.*)\.php',function($realPath) {
-	$folder = '/views/';
-	$ext = '.php';
-
-	echo $realPath.PHP_EOL;
-
-	return [strtolower(substr($realPath,strpos($realPath,$folder) + strlen($folder),-strlen($ext))) => getAppPath($realPath)];
-}));
-
-configExportFile('filters',applicationSearch('(.*)/filters/(.*)\.php',function($realPath) {
-	$folder = '/filters/';
-	$ext = '.php';
-
-	echo $realPath.PHP_EOL;
-
-	return [strtolower(substr($realPath,strpos($realPath,$folder) + strlen($folder),-strlen($ext))) => getAppPath($realPath)];
-}));
-
-configExportFile('validations',applicationSearch('(.*)/validations/(.*)\.php',function($realPath) {
-	$folder = '/validations/';
-	$ext = '.php';
-
-	echo $realPath.PHP_EOL;
-
-	return [strtolower(substr($realPath,strpos($realPath,$folder) + strlen($folder),-strlen($ext))) => getAppPath($realPath)];
-}));
-
-configExportFile('pear_plugins',applicationSearch('(.*)/pear_plugins/(.*)\.php',function($realPath) {
-	$folder = '/pear_plugins/';
-	$ext = '.php';
-
-	echo $realPath.PHP_EOL;
-
-	return [strtolower(substr($realPath,strpos($realPath,$folder) + strlen($folder),-strlen($ext))) => getAppPath($realPath)];
-}));
+	echo PHP_EOL.'*** '.strtoupper(trim($folder,'/\\')).PHP_EOL.PHP_EOL.file_get_contents(APPPATH.'config/'.$folder.'.php').PHP_EOL;
+}

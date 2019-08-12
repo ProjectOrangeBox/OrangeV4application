@@ -25,7 +25,7 @@ use projectorangebox\orange\model\Database_model;
  */
 class O_role_model extends Database_model
 {
-	protected $table;
+	protected $table; /* picked up from auth config */
 	protected $additional_cache_tags = '.acl';
 	protected $entity = 'o_role_entity';
 	protected $rules = [
@@ -49,10 +49,13 @@ class O_role_model extends Database_model
 	 */
 	public function __construct()
 	{
+		/* get the table name from the auth config file */
 		$this->table = config('auth.role table');
 
+		/* let the parent do it's work */
 		parent::__construct();
 
+		/* ready to go */
 		log_message('info', 'o_role_model Class Initialized');
 	}
 
@@ -79,7 +82,7 @@ class O_role_model extends Database_model
 			return true;
 		}
 
-		return $this->_database->replace(config('auth.role permission table'), ['role_id' => (int) $this->_find_role_id($role), 'permission_id' => (int) $this->_find_permission_id($permission)]);
+		return $this->_database->replace(config('auth.role permission table'), ['role_id' => (int) $this->find_role_id($role), 'permission_id' => (int) ci('o_permission_model')->find_permission_id($permission)]);
 	}
 
 	/**
@@ -106,18 +109,18 @@ class O_role_model extends Database_model
 		}
 
 		if ($permission === null) {
-			$this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->_find_role_id($role)]);
+			$this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->find_role_id($role)]);
 			return true;
 		}
 
-		return $this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->_find_role_id($role), 'permission_id' => (int) $this->_find_permission_id($permission)]);
+		return $this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->find_role_id($role), 'permission_id' => (int)ci('o_permission_model')->find_permission_id($permission)]);
 	}
 
 	public function delete($role_id)
 	{
 		parent::delete($role_id);
 
-		return $this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->_find_role_id($role_id)]);
+		return $this->_database->delete(config('auth.role permission table'), ['role_id' => (int) $this->find_role_id($role_id)]);
 	}
 
 	/**
@@ -135,7 +138,7 @@ class O_role_model extends Database_model
 	 */
 	public function permissions($role)
 	{
-		$role_id = $this->_find_role_id($role);
+		$role_id = $this->find_role_id($role);
 
 		$dbc = $this->_database
 			->from(config('auth.role permission table'))
@@ -161,7 +164,7 @@ class O_role_model extends Database_model
 	 */
 	public function users($role)
 	{
-		$role_id = $this->_find_role_id($role);
+		$role_id = $this->find_role_id($role);
 
 		$dbc = $this->_database
 			->from(config('auth.user role table'))
@@ -198,7 +201,7 @@ class O_role_model extends Database_model
 	}
 
 	/**
-	 * _find_role_id
+	 * find_role_id
 	 * Insert description here
 	 *
 	 * @param $role
@@ -210,27 +213,9 @@ class O_role_model extends Database_model
 	 * @throws
 	 * @example
 	 */
-	public function _find_role_id($role)
+	public function find_role_id($role) : int
 	{
 		return (int) ((int) $role > 0) ? $role : $this->o_role_model->column('id')->get_by(['name' => $role]);
-	}
-
-	/**
-	 * _find_permission_id
-	 * Insert description here
-	 *
-	 * @param $permission
-	 *
-	 * @return
-	 *
-	 * @access
-	 * @static
-	 * @throws
-	 * @example
-	 */
-	public function _find_permission_id($permission)
-	{
-		return (int) ((int) $permission > 0) ? $permission : $this->o_permission_model->column('id')->get_by(['key' => $permission]);
 	}
 
 	/* migration */

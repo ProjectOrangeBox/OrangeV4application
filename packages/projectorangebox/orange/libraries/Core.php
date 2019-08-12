@@ -1,7 +1,11 @@
 <?php
 
+define('NOVALUE','#PLEASE_THROW_AN_EXCEPTION#');
+
 /**
  * ci
+ *
+ * Brand new heavy lifter
  *
  * @param mixed string service name to load
  * @param mixed string when attaching it to the CodeIgniter super object attach it as
@@ -20,20 +24,28 @@ if (!function_exists('ci'))
 		if ($serviceName) {
 			/* has this service been attached yet? */
 			if (!isset($instance->$serviceName)) {
-				/* is it a named service? */
-				$servicesConfig = loadConfigArray('services');
+				/* no it has not */
 
-				if (isset($servicesConfig[$name])) {
-					$name = $servicesConfig[$name];
+				/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
+				if ($namedService = configFile('services.'.$name,false)) {
+					$name = $namedService;
 				}
 
 				/* try to let composer autoload load it */
 				if (class_exists($name,true)) {
-					/* load a matching config if it exists */
-					/* create a new instance and attach the singleton to the CodeIgniter super object */
+					/* found and loaded! */
+
+					/*
+					 * load the matching config if it exists then
+					 * create a new instance and
+					 * attach the singleton to the CodeIgniter super object
+					 */
 					$instance->$serviceName = new $name(loadConfig($serviceName));
 				} else {
-					/* else try to let CodeIgniter load it the old fashion way */
+					/*
+					else try to let CodeIgniter load it the old fashion way
+					using the _model suffix we can assume it's a model we are trying to load
+					*/
 					if (substr($name,-6) == '_model') {
 						$instance->load->model($name,$serviceName);
 					} else {
@@ -51,22 +63,34 @@ if (!function_exists('ci'))
 	}
 }
 
-/* override the CodeIgniter loader to use composer */
+/* override the CodeIgniter loader to use composer and our services */
 if (!function_exists('load_class'))
 {
 	function &load_class(string $class)
 	{
+		/* exists only in a local function scope */
 		static $_classes = [];
 
+		/* has it already been loaded? */
 		if (isset($_classes[$class])) {
 			return $_classes[$class];
 		}
 
+		/* let's assume nothing is found */
 		$name = false;
+
+		/* fixed CI filename prefix */
 		$ci_prefix = 'CI_';
+
+		/* our namespaced prefix */
 		$subclass_prefix = config_item('subclass_prefix');
 
-		if (class_exists($subclass_prefix.ucfirst($class),true)) {
+		$namedService = configFile('services.'.$class,false);
+
+		/* are we using our name spaced prefix or CI's? */
+		if ($namedService && class_exists($namedService,true)) {
+			$name = $namedService;
+		} elseif (class_exists($subclass_prefix.ucfirst($class),true)) {
 			$name = $subclass_prefix.ucfirst($class);
 		} elseif (class_exists($ci_prefix.ucfirst($class),true)) {
 			$name = $ci_prefix.ucfirst($class);
@@ -74,9 +98,15 @@ if (!function_exists('load_class'))
 
 		if (!$name) {
 			set_status_header(503);
+
 			throw new \Exception('Unable to locate the specified class: "'.$class.'.php"');
 		}
 
+		/* Tell CI is_loaded function
+		 * so these can be attach to the Controller
+		 * once it's built
+		 * then they can be accessed using $this-> syntax in the controller
+		 */
 		is_loaded($class);
 
 		$_classes[$class] = new $name();
@@ -120,7 +150,7 @@ if (!function_exists('_assert_handler'))
 	}
 }
 
-require_once 'core/required.php';
-require_once 'core/helpers.php';
+require 'CoreCommon.php';
+require 'CoreWrappers.php';
 
 require_once BASEPATH.'core/CodeIgniter.php';
