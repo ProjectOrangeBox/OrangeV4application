@@ -156,7 +156,7 @@ if (!function_exists('varExportFile'))
 	function varExportFile(string $cacheFilePath, $data) : bool
 	{
 		if (is_array($data) || is_object($data)) {
-			$data = '<?php return '.str_replace('stdClass::__set_state', '(object)', var_export($data, true)).';';
+			$data = '<?php return '.str_replace(['Closure::__set_state','stdClass::__set_state'], '(object)', var_export($data, true)).';';
 		} elseif (is_scalar($data)) {
 			$data = '<?php return "'.str_replace('"', '\"', $data).'";';
 		} else {
@@ -221,7 +221,7 @@ if (!function_exists('view'))
 		ob_start();
 
 		/* bring in the view file */
-		include configFile('services.#'.$__view);
+		include __ROOT__.configFile('services.#'.$__view);
 
 		/* return the current buffer contents and delete current output buffer */
 		return ob_get_clean();
@@ -283,8 +283,18 @@ if (!function_exists('getAppPath'))
 {
 	function getAppPath(string $path) : string
 	{
-		return (substr($path,0,strlen(__ROOT__)) == __ROOT__) ? substr($path,strlen(__ROOT__)) : $path;
+		return stripFromStart($path,__ROOT__);
 	}
+}
+
+function stripFromStart(string $string,string $strip) : string
+{
+	return (substr($string,0,strlen($strip)) == $strip) ? substr($string,strlen($strip)) : $string;
+}
+
+function stripFromEnd(string $string, string $strip) : string
+{
+	return (substr($string,-strlen($strip)) == $strip) ? substr($string,0,strlen($string) - strlen($strip)) : $string;
 }
 
 /* regular expression search packages and application for files */

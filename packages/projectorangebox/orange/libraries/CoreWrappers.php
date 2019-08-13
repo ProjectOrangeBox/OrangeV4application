@@ -63,9 +63,11 @@ if (!function_exists('valid'))
 {
 	function valid(string $rule, $field) : bool
 	{
-		ci('validate')->single($rule, $field);
+		$success = ci('validate')->group(__METHOD__)->single($rule, $field)->success(__METHOD__);
 
-		return (!ci('errors')->has());
+		ci('validate')->remove(__METHOD__);
+
+		return $success;
 	}
 }
 

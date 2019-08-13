@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library;
 
+use projectorangebox\orange\library\page\Asset;
+
 /**
  * Orange
  *
@@ -39,12 +41,6 @@ namespace projectorangebox\orange\library;
  */
 class Page
 {
-	const PRIORITY_LOWEST = 10;
-	const PRIORITY_LOW = 20;
-	const PRIORITY_NORMAL = 50;
-	const PRIORITY_HIGH = 80;
-	const PRIORITY_HIGHEST = 90;
-
 	/**
 	 * storage for the page variables
 	 *
@@ -102,6 +98,13 @@ class Page
 	protected $extending = false;
 
 	/**
+	 * $asset
+	 *
+	 * @var undefined
+	 */
+	public $asset;
+
+	/**
 	 *
 	 * Constructor
 	 *
@@ -112,41 +115,17 @@ class Page
 	 */
 	public function __construct(array &$config=[])
 	{
-		/* pear plugin is in global namespace */
+		/* pear plugin is a static class which manages pear plugins and is loaded into the global namespace so views can use it easily */
 		require __DIR__.'/page/Pear.php';
+		require __DIR__.'/page/Asset.php';
+
+		$this->asset = new Asset($config);
 
 		$this->config = &$config;
 
-		$this->load = &ci('load');
-		$this->output = &ci('output');
-		$this->event = &ci('event');
-
-		$page_min = $this->config['pageMin'];
-
-		if (is_bool($page_min)) {
-			$page_min = ($page_min) ? '.min' : '';
-		}
-
-		/* if it's true then use the default else use what's in page_min config */
-		define('PAGE_MIN', $page_min);
-
-		$this->page_variable_prefix = $this->config['page_prefix'] ?? 'page_';
-
-		$page_configs = $this->config[$this->page_variable_prefix];
-
-		if (is_array($page_configs)) {
-			foreach ($page_configs as $method=>$parameters) {
-				if (method_exists($this, $method)) {
-					if (is_array($parameters)) {
-						foreach ($parameters as $p) {
-							call_user_func([$this,$method], $p);
-						}
-					} else {
-						call_user_func([$this,$method], $parameters);
-					}
-				}
-			}
-		}
+		$this->load = ci('load');
+		$this->output = ci('output');
+		$this->event = ci('event');
 
 		log_message('info', 'Page Class Initialized');
 	}
@@ -203,7 +182,7 @@ class Page
 		$view_content = $this->view($view, $data);
 
 		if ($this->extending) {
-			$view_content = $this->view($this->extending);
+			$view_content = $this->view((string)$this->extending);
 		}
 
 		/* called everytime - use with caution  */
@@ -215,17 +194,6 @@ class Page
 		return $this;
 	}
 
-	/**
-	 * view
-	 * basic view rendering using oranges most basic view function
-	 *
-	 * @param $view_file string
-	 * @param $data array
-	 * @param $return mixed
-	 *
-	 * @return mixed
-	 *
-	 */
 	/**
 	 *
 	 * Pages View Rendering
@@ -320,384 +288,6 @@ class Page
 
 	/**
 	 *
-	 * Create the html for a link tag
-	 * <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
-	 *
-	 * @access public
-	 *
-	 * @param string $file
-	 *
-	 * @return string
-	 *
-	 * #### Example
-	 * ```php
-	 * $html = ci('page')->link_html('/assets/css/style.css');
-	 * ```
-	 */
-	public function link_html(string $file) : string
-	{
-		return $this->ary2element('link', array_merge($this->config['link_attributes'], ['href' => $file]));
-	}
-
-	/**
-	 *
-	 * Create the html for a script tag
-	 * <script src="//cdnjs.cloudflare.com/ajax/libs/handlebars.js/4.0.11/handlebars.min.js"></script>
-	 *
-	 * @access public
-	 *
-	 * @param string $file
-	 *
-	 * @throws
-	 * @return string
-	 *
-	 * #### Example
-	 * ```php
-	 *
-	 * ```
-	 */
-	public function script_html(string $file) : string
-	{
-		return $this->ary2element('script', array_merge($this->config['script_attributes'], ['src' => $file]));
-	}
-
-	/**
-	 *
-	 * Convert a key value pair array into html attributes
-	 *
-	 * @access public
-	 *
-	 * @param string $element
-	 * @param array $attributes
-	 * @param $content false
-	 *
-	 * @throws
-	 * @return string
-	 *
-	 * #### Example
-	 * ```php
-	 * $html = ci('page')->ary2element('a',['class'=>'bold','id'=>'id3'],'link!');
-	 * ```
-	 */
-	public function ary2element(string $element, array $attributes, string $content = '') : string
-	{
-		/* uses CodeIgniter Common.php _stringify_attributes function */
-
-		return (in_array($element, ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'])) ?
-			'<'.$element._stringify_attributes($attributes).'/>' :
-			'<'.$element._stringify_attributes($attributes).'>'.$content.'</'.$element.'>';
-	}
-
-	/**
-	 *
-	 * Add a meta tag to the view variable
-	 * <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
-	 *
-	 * @access public
-	 *
-	 * @param $attr
-	 * @param string $name null
-	 * @param string $content null
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @throws
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->meta('charset','UTF-8');
-	 * ```
-	 */
-	public function meta($attr, string $name = null, string $content = null, int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		if (is_array($attr)) {
-			extract($attr);
-		}
-
-		return $this->add('meta', '<meta '.$attr.'="'.$name.'"'.(($content) ? ' content="'.$content.'"' : '').'>'.PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add javascript to the page script view variable
-	 *
-	 * @access public
-	 *
-	 * @param string $script
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->script('alert("Page Ready!");');
-	 * ```
-	 */
-	public function script(string $script, int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		return $this->add('script', $script.PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add domready javascript to the page domready view variable
-	 *
-	 * @access public
-	 *
-	 * @param string $script
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->domready('alert("Page Ready!");');
-	 * ```
-	 */
-	public function domready(string $script, int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		return $this->add('domready', $script.PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add Title to the page title view variable
-	 *
-	 * @access public
-	 *
-	 * @param string $title
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->title('My Web Page');
-	 * ```
-	 */
-	public function title(string $title = '', int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		return $this->add('title', $title, $priority);
-	}
-
-	/**
-	 *
-	 * Add css to the page style view variable
-	 *
-	 * @access public
-	 *
-	 * @param string $style
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->style('. { font-size: 9px }');
-	 * ```
-	 */
-	public function style(string $style, int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		return $this->add('style', $style.PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add a script tag to the view variable
-	 * <script ...></script>
-	 *
-	 * @access public
-	 *
-	 * @param string $script
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->script('/assets/javascript.js');
-	 * ci('page')->script('/assets/javascript.js',PAGE::PRIORITY_HIGHEST);
-	 * ```
-	 */
-	public function js($file = '', int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		if (is_array($file)) {
-			foreach ($file as $f) {
-				$this->js($f, $priority);
-			}
-			return $this;
-		}
-
-		return $this->add('js', $this->script_html($file).PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add a link tag to the view variable
-	 * <link ... />
-	 *
-	 * @access public
-	 *
-	 * @param $file
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->css('/assets/application.cs');
-	 * ```
-	 */
-	public function css($file = '', int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		if (is_array($file)) {
-			foreach ($file as $f) {
-				$this->css($f, $priority);
-			}
-			return $this;
-		}
-
-		return $this->add('css', $this->link_html($file).PHP_EOL, $priority);
-	}
-
-	/**
-	 *
-	 * Add a Javascript variable to the view variable
-	 *
-	 * @access public
-	 *
-	 * @param string $key
-	 * @param $value
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 * @param bool $raw false
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->js_variable('name','Johnny Appleseed');
-	 * ci('page')->js_variable('name','{name: "Johnny Appleseed"}',PAGE::PRIORITY_NORMAL,true);
-	 * ```
-	 */
-	public function js_variable(string $key, $value, int $priority = PAGE::PRIORITY_NORMAL, bool $raw = false) : Page
-	{
-		if ($raw) {
-			$value = 'var '.$key.'='.$value.';' ;
-		} else {
-			$value = ((is_scalar($value)) ? 'var '.$key.'="'.str_replace('"', '\"', $value).'";' : 'var '.$key.'='.json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE).';');
-		}
-
-		return $this->add('js_variables', $value, $priority);
-	}
-
-	/**
-	 *
-	 * Add a Javascript variables to the view variable
-	 *
-	 * @access public
-	 *
-	 * @param array $array
-	 *
-	 * @throws
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->js_variables(['name'=>'Johnny','age'=>23]);
-	 * ```
-	 */
-	public function js_variables(array $array) : Page
-	{
-		foreach ($array as $k => $v) {
-			$this->js_variable($k, $v);
-		}
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Add a class variable to the body class view variable
-	 *
-	 * @access public
-	 *
-	 * @param $class
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->body_class('body-wrapper');
-	 * ci('page')->body_class('body-wrapper o-theme');
-	 * ci('page')->body_class(['body-wrapper','o-theme']);
-	 * ```
-	 */
-	public function body_class($class, int $priority = PAGE::PRIORITY_NORMAL) : Page
-	{
-		return (is_array($class)) ? $this->_body_class($class, $priority) : $this->_body_class(explode(' ', $class), $priority);
-	}
-
-	/**
-	 *
-	 * Add a variable to the view variables
-	 *
-	 * @access public
-	 *
-	 * @param string $name
-	 * @param string $value
-	 * @param int $priority PAGE::PRIORITY_NORMAL
-	 * @param bool $prevent_duplicates true
-	 *
-	 * @return Page
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->add('custom_var','<p>Custom Stuff!</p>');
-	 * ```
-	 */
-	public function add(string $name, string $value, int $priority = PAGE::PRIORITY_NORMAL, bool $prevent_duplicates = true) : Page
-	{
-		$key = md5($value);
-
-		if (!isset($this->variables[$name][3][$key]) || !$prevent_duplicates) {
-			$this->variables[$name][0] = !isset($this->variables[$name]); /* sorted */
-			$this->variables[$name][1][] = (int)$priority; /* unix priority */
-			$this->variables[$name][2][] = $value; /* actual html content (string) */
-			$this->variables[$name][3][$key] = true; /* prevent duplicates */
-		}
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Wrapper for var because that is a Reserved Word and throws errors with some PHP analyzers
-	 *
-	 * @access public
-	 *
-	 * @param string $name
-	 * @param array $arguments []
-	 *
-	 * @throws \Exception
-	 * @return mixed
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('page')->var('script');
-	 * ```
-	 */
-	public function __call(string $name, array $arguments = [])
-	{
-		if ($name == 'var') {
-			return $this->_var($arguments[0]);
-		}
-
-		throw new \Exception('Page Method '.$name.' unsupported.');
-	}
-
-	/**
-	 *
 	 * Retrieve a page variable (with "post" priority processing)
 	 * included page variables: title, meta, body_class, css, style, js, script, js_variables, script, domready
 	 *
@@ -709,10 +299,10 @@ class Page
 	 *
 	 * #### Example
 	 * ```php
-	 * $script_html = ci('page')->var('script');
+	 * $script_html = ci('page')->value('script');
 	 * ```
 	 */
-	public function _var(string $name) : string
+	public function value(string $name) : string
 	{
 		$html = $this->load->get_var($name);
 
@@ -742,36 +332,34 @@ class Page
 
 	/**
 	 *
-	 * Internal body class handler
+	 * Add ANY variable to the view variables with priority
 	 *
-	 * @access protected
+	 * @access public
 	 *
-	 * @param array $class
-	 * @param int $priority
+	 * @param string $name
+	 * @param string $value
+	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param bool $prevent_duplicates true
 	 *
 	 * @return Page
 	 *
+	 * #### Example
+	 * ```php
+	 * ci('page')->add('custom_var','<p>Custom Stuff!</p>');
+	 * ```
 	 */
-	protected function _body_class(array $class, int $priority) : Page
+	public function add(string $name, string $value, int $priority = ASSET::PRIORITY_NORMAL, bool $prevent_duplicates = true) : Page
 	{
-		foreach ($class as $c) {
-			$this->add('body_class', ' '.strtolower(trim($c)), $priority);
+		$key = md5($value);
+
+		if (!isset($this->variables[$name][3][$key]) || !$prevent_duplicates) {
+			$this->variables[$name][0] = !isset($this->variables[$name]); /* sorted */
+			$this->variables[$name][1][] = (int)$priority; /* unix priority */
+			$this->variables[$name][2][] = $value; /* actual html content (string) */
+			$this->variables[$name][3][$key] = true; /* prevent duplicates */
 		}
 
 		return $this;
-	}
-
-	/**
-	 * json (wrapper)
-	 *
-	 * @param mixed $data
-	 * @param mixed $val
-	 * @param mixed $raw
-	 * @return void
-	 */
-	public function json($data = null, $val = null, $raw = false) : void
-	{
-		$this->output->json($data,$val,$raw);
 	}
 
 } /* end page */

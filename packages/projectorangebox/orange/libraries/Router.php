@@ -220,6 +220,24 @@ class Router {
 	}
 
 	/**
+	 *
+	 * Get the current route
+	 *
+	 * @access public
+	 *
+	 * @return string
+	 *
+	 */
+	public function fetch_route() : string
+	{
+		$seg[] = strtolower(trim($this->fetch_directory(),'/'));
+		$seg[] = strtolower(trim($this->fetch_class(),'/'));
+		$seg[] = strtolower(trim($this->fetch_method(),'/'));
+
+		return trim(implode('/',$seg),'/');
+	}
+
+	/**
 	 * buildArray
 	 *
 	 * @param array $routes

@@ -1,10 +1,55 @@
 <?php
 
-class FormController extends CI_Controller {
+use projectorangebox\orange\library\Controller;
 
+class FormController extends Controller {
+
+	/* @httpGet ~ => *::* */
 	public function index() : void
 	{
 		$this->load->view('form');
+	}
+
+	/* @httpGet ~ => *::* */
+	public function test_filter() : void
+	{
+		$input = 'This # is a @test';
+
+		$output = filter('filename',$input);
+
+		var_dump($output);
+	}
+
+	/* @httpGet ~ => *::* */
+	public function test_pear_plugin() : void
+	{
+		ci('page')->render();
+
+
+	}
+
+	/* @httpGet ~ => *::* */
+	public function test_validation() : void
+	{
+		echo '<pre>';
+
+		$input = 'This # is a @test';
+
+		$output = valid('alpha',$input);
+
+		var_dump($output);
+
+		$input = 'Thisisatest';
+
+		$output = valid('alpha_space',$input);
+
+		var_dump($output);
+
+		$input = 'This # is a @test';
+
+		ci('validate')->single('alpha', $input);
+
+		var_dump(ci('errors'));
 	}
 
 	public function post() : void

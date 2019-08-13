@@ -37,9 +37,9 @@ abstract class Middleware
 	 * @return void
 	 *
 	 */
-	public function request(array $request) : array
+	public function request(\CI_Input &$input) : bool
 	{
-		return $request;
+		return true;
 	}
 
 	/**
@@ -54,9 +54,9 @@ abstract class Middleware
 	 * @return string
 	 *
 	 */
-	public function response(string $output = '') : string
+	public function response(string &$output) : bool
 	{
-		return $output;
+		return true;
 	}
 
 } /* end class */

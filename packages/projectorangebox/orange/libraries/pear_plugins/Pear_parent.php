@@ -31,7 +31,7 @@ class Pear_parent extends Pear_plugin
 {
 	public function render(string $name = null)
 	{
-		$name = ($name) ?? end(pear::$fragment);
+		$name = ($name) ?? end(\pear::$fragment);
 
 		echo ci('load')->get_var($name);
 	}

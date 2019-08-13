@@ -184,6 +184,21 @@ class Errors
 	}
 
 	/**
+	 * __debugInfo
+	 *
+	 * @return void
+	 */
+	public function __debugInfo() : array
+	{
+		return [
+			'errors'=>$this->errors,
+			'current_group'=>$this->current_group,
+			'default_group'=>$this->default_group,
+			'request_type'=>$this->request_type
+		];
+	}
+
+	/**
 	 *
 	 * Get the default error group.
 	 *
@@ -376,6 +391,23 @@ class Errors
 		return $this;
 	}
 
+	public function remove(string $group=null) : Errors
+	{
+		$switch2default = ($this->current_group == $group);
+
+		$group = ($group) ? $group : $this->current_group;
+
+		log_message('debug', 'Errors::remove::'.$group);
+
+		unset($this->errors[$group]);
+
+		if ($switch2default) {
+			$this->current_group = $this->default_group;
+		}
+
+		return $this;
+	}
+
 	/**
 	 *
 	 * Returns whether the specified group or current group has any errors (true)
@@ -396,7 +428,7 @@ class Errors
 	{
 		$group = ($group) ? $group : $this->current_group;
 
-		$has = (bool)count($this->errors[$group]);
+		$has = (isset($this->errors[$group])) ? (bool)count($this->errors[$group]) : 0;
 
 		log_message('debug', 'Errors::has::'.$group.' '.$has);
 

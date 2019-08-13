@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\theme\middleware;
+namespace projectorangebox\theme\middleware;
 
 use projectorangebox\orange\library\abstracts\Middleware;
 
@@ -19,8 +19,6 @@ class PrivateMiddleware extends Middleware
 	 */
 	public function request(\CI_Input &$input) : bool
 	{
-		echo '<h1>Hello "'.$input->get('name').'"</h1>';
-
 		return true;
 	}
 
@@ -37,8 +35,6 @@ class PrivateMiddleware extends Middleware
 	 */
 	public function response(string &$output) : bool
 	{
-		$output .= '<h1>Hello World</h1>';
-
 		return true;
 	}
 

@@ -135,7 +135,7 @@ class Cache_export extends \CI_Driver
 		$ttl = ($ttl) ? $ttl : $this->parent->ttl();
 
 		if (is_array($data) || is_object($data)) {
-			$data = '<?php return '.str_replace('stdClass::__set_state', '(object)', var_export($data, true)).';';
+			$data = '<?php return '.str_replace(['Closure::__set_state','stdClass::__set_state'], '(object)', var_export($data, true)).';';
 		} elseif (is_scalar($data)) {
 			$data = '<?php return "'.str_replace('"', '\"', $data).'";';
 		} else {

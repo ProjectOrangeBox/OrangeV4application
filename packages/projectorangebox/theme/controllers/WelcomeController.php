@@ -1,6 +1,8 @@
 <?php
 
-class WelcomeController extends \CI_Controller {
+use projectorangebox\orange\library\Controller;
+
+class WelcomeController extends Controller {
 
 	public function index() : void
 	{

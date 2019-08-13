@@ -8,6 +8,12 @@
  *
  */
 
+$route['form'] = 'FormController::index';
+$route['form/test_filter'] = 'FormController::test_filter';
+$route['form/test_pear_plugin/(:any)'] = 'FormController::test_pear_plugin';
+$route['form/test_validation'] = 'FormController::test_validation';
+
+
 $route['form/input'] = 'FormController::index';
 $route['form/output']['post'] = 'FormController::post';
 $route['form/dn'] = 'FormController::dotnotation';
@@ -44,11 +50,11 @@ $route['(.*)']['*'] = '\packages\projectorangebox\theme\controllers\WelcomeContr
  * Method is always request(\CI_Input &$input) : bool
  */
 
-$onRequest['welcome/(.*)']['*'] = ['\packages\projectorangebox\theme\middleware\PrivateMiddleware','\packages\orange\theme\middleware\PublicMiddleware'];
+$onRequest['(.*)']['*'] = ['\projectorangebox\theme\middleware\PrivateMiddleware','\projectorangebox\theme\middleware\PublicMiddleware'];
 
 //$onRequest['(.*)']['*'] = ['name'];
 
-$onRequest['(.*)']['post'] = ['packagePath/name'];
+//$onRequest['(.*)']['post'] = ['packagePath/name'];
 
 
 /**

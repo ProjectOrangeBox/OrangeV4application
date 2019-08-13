@@ -97,8 +97,10 @@ class Validate
 	 */
 	public function __construct(array &$config=[])
 	{
+		/* my config */
 		$this->config = &$config;
 
+		/* errors are stored in well... errors */
 		$this->errors = ci('errors');
 
 		log_message('info', 'Validate Class Initialized');
@@ -175,6 +177,19 @@ class Validate
 	}
 
 	/**
+	 * remove
+	 *
+	 * @param mixed string
+	 * @return void
+	 */
+	public function remove(string $index = null) : Validate
+	{
+		$this->errors->remove($index);
+
+		return $this;
+	}
+
+	/**
 	 *
 	 * Add a error to the Orange Error Object
 	 *
@@ -239,7 +254,7 @@ class Validate
 	 */
 	public function success(string $index = null) : Bool
 	{
-		return (!$this->errors->has($index));
+		return !$this->errors->has($index);
 	}
 
 	/**
@@ -332,7 +347,7 @@ class Validate
 	 * @return Validate
 	 *
 	 */
-	public function run($rules = '', &$fields, string $human = null) : Validate
+	public function run($rules, &$fields, string $human = null) : Validate
 	{
 		return (is_array($fields)) ? $this->multiple($rules, $fields) : $this->single($rules, $fields, $human);
 	}
@@ -520,15 +535,15 @@ class Validate
 	protected function _validation(&$field, string $rule, string $param = null) : bool
 	{
 		$class_name = $this->_normalize_rule($rule);
-		$short_rule = substr($class_name, 9);
+		$short_rule = substr($class_name, 9); /* chop off validate_ */
 
 		/* default error */
 		$this->error_string = '%s is not valid.';
 
 		if (isset($this->attached[$class_name])) {
 			$success = $this->attached[$class_name]($field, $param, $this->error_string, $this->field_data, $this);
-		} elseif (class_exists($class_name, true)) {
-			$success = (new $class_name($this->field_data, $this->error_string))->validate($field, $param);
+		} elseif ($namedService = configFile('services.'.$class_name,false)) {
+			$success = (new $namedService($this->field_data, $this->error_string))->validate($field, $param);
 		} elseif (function_exists($short_rule)) {
 			$success = ($param) ? $short_rule($field, $param) : $short_rule($field);
 		} else {

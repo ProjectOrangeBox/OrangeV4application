@@ -40,14 +40,16 @@ class Pear
 	 *
 	 * @var boolean
 	 */
-	protected static $helpers_loaded = false;
+	protected static $helpersLoaded = false;
 
 	/**
 	 * Storage for the loaded plugins instances
 	 *
 	 * @var array
 	 */
-	protected static $loaded_plugins = [];
+	protected static $loadedPlugins = [];
+
+	protected static $autoloadHelpers = ['html','form','date','inflector','language','number','text'];
 
 	/**
 	 * unified place holder for pear fragments
@@ -83,17 +85,20 @@ class Pear
 		self::plugin($name, false);
 
 		/* Was this plugin loaded from the action above? */
-		if (isset(self::$loaded_plugins[$name])) {
-			if (method_exists(self::$loaded_plugins[$name], 'render')) {
-				return call_user_func_array([self::$loaded_plugins[$name],'render'], $arguments);
+		if (isset(self::$loadedPlugins[$name])) {
+			if (method_exists(self::$loadedPlugins[$name], 'render')) {
+				return call_user_func_array([self::$loadedPlugins[$name],'render'], $arguments);
+			} else {
+				/* if render does not exist perhaps the constructor was used? */
+				return;
 			}
 		}
 
 		/* Are the CodeIgniter Helpers loaded? let's track this so we don't try over and over */
-		if (!self::$helpers_loaded) {
-			ci('load')->helper(['html','form','date','inflector','language','number','text']);
+		if (!self::$helpersLoaded) {
+			ci('load')->helper(self::$autoloadHelpers);
 
-			self::$helpers_loaded = true;
+			self::$helpersLoaded = true;
 		}
 
 		/* Is this a CodeIgniter form_XXX function? */
@@ -124,15 +129,15 @@ class Pear
 	 * @return void
 	 *
 	 */
-	public static function plugin(string $name, bool $throw_error=true) : void
+	public static function plugin(string $name, bool $throwError = true) : void
 	{
-		if (!isset(self::$loaded_plugins[$name])) {
-			$class_name = 'Pear_'.str_replace('pear_', '', strtolower($name));
+		if (!isset(self::$loadedPlugins[$name])) {
+			$className = configFile('services.pear_'.str_replace('pear_', '', strtolower($name)),false);
 
-			if (class_exists($class_name, true)) {
-				self::$loaded_plugins[$name] = new $class_name;
-			} elseif ($throw_error) {
-				throw new \Exception('Could not load "'.$class_name.'"');
+			if (class_exists($className, true)) {
+				self::$loadedPlugins[$name] = new $className;
+			} elseif ($throwError) {
+				throw new \Exception('Could not load "'.$className.'"');
 			}
 		}
 	}

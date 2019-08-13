@@ -79,7 +79,7 @@ function process(string $realPath) : void
 					$new = substr($new,0,-10);
 				}
 
-				$url = substr($new,strpos($new,$controllersFolder) + strlen($controllersFolder));
+				$url = substr($new,strpos($new,$controllersFolder) + strlen($controllersFolder)).'~';
 			}
 
 			$controller = $match[0][4];
@@ -91,8 +91,11 @@ function process(string $realPath) : void
 			$last = format($request,$url,$controller);
 		}
 
-		if (preg_match('%(\s*)public(\s*)function(\s*)([a-z0-9]*)%i', $line, $match, PREG_OFFSET_CAPTURE, 0)) {
-			$last = str_replace('::*','::'.$match[4][0],$last);
+		if (preg_match('%(\s*)public(\s*)function(\s*)([a-z0-9_-]*)%i', $line, $match, PREG_OFFSET_CAPTURE, 0)) {
+			$method = $match[4][0];
+
+			$last = str_replace('::*','::'.$method,$last);
+			$last = ($method == 'index') ? str_replace('~','',$last) : str_replace('~','/'.$method,$last);
 		}
 	}
 

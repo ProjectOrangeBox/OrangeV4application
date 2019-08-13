@@ -1,0 +1,10 @@
+['style', ['style']],
+['style', ['bold', 'italic', 'underline', 'clear']],
+['fontsize', ['fontsize']],
+['color', ['color']],
+['para', ['ul', 'ol', 'paragraph']],
+['table', ['table']],
+['height', ['height']],
+['insert', ['picture', 'link']],
+['genixcms', ['elfinder']],
+['help', ['help']]

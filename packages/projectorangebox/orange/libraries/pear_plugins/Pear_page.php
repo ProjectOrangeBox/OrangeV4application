@@ -31,6 +31,6 @@ class Pear_page extends Pear_plugin
 {
 	public function render(string $name = null)
 	{
-		return ci('page')->var($name);
+		return ci('page')->value($name);
 	}
 } /* end plugin */

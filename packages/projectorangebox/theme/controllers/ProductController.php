@@ -1,6 +1,8 @@
 <?php
 
-class ProductController extends CI_Controller {
+use projectorangebox\orange\library\Controller;
+
+class ProductController extends Controller {
 
 	public function index()
 	{

@@ -38,11 +38,15 @@ return [
 
 	'pear_include' => '\projectorangebox\orange\library\pear_plugins\Pear_include',
 	'pear_section' => '\projectorangebox\orange\library\pear_plugins\Pear_section',
+	'pear_echo' => '\projectorangebox\orange\library\pear_plugins\Pear_echo',
 	'pear_plugins' => '\projectorangebox\orange\library\pear_plugins\Pear_plugins',
 	'pear_end' => '\projectorangebox\orange\library\pear_plugins\Pear_end',
+	'pear_wrap' => '\projectorangebox\orange\library\pear_plugins\Pear_wrap',
 	'pear_extends' => '\projectorangebox\orange\library\pear_plugins\Pear_extends',
 	'pear_page' => '\projectorangebox\orange\library\pear_plugins\Pear_page',
 	'pear_parent' => '\projectorangebox\orange\library\pear_plugins\Pear_parent',
+	'pear_title' => '\projectorangebox\theme\library\pear_plugins\Pear_title',
+	'pear_asset_route' => '\projectorangebox\theme\library\pear_plugins\Pear_asset_route',
 
 	'validate_decimal' => '\projectorangebox\orange\library\validations\Validate_decimal',
 	'validate_valid_emails' => '\projectorangebox\orange\library\validations\Validate_valid_emails',
@@ -73,6 +77,15 @@ return [
 	'validate_numeric' => '\projectorangebox\orange\library\validations\Validate_numeric',
 	'validate_required' => '\projectorangebox\orange\library\validations\Validate_required',
 	'validate_less_than_equal_to' => '\projectorangebox\orange\library\validations\Validate_less_than_equal_to',
+
+	'#form/test_pear_plugin' => '/packages/projectorangebox/theme/views/form/test_pear_plugin.php',
+	'#_templates/orange_admin' => '/packages/projectorangebox/theme/views/_templates/orange_admin.php',
+	'#_templates/access' => '/packages/projectorangebox/theme/views/_templates/access.php',
+	'#_templates/nav' => '/packages/projectorangebox/theme/views/_templates/nav.php',
+	'#_templates/footer' => '/packages/projectorangebox/theme/views/_templates/footer.php',
+	'#_templates/blank' => '/packages/projectorangebox/theme/views/_templates/blank.php',
+	'#_templates/header' => '/packages/projectorangebox/theme/views/_templates/header.php',
+	'#_templates/orange_default' => '/packages/projectorangebox/theme/views/_templates/orange_default.php',
 
 	'#cats' => '/packages/projectorangebox/theme/views/cats.php',
 	'#form' => '/application/views/form.php',

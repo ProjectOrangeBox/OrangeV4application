@@ -1,6 +1,6 @@
 <?php
 
-namespace packages\projectorangebox\theme\middleware;
+namespace projectorangebox\theme\middleware;
 
 use projectorangebox\orange\library\abstracts\Middleware;
 
@@ -19,6 +19,11 @@ class PublicMiddleware extends middleware
 	 */
 	public function request(\CI_Input &$input) : bool
 	{
+		/* this will speed it up a little bit */
+		ci('output')->parse_exec_vars = false;
+
+		ci('page')->set_default_view(str_replace('controller/','/',ci('router')->fetch_route()));
+
 		return true;
 	}
 
@@ -35,8 +40,6 @@ class PublicMiddleware extends middleware
 	 */
 	public function response(string &$output) : bool
 	{
-		$output .= '<h1>Hello World</h1>';
-
 		return true;
 	}
 

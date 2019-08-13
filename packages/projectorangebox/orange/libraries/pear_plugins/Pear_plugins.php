@@ -36,7 +36,7 @@ class Pear_plugins extends Pear_plugin
 
 		/* load the plug in and throw a error if it's not found */
 		foreach ($plugins as $plugin) {
-			pear::plugin($plugin);
+			\pear::plugin($plugin);
 		}
 	}
 } /* end plugin */

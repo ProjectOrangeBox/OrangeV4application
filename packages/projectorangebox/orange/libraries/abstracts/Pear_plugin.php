@@ -24,9 +24,6 @@ namespace projectorangebox\orange\library\abstracts;
  *
  */
 
-abstract class Pear_plugin
+class Pear_plugin
 {
-	public function render()
-	{
-	}
-}
+} /* end this */
