@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_less_than_equal_to
  * Insert description here
@@ -20,7 +25,7 @@
  * @help is less than or equal to the parameter value, or not numeric.
  *
  */
-class Validate_less_than_equal_to extends \Validate_base
+class Validate_less_than_equal_to extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

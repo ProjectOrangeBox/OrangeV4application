@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_valid_ip
  * Insert description here
@@ -20,7 +25,7 @@
  * @help if the supplied IP address is valid. Accepts an optional parameter of ‘ipv4’ or ‘ipv6’ to specify an IP format.
  *
  */
-class Validate_valid_ip extends \Validate_base
+class Validate_valid_ip extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

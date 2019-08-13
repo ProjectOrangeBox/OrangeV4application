@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_valid_url
  * Insert description here
@@ -20,7 +25,7 @@
  * @help contain a valid URL.
  *
  */
-class Validate_valid_url extends \Validate_base
+class Validate_valid_url extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

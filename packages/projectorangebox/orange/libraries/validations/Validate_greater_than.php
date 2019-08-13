@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_greater_than
  * Insert description here
@@ -20,7 +25,7 @@
  * @help is greater than the parameter value or not numeric.
  *
  */
-class Validate_greater_than extends \Validate_base
+class Validate_greater_than extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_required
  * Insert description here
@@ -20,7 +25,7 @@
  * @help is not empty.
  *
  */
-class Validate_required extends \Validate_base
+class Validate_required extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

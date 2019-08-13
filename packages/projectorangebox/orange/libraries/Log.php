@@ -100,7 +100,7 @@ class Log extends \CI_Log
 	 */
 	public function __construct()
 	{
-		$this->config = loadConfig('config');
+		$this->config = loadConfigFile('config');
 
 		$this->bootstrap();
 

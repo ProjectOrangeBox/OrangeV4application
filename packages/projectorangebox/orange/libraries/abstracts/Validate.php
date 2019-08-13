@@ -26,7 +26,7 @@ namespace projectorangebox\orange\library\abstracts;
  *
  */
 
-abstract class Validate_base
+abstract class Validate
 {
 	/**
 	 * Array of values considered true
@@ -78,7 +78,7 @@ abstract class Validate_base
 		$this->field_data = &$field_data;
 		$this->error_string = &$error_string;
 
-		log_message('info', 'Validate_base Class Initialized');
+		log_message('info', 'Validate Class Initialized');
 	}
 
 	/**
@@ -89,10 +89,10 @@ abstract class Validate_base
 	 *
 	 * @param &$field
 	 *
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 */
-	public function field(&$field) : Validate_base
+	public function field(&$field) : Validate
 	{
 		$this->field = &$field;
 
@@ -113,6 +113,7 @@ abstract class Validate_base
 	 */
 	public function validate(&$field, string $options = '') : bool
 	{
+		return false;
 	}
 
 	/**
@@ -123,14 +124,14 @@ abstract class Validate_base
 	 *
 	 * @param $length null
 	 *
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 * #### Example
 	 * ```php
 	 * $this->field($value)->length(8);
 	 * ```
 	 */
-	public function length($length = null) : Validate_base
+	public function length($length = null) : Validate
 	{
 		if (is_numeric($length)) {
 			if ((int) $length > 0) {
@@ -149,14 +150,14 @@ abstract class Validate_base
 	 *
 	 * @param
 	 *
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 * #### Example
 	 * ```php
 	 * $this->field($value)->trim();
 	 * ```
 	 */
-	public function trim() : Validate_base
+	public function trim() : Validate
 	{
 		$this->field = trim($this->field);
 
@@ -171,14 +172,14 @@ abstract class Validate_base
 	 *
 	 * @param
 	 *
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 * #### Example
 	 * ```php
 	 * $this->field($value)->human();
 	 * ```
 	 */
-	public function human() : Validate_base
+	public function human() : Validate
 	{
 		$this->field = preg_replace("/[^\\x20-\\x7E]/mi", '', $this->field);
 
@@ -194,14 +195,14 @@ abstract class Validate_base
 	 *
 	 * @param
 	 *
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 * #### Example
 	 * ```php
 	 * $this->field($value)->human_plus();
 	 * ```
 	 */
-	public function human_plus() : Validate_base
+	public function human_plus() : Validate
 	{
 		$this->field = preg_replace("/[^\\x20-\\x7E\\n\\t\\r]/mi", '', $this->field);
 
@@ -217,14 +218,14 @@ abstract class Validate_base
 	 * @param $strip
 	 *
 	 * @throws
-	 * @return Validate_base
+	 * @return Validate
 	 *
 	 * #### Example
 	 * ```php
 	 * $this->field($value)->strip('!@#$%^&*()');
 	 * ```
 	 */
-	public function strip($strip) : Validate_base
+	public function strip($strip) : Validate
 	{
 		$this->field = str_replace(str_split($strip), '', $this->field);
 

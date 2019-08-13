@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library\abstracts;
 
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Orange
  *
@@ -25,7 +27,7 @@ namespace projectorangebox\orange\library\abstracts;
  * @filesource
  *
  */
-abstract class Filter_base extends \Validate_base
+abstract class Filter extends Validate
 {
 	/**
 	 *

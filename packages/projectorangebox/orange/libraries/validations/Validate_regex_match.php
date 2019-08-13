@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_regex_match
  * Insert description here
@@ -20,18 +25,18 @@
  * @help matches the regular expression.
  *
  */
-class Validate_regex_match extends \Validate_base
+class Validate_regex_match extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{
 		if (empty($options)) {
 			$this->error_string = '%s expression match option empty.';
-		
+
 			return false;
 		}
 
 		$this->error_string = '%s is not in the correct format.';
-		
+
 		return (bool) preg_match($options, $field);
 	}
 }

@@ -2,7 +2,9 @@
 
 namespace packages\projectorangebox\theme\middleware;
 
-class PrivateMiddleware
+use projectorangebox\orange\library\abstracts\Middleware;
+
+class PrivateMiddleware extends Middleware
 {
 	/**
 	 *

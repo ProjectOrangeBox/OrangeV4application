@@ -1,4 +1,7 @@
 <?php
+
+namespace projectorangebox\orange\library\filters;
+
 /**
  * Orange
  *
@@ -7,6 +10,8 @@
  * This content is released under the MIT License (MIT)
  * Copyright (c) 2014 - 2019, Project Orange Box
  */
+
+use projectorangebox\orange\library\abstracts\Filter;
 
 /**
  * Validation Filter
@@ -23,7 +28,7 @@
  *
  */
 
-class Filter_str extends \Filter_base
+class Filter_str extends Filter
 {
 	public function filter(&$field, string $options = '') : void
 	{

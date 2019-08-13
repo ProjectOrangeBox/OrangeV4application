@@ -1,12 +1,12 @@
 <?php
 
-use packages\projectorangebox\orange\libraries\Controller;
-
 class WelcomeController extends \CI_Controller {
 
 	public function index() : void
 	{
-		$this->load->view('welcome_message');
+		echo getPath('testing');
+
+
 	}
 
 	public function fourohfour() : void

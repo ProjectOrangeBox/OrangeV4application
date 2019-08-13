@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_valid_email
  * Insert description here
@@ -20,7 +25,7 @@
  * @help contains a valid email address.
  *
  */
-class Validate_valid_email extends \Validate_base
+class Validate_valid_email extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_alpha_dash
  * Insert description here
@@ -23,7 +28,7 @@
  * @help used to stop further rule processing in piped chain
  *
  */
-class Validate_has_errors extends \Validate_base
+class Validate_has_errors extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

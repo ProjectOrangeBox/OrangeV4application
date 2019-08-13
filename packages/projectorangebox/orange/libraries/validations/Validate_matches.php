@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_matches
  * Insert description here
@@ -20,7 +25,7 @@
  * @help matches the field in the parameter.
  *
  */
-class Validate_matches extends \Validate_base
+class Validate_matches extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

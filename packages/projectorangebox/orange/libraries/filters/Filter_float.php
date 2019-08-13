@@ -1,4 +1,7 @@
 <?php
+
+namespace projectorangebox\orange\library\filters;
+
 /**
  * Orange
  *
@@ -7,6 +10,8 @@
  * This content is released under the MIT License (MIT)
  * Copyright (c) 2014 - 2019, Project Orange Box
  */
+
+use projectorangebox\orange\library\abstracts\Filter;
 
 /**
  * Validation Filter
@@ -22,12 +27,18 @@
  * @filesource
  *
  */
-class Filter_float extends \Filter_base
+class Filter_float extends Filter
 {
 	public function filter(&$field, string $options = '') : void
 	{
 		$field  = preg_replace('/[^\-\+0-9.]+/', '', $field);
-		$prefix = ($field[0] == '-' || $field[0] == '+') ? $field[0] : '';
+
+		$prefix = '';
+
+		if (isset($field[0])) {
+			$prefix = ($field[0] == '-' || $field[0] == '+') ? $field[0] : '';
+		}
+
 		$field  = $prefix.preg_replace('/[^0-9.]+/', '', $field);
 		$this->field($field)->length($options);
 	}

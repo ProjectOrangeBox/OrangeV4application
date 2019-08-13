@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_is_natural_no_zero
  * Insert description here
@@ -20,7 +25,7 @@
  * @help contains a natural number, but not zero: 1, 2, 3, etc.
  *
  */
-class Validate_is_natural_no_zero extends \Validate_base
+class Validate_is_natural_no_zero extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

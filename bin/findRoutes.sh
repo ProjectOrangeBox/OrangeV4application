@@ -46,7 +46,16 @@ echo '-- Cut & Paste as needed --'.PHP_EOL.PHP_EOL;
  *
  */
 
-applicationSearch('(.*)/controllers/(.*)\.php',function($realPath) {
+foreach (applicationSearch('(.*)/controllers/(.*)\.php') as $file) {
+	process($file);
+}
+
+echo PHP_EOL;
+
+exit(1);
+
+function process(string $realPath) : void
+{
 	$last = '';
 	$lines = file(__ROOT__.$realPath);
 
@@ -89,15 +98,15 @@ applicationSearch('(.*)/controllers/(.*)\.php',function($realPath) {
 
 	/* do we have a route still in there? */
 	println($last);
-});
+}
 
-echo PHP_EOL;
-
-function format($request,$url,$controller) {
+function format(string $request,string $url,string $controller) : string
+{
 	return ($request == 'get') ? sprintf("\$route['%s'] = '%s';",$url,$controller) : sprintf("\$route['%s']['%s'] = '%s';",$url,$request,$controller);
 }
 
-function println(&$last) {
+function println(string &$last) : void
+{
 	if (!empty($last)) {
 		echo $last.PHP_EOL;
 

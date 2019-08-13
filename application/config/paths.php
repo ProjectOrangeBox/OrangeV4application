@@ -1,7 +1,11 @@
 <?php
-/*
-NOTE: NO trailing slashes on folders
-*/
+/**
+ * NOTES:
+ *
+ * NO trailing slashes on folders
+ * all keys converted to lowercase
+ *
+ */
 
 $config['www image'] = '/images';
 $config['www themes'] = '/theme';

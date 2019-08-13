@@ -40,11 +40,11 @@ namespace projectorangebox\orange\library;
 class Config extends \CI_Config
 {
 	/**
-	 * track if the combined cached configuration has been loaded
+	 * track if the combined cached configuration has been lazy loaded
 	 *
 	 * @var boolean
 	 */
-	protected $loaded = false;
+	protected $lazy_loaded = false;
 
 	/**
 	 *
@@ -63,12 +63,11 @@ class Config extends \CI_Config
 	 * @return mixed
 	 *
 	 */
-	public function dotItem(string $setting, $default=null)
+	public function dotNotation(string $setting, $default=null)
 	{
-		log_message('debug', 'MY_Config::item_dot::'.$setting);
+		log_message('debug', 'Config::dotNotation::'.$setting);
 
-		/* have we loaded the config? */
-		$this->_loadConfig();
+		$this->lazy_load();
 
 		$value = $default;
 		$section = false;
@@ -109,15 +108,14 @@ class Config extends \CI_Config
 	 * @param string $setting
 	 * @param $value null
 	 *
-	 * @return MY_Config
+	 * @return Config
 	 *
 	 */
-	public function setDotItem(string $setting, $value=null) : Config
+	public function setDotNotation(string $setting, $value=null) : Config
 	{
-		log_message('debug', 'MY_Config::set_item_dot::'.$setting);
+		log_message('debug', 'Config::setDotNotation::'.$setting);
 
-		/* have we loaded the config? */
-		$this->_loadConfig();
+		$this->lazy_load();
 
 		list($file, $key) = explode('.', strtolower($setting), 2);
 
@@ -143,9 +141,9 @@ class Config extends \CI_Config
 	 */
 	public function flush() : bool
 	{
-		log_message('debug', 'MY_Config::settings_flush');
+		log_message('debug', 'Config::flush');
 
-		$this->loaded = false;
+		$this->lazy_loaded = false;
 
 		$cacheFilePath = configFile('config.cache_path').'/config.php';
 
@@ -161,46 +159,46 @@ class Config extends \CI_Config
 	 * @return void
 	 *
 	 */
-	protected function _loadConfig() : void
+	protected function lazy_load() : void
 	{
-		if (!$this->loaded) {
-			$this->loaded = true;
-
+		if (!$this->lazy_loaded) {
 			$cacheFilePath = configFile('config.cache_path').'/config.php';
 
 			if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
-				/* no - so we need to build our dynamic configuration */
-				$builtConfig = [];
-
-				/* load the application configs */
+				/**
+				 * The application config folder has 1 of every
+				 * known config file so using this and a combination of
+				 * loadConfig we can as load the environmental
+				 * configuration files
+				 */
 				foreach (glob(APPPATH.'/config/*.php') as $filepath) {
 					$basename = basename($filepath, '.php');
 
-					$config = loadConfig($basename);
+					$config = loadConfigFile($basename);
 
 					if (is_array($config)) {
 						foreach ($config as $key=>$value) {
-							$builtConfig[$this->_normalizeSection($basename)][$this->_normalizeKey($key)] = $value;
+							$this->config[$this->_normalizeSection($basename)][$this->_normalizeKey($key)] = $value;
 						}
 					}
 				}
 
-				/* load the database configs (settings) */
-				if (isset($this->config['no_database_settings']) && $this->config['no_database_settings'] != false) {
-					$modelName = (is_bool($this->config['no_database_settings'])) ? 'o_setting_model' : $this->config['no_database_settings'];
+				/* load the database configs (settings) if the value is set in  */
+				if (isset($this->config['database_settings']) && $this->config['database_settings'] === true) {
+					$modelName = (is_bool($this->config['database_settings'])) ? 'o_setting_model' : $this->config['database_settings'];
 
 					$config = ci($modelName)->get_enabled();
 
 					if (is_array($config)) {
 						foreach ($config as $record) {
-							$builtConfig[$this->_normalizeSection($record->group)][$this->_normalizeKey($record->name)] = convert_to_real($record->value);
+							$this->config[$this->_normalizeSection($record->group)][$this->_normalizeKey($record->name)] = convert_to_real($record->value);
 						}
 					}
 				}
 
-				varExportFile($cacheFilePath,array_replace($this->config, $builtConfig));
+				varExportFile($cacheFilePath,$this->config);
 
-				$this->config = include $cacheFilePath;
+				$this->lazy_loaded = true;
 			} else {
 				$this->config = include $cacheFilePath;
 			}

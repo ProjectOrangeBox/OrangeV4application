@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_valid_base64
  * Insert description here
@@ -20,7 +25,7 @@
  * @help supplied string contains valid Base64 characters.
  *
  */
-class Validate_valid_base64 extends \Validate_base
+class Validate_valid_base64 extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

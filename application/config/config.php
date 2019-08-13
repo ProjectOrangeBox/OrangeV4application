@@ -522,4 +522,4 @@ $config['rewrite_short_tags'] = FALSE;
 $config['proxy_ips'] = '';
 
 
-$config['no_database_settings'] = false; /* o_setting_model */
+$config['database_settings'] = false; /* o_setting_model */

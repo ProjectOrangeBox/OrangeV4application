@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_is_unique
  * Insert description here
@@ -21,7 +26,7 @@
  * @help Note: This rule requires Query Builder to be enabled in order to work.
  *
  */
-class Validate_is_unique extends \Validate_base
+class Validate_is_unique extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

@@ -99,7 +99,7 @@ class Validate
 	{
 		$this->config = &$config;
 
-		$this->errors = &ci('errors');
+		$this->errors = ci('errors');
 
 		log_message('info', 'Validate Class Initialized');
 	}
@@ -486,12 +486,13 @@ class Validate
 	protected function _filter(&$field, string $rule, string $param = null) : bool
 	{
 		$class_name = $this->_normalize_rule($rule);
+
 		$short_rule = substr($class_name, 7);
 
 		if (isset($this->attached[$class_name])) {
 			$this->attached[$class_name]($field, $param);
-		} elseif (class_exists($class_name, true)) {
-			(new $class_name($this->field_data))->filter($field, $param);
+		} elseif ($namedService = configFile('services.'.$class_name,false)) {
+			(new $namedService($this->field_data))->filter($field, $param);
 		} elseif (function_exists($short_rule)) {
 			$field = ($param) ? $short_rule($field, $param) : $short_rule($field);
 		} else {

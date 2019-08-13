@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_alpha_space
  * Insert description here
@@ -20,7 +25,7 @@
  * @help anything other than alpha, space or dash characters.
  *
  */
-class Validate_alpha_space extends \Validate_base
+class Validate_alpha_space extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

@@ -40,7 +40,9 @@ if (!function_exists('ci'))
 					 * create a new instance and
 					 * attach the singleton to the CodeIgniter super object
 					 */
-					$instance->$serviceName = new $name(loadConfig($serviceName));
+					$config = loadConfigFile($serviceName);
+
+					$instance->$serviceName = new $name($config);
 				} else {
 					/*
 					else try to let CodeIgniter load it the old fashion way
@@ -50,7 +52,7 @@ if (!function_exists('ci'))
 						$instance->load->model($name,$serviceName);
 					} else {
 						/* library will take a config so let's try to find it if it exists */
-						$instance->load->library($name,loadConfig($serviceName));
+						$instance->load->library($name,loadConfigFile($serviceName));
 					}
 				}
 			}

@@ -1,21 +1,18 @@
 <?php
-
-/* These used by the core and there are required global functions */
-
 /**
  * Write a string to a file with atomic uninterruptible
  *
- * @param string $filepath path to the file where to write the data
- * @param mixed $content the data to write
+ * @param string $filename path to the file where to write the data.
+ * @param mixed $data The data to write. Can be either a string, an array or a stream resource.
  *
- * @return int the number of bytes that were written to the file.
+ * @return int This function returns the number of bytes that were written to the file.
  */
 if (!function_exists('atomic_file_put_contents'))
 {
-	function atomic_file_put_contents(string $filepath, $content) : int
+	function atomic_file_put_contents(string $filename,/* mixed */ $data) : int
 	{
 		/* get the path where you want to save this file so we can put our file in the same file */
-		$dirname = dirname($filepath);
+		$dirname = dirname($filename);
 
 		/* is the directory writeable */
 		if (!is_writable($dirname)) {
@@ -31,7 +28,7 @@ if (!function_exists('atomic_file_put_contents'))
 		}
 
 		/* write to the temporary file */
-		$bytes = file_put_contents($tmpfname, $content);
+		$bytes = file_put_contents($tmpfname, $data);
 
 		/* did we write anything? */
 		if ($bytes === false) {
@@ -44,20 +41,20 @@ if (!function_exists('atomic_file_put_contents'))
 		}
 
 		/* move it into place - this is the atomic function */
-		if (rename($tmpfname, $filepath) === false) {
+		if (rename($tmpfname, $filename) === false) {
 			throw new \Exception('atomic file put contents could not make atomic switch');
 		}
 
 		/* if it's cached we need to flush it out so the old one isn't loaded */
-		remove_php_file_from_opcache($filepath);
+		remove_php_file_from_opcache($filename);
 
 		/* if log message function is loaded at this point log a debug entry */
 		if (function_exists('log_message')) {
-			log_message('debug', 'atomic_file_put_contents wrote '.$filepath.' '.$bytes.' bytes');
+			log_message('debug', 'atomic_file_put_contents wrote '.$filename.' '.$bytes.' bytes');
 		}
 
 		/* return the number of bytes written */
-		return $bytes;
+		return (int)$bytes;
 	}
 }
 
@@ -71,18 +68,18 @@ if (!function_exists('atomic_file_put_contents'))
  */
 if (!function_exists('remove_php_file_from_opcache'))
 {
-	function remove_php_file_from_opcache(string $filepath) : bool
+	function remove_php_file_from_opcache(string $filename) : bool
 	{
 		$success = true;
 
 		/* flush from the cache */
 		if (function_exists('opcache_invalidate')) {
-			$success = opcache_invalidate($filepath, true);
+			$success = opcache_invalidate($filename, true);
 		} elseif (function_exists('apc_delete_file')) {
-			$success = apc_delete_file($filepath);
+			$success = apc_delete_file($filename);
 		}
 
-		return $success;
+		return (bool)$success;
 	}
 }
 
@@ -91,37 +88,37 @@ if (!function_exists('remove_php_file_from_opcache'))
  * Low Level configuration file loader
  * this does NOT include any database configurations
  *
- * @param string $name filename
+ * @param string $filename filename
  * @param string $variable array variable name there configuration is stored in [config]
  *
  * @return array
  *
  */
-if (!function_exists('loadConfig'))
+if (!function_exists('loadConfigFile'))
 {
-	function loadConfig(string $name, string $variableVariable = 'config') : array
+	function loadConfigFile(string $filename, string $variableVariable = 'config') : array
 	{
 		/* exists only in a local function scope */
 		static $_configLoaded = [];
 
-		$name = strtolower($name);
+		$filename = strtolower($filename);
 
-		if (!isset($_configLoaded[$name])) {
+		if (!isset($_configLoaded[$filename])) {
 			/* they either return something or use the CI default $config['...'] format so set those up as empty */
 			$returnedApplicationConfig = $returnedEnvironmentConfig = $$variableVariable = [];
 
-			if (file_exists(APPPATH.'config/'.$name.'.php')) {
-				$returnedApplicationConfig = require APPPATH.'config/'.$name.'.php';
+			if (file_exists(APPPATH.'config/'.$filename.'.php')) {
+				$returnedApplicationConfig = require APPPATH.'config/'.$filename.'.php';
 			}
 
-			if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/'.$name.'.php')) {
-				$returnedEnvironmentConfig = require APPPATH.'config/'.ENVIRONMENT.'/'.$name.'.php';
+			if (file_exists(APPPATH.'config/'.ENVIRONMENT.'/'.$filename.'.php')) {
+				$returnedEnvironmentConfig = require APPPATH.'config/'.ENVIRONMENT.'/'.$filename.'.php';
 			}
 
-			$_configLoaded[$name] = (array)$returnedApplicationConfig + (array)$returnedEnvironmentConfig + (array)$$variableVariable;
+			$_configLoaded[$filename] = (array)$returnedEnvironmentConfig + (array)$returnedApplicationConfig +  (array)$$variableVariable;
 		}
 
-		return $_configLoaded[$name];
+		return $_configLoaded[$filename];
 	}
 }
 
@@ -144,7 +141,7 @@ if (!function_exists('configFile'))
 	{
 		list($filename,$key) = explode('.',strtolower($dotNotation),2);
 
-		$array = loadConfig($filename);
+		$array = loadConfigFile($filename);
 
 		if (!isset($array[$key]) && $default === NOVALUE) {
 			throw new \Exception('Find Config Key could not locate "'.$key.'" in "'.$filename.'".');
@@ -224,7 +221,7 @@ if (!function_exists('view'))
 		ob_start();
 
 		/* bring in the view file */
-		include configFile('view.'.$__view);
+		include configFile('services.#'.$__view);
 
 		/* return the current buffer contents and delete current output buffer */
 		return ob_get_clean();
@@ -246,11 +243,11 @@ if (!function_exists('view'))
  * $url = site_url('/{www theme}/assets/css');
  * ```
  */
-if (!function_exists('site_url')) {
-	function site_url(string $uri = '', bool $protocol = null) : string
+if (!function_exists('getPath')) {
+	function getPath(string $uri = '', string $protocol = null) : string
 	{
 		/* Call CodeIgniter version first if it has a protocol if not just use ours */
-		if ($protocol !== false) {
+		if ($protocol) {
 			$uri = ci('config')->site_url($uri, $protocol);
 		}
 
@@ -293,16 +290,9 @@ if (!function_exists('getAppPath'))
 /* regular expression search packages and application for files */
 if (!function_exists('applicationSearch'))
 {
-	function applicationSearch(string $regex,closure $closure = null,string $folder = '/',string $ext = '.php') : array
+	function applicationSearch(string $regex) : array
 	{
-		/* lowercase filename => relative path */
-		$defaultClosure = function($realPath,$folder,$ext) {
-			return [strtolower(substr($realPath,strpos($realPath,$folder) + strlen($folder),-strlen($ext))) => getAppPath($realPath)];
-		};
-
-		$closure = ($closure) ?? $defaultClosure;
-
-		$config = loadConfig('autoload','autoload');
+		$config = loadConfigFile('autoload','autoload');
 
 		/* add application as package */
 		$config['packages'][] = 'application';
@@ -313,15 +303,12 @@ if (!function_exists('applicationSearch'))
 			$files = new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__ROOT__.'/'.$package)),'#^('.__ROOT__.'/)'.$regex.'$#Di');
 
 			foreach ($files as $file) {
-				$returned = $closure(getAppPath($file->getRealPath()),$folder,$ext);
-
-				if (is_array($returned)) {
-					$found += $returned;
-				}
+				$found[getAppPath($file->getRealPath())] = true;
 			}
 		}
 
-		return $found;
+		/* return just a numbered array */
+		return array_keys($found);
 	}
 }
 

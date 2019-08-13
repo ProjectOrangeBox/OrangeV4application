@@ -25,7 +25,7 @@ namespace projectorangebox\orange\library\abstracts;
  * @filesource
  *
  */
-abstract class Middleware_base
+abstract class Middleware
 {
 	/**
 	 *

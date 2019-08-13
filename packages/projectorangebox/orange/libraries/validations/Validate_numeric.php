@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_numeric
  * Insert description here
@@ -20,7 +25,7 @@
  * @help contains anything other than numeric characters.
  *
  */
-class Validate_numeric extends \Validate_base
+class Validate_numeric extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{

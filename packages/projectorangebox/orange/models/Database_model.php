@@ -260,7 +260,9 @@ class Database_model extends Model
 		log_message('debug', 'Database Model using "'.$this->object.'::'.$this->db_group.'" connection.');
 
 		/* use our specified connection */
-		$this->_database = $this->db = &$this->load->database($this->db_group, true);
+		$this->db = $this->load->database($this->db_group, true);
+
+		$this->_database = $this->db;
 		$this->read_database = &$this->_database;
 		$this->write_database = &$this->_database;
 
@@ -292,7 +294,7 @@ class Database_model extends Model
 			$this->default_return_on_single =& $this->entity_class;
 		} else {
 			/* on single record return a class */
-			$this->default_return_on_single = new stdClass();
+			$this->default_return_on_single = new \stdClass();
 		}
 
 		log_message('info', 'Database_model Class Initialized');
@@ -344,7 +346,7 @@ class Database_model extends Model
 		$this->temporary_column_name = null;
 		$this->temporary_return_as_array = null;
 		$this->default_return_on_many = [];
-		$this->default_return_on_single = ($this->entity_class) ? $this->entity_class : new stdClass();
+		$this->default_return_on_single = ($this->entity_class) ? $this->entity_class : new \stdClass();
 		$this->ignore_read_role = false;
 		$this->ignore_edit_role = false;
 		$this->ignore_delete_role = false;

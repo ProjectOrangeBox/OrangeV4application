@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\orange\library\validations;
+
+use projectorangebox\orange\library\abstracts\Validate;
+
 /**
  * Validate_differs
  * Insert description here
@@ -20,7 +25,7 @@
  * @help Does not match the field in the parameter.
  *
  */
-class Validate_differs extends \Validate_base
+class Validate_differs extends Validate
 {
 	public function validate(&$field, string $options = '') : bool
 	{
