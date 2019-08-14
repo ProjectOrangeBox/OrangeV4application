@@ -197,7 +197,7 @@ class Page
 		 *
 		 * Throws Exception if view not found.
 		 */
-		$buffer = view($view_file, $data);
+		$buffer = \orange::view($view_file, $data);
 
 		if (is_string($return)) {
 			$this->data($return, $buffer);

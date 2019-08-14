@@ -6,8 +6,7 @@ class WelcomeController extends Controller {
 
 	public function index() : void
 	{
-		ci('page')->render('main/index');
-
+		ci('page')->render('welcome_message');
 	}
 
 	public function fourohfour() : void

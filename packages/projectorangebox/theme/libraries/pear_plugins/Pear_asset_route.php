@@ -8,7 +8,7 @@ class Pear_asset_route extends Pear_plugin
 {
 	public function __construct()
 	{
-		$pageConfigs = loadConfigFile('page');
+		$pageConfigs = \orange::loadFileConfig('page');
 
 		if (isset($pageConfigs['asset_merge']) && is_array($pageConfigs['asset_merge'])) {
 			$uri = implode('/',ci('uri')->segments);

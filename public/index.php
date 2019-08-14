@@ -332,4 +332,4 @@ switch (ENVIRONMENT)
  * And away we go...
  */
 
-require_once ORANGEPATH.'/libraries/Core.php';
+require_once ORANGEPATH.'/libraries/Bootstrap.php';

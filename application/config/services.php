@@ -157,7 +157,7 @@ return [
 	'#_templates/orange_default' => '/packages/projectorangebox/theme/views/_templates/orange_default.php',
 	'#cats' => '/packages/projectorangebox/theme/views/cats.php',
 	'#form' => '/application/views/form.php',
-	'#main/index' => '/application/views/welcome/index.php',
+	'#main/welcome' => '/application/views/welcome/index.php',
 	'#welcome_message' => '/application/views/welcome_message.php',
 	'#errors/html/error_db' => '/application/views/errors/html/error_db.php',
 	'#errors/html/error_404' => '/application/views/errors/html/error_404.php',

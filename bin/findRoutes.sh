@@ -20,10 +20,21 @@ $_ENV = array_merge($_ENV,parse_ini_file('.env',true,INI_SCANNER_TYPED));
 define('APPPATH',__ROOT__.'/application/');
 define('ENVIRONMENT', isset($_ENV['CI_ENV']) ? $_ENV['CI_ENV'] : 'development');
 
-require __ROOT__.'/packages/projectorangebox/orange/libraries/CoreCommon.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/Functions.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/Orange.php';
 
 echo 'Application Root: '.__ROOT__.PHP_EOL.PHP_EOL;
+
+echo 'Searching:'.PHP_EOL;
+
+foreach (\orange::getPackages() as $package) {
+	echo '/'.$package.PHP_EOL;
+}
+
+echo PHP_EOL;
+
 echo '-- Cut & Paste as needed --'.PHP_EOL.PHP_EOL;
+
 
 /**
  *
@@ -46,7 +57,7 @@ echo '-- Cut & Paste as needed --'.PHP_EOL.PHP_EOL;
  *
  */
 
-foreach (applicationSearch('(.*)/controllers/(.*)\.php') as $file) {
+foreach (\orange::applicationSearch('(.*)/controllers/(.*)\.php') as $file) {
 	process($file);
 }
 

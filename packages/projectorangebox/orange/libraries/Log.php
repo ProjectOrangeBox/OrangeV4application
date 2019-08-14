@@ -100,7 +100,7 @@ class Log extends \CI_Log
 	 */
 	public function __construct()
 	{
-		$this->config = loadConfigFile('config');
+		$this->config = \orange::loadFileConfig('config');
 
 		$this->init();
 
