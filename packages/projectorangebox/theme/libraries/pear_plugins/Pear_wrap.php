@@ -1,5 +1,9 @@
 <?php
 
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 namespace projectorangebox\orange\library\pear_plugins;
 
 use projectorangebox\orange\library\abstracts\Pear_plugin;

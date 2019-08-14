@@ -1,6 +1,10 @@
 <?php
 
-class Pear_field_label extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_field_label extends Pear_plugin
 {
 	public function render($model=null, $field=null, $override_text=null)
 	{

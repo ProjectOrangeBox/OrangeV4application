@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /*
 
 @help auto asset url generator
@@ -13,7 +18,7 @@ pear::asset('/folder/folder/styles.css',['extra'=>'foobar']) will return <link r
 @details
 
 */
-class Pear_asset extends \Pear_plugin
+class Pear_asset extends Pear_plugin
 {
 	public function render($url=null, $attributes=null)
 	{

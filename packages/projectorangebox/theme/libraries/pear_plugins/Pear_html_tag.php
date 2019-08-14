@@ -1,6 +1,10 @@
 <?php
 
-class Pear_html_tag extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_html_tag extends Pear_plugin
 {
 	public function render($tag=null, $attr=[], $content=false)
 	{

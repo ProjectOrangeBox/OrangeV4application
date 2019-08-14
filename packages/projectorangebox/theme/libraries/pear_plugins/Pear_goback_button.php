@@ -1,6 +1,10 @@
 <?php
 
-class Pear_goback_button extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_goback_button extends Pear_plugin
 {
 	public function render($uri='', $title='Go Back', $attributes=[])
 	{

@@ -5,13 +5,6 @@ namespace projectorangebox\orange\library\page;
 use projectorangebox\orange\library\Page;
 
 class Asset {
-
-	const PRIORITY_LOWEST = 10;
-	const PRIORITY_LOW = 20;
-	const PRIORITY_NORMAL = 50;
-	const PRIORITY_HIGH = 80;
-	const PRIORITY_HIGHEST = 90;
-
 	/**
 	 * local storage of page's configuration
 	 *
@@ -19,6 +12,11 @@ class Asset {
 	 */
 	protected $config;
 
+	/**
+	 * $page
+	 *
+	 * @var undefined
+	 */
 	protected $page;
 
 	/**
@@ -119,7 +117,7 @@ class Asset {
 	 * @param $attr
 	 * @param string $name null
 	 * @param string $content null
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @throws
 	 * @return Page
@@ -129,7 +127,7 @@ class Asset {
 	 * ci('page')->meta('charset','UTF-8');
 	 * ```
 	 */
-	public function meta($attr, string $name = null, string $content = null, int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function meta($attr, string $name = null, string $content = null, int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		if (is_array($attr)) {
 			extract($attr);
@@ -147,7 +145,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param string $script
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -156,7 +154,7 @@ class Asset {
 	 * ci('page')->script('alert("Page Ready!");');
 	 * ```
 	 */
-	public function script(string $script, int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function script(string $script, int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		$this->page->add('script', $script.PHP_EOL, $priority);
 
@@ -170,7 +168,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param string $script
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -179,7 +177,7 @@ class Asset {
 	 * ci('page')->domready('alert("Page Ready!");');
 	 * ```
 	 */
-	public function domready(string $script, int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function domready(string $script, int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		$this->page->add('domready', $script.PHP_EOL, $priority);
 
@@ -193,7 +191,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param string $title
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -202,7 +200,7 @@ class Asset {
 	 * ci('page')->title('My Web Page');
 	 * ```
 	 */
-	public function title(string $title = '', int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function title(string $title = '', int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		$this->page->add('title', $title, $priority);
 
@@ -216,7 +214,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param string $style
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -225,7 +223,7 @@ class Asset {
 	 * ci('page')->style('. { font-size: 9px }');
 	 * ```
 	 */
-	public function style(string $style, int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function style(string $style, int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		$this->page->add('style', $style.PHP_EOL, $priority);
 
@@ -240,17 +238,17 @@ class Asset {
 	 * @access public
 	 *
 	 * @param string $script
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
 	 * #### Example
 	 * ```php
 	 * ci('page')->script('/assets/javascript.js');
-	 * ci('page')->script('/assets/javascript.js',ASSET::PRIORITY_HIGHEST);
+	 * ci('page')->script('/assets/javascript.js',PAGE::PRIORITY_HIGHEST);
 	 * ```
 	 */
-	public function js($file = '', int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function js($file = '', int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		if (is_array($file)) {
 			foreach ($file as $f) {
@@ -272,7 +270,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param $file
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -281,7 +279,7 @@ class Asset {
 	 * ci('page')->css('/assets/application.cs');
 	 * ```
 	 */
-	public function css($file = '', int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function css($file = '', int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		if (is_array($file)) {
 			foreach ($file as $f) {
@@ -303,7 +301,7 @@ class Asset {
 	 *
 	 * @param string $key
 	 * @param $value
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 * @param bool $raw false
 	 *
 	 * @return Page
@@ -311,10 +309,10 @@ class Asset {
 	 * #### Example
 	 * ```php
 	 * ci('page')->js_variable('name','Johnny Appleseed');
-	 * ci('page')->js_variable('name','{name: "Johnny Appleseed"}',ASSET::PRIORITY_NORMAL,true);
+	 * ci('page')->js_variable('name','{name: "Johnny Appleseed"}',PAGE::PRIORITY_NORMAL,true);
 	 * ```
 	 */
-	public function js_variable(string $key, $value, int $priority = ASSET::PRIORITY_NORMAL, bool $raw = false) : Asset
+	public function js_variable(string $key, $value, int $priority = PAGE::PRIORITY_NORMAL, bool $raw = false) : Asset
 	{
 		if ($raw) {
 			$value = 'var '.$key.'='.$value.';' ;
@@ -359,7 +357,7 @@ class Asset {
 	 * @access public
 	 *
 	 * @param $class
-	 * @param int $priority ASSET::PRIORITY_NORMAL
+	 * @param int $priority PAGE::PRIORITY_NORMAL
 	 *
 	 * @return Page
 	 *
@@ -370,7 +368,7 @@ class Asset {
 	 * ci('page')->body_class(['body-wrapper','o-theme']);
 	 * ```
 	 */
-	public function body_class($class, int $priority = ASSET::PRIORITY_NORMAL) : Asset
+	public function body_class($class, int $priority = PAGE::PRIORITY_NORMAL) : Asset
 	{
 		$classes = (is_string($class)) ? explode(' ',$class) : (array)$class;
 

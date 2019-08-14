@@ -1,11 +1,16 @@
 <?php
 
-class Pear_bound_table_search_field extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+
+class Pear_bound_table_search_field extends Pear_plugin
 {
 	public function __construct()
 	{
 		if (!config('page.usingBundle')) {
-			ci('page')->js('/theme/orange/assets/plugins/bound-table-search/bound-table-search'.PAGE_MIN.'.js');
+			ci('page')->asset->js('/theme/orange/assets/plugins/bound-table-search/bound-table-search'.PAGE_MIN.'.js');
 		}
 	}
 

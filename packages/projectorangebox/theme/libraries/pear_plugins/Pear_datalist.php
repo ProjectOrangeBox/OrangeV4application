@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /**
  *
  * ComboBox
@@ -9,7 +14,7 @@
  * so this is currently just passed to pear::dropdown(...)
  *
  */
- class Pear_datalist extends \Pear_plugin
+ class Pear_datalist extends Pear_plugin
  {
 	 public function __construct()
 	 {

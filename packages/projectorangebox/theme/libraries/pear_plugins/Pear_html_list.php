@@ -1,9 +1,15 @@
 <?php
 
-class Pear_html_list extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_html_list extends Pear_plugin
 {
 	public function render($type='ul', $list=[], $attr=[], $indent='')
 	{
+		$output = '';
+
 		foreach ($list as $key => $value) {
 			if (!is_array($value)) {
 				$output .= $indent.chr(9).pear::html_tag('li', null, $value).PHP_EOL;

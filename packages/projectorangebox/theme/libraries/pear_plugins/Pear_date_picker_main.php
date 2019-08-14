@@ -1,11 +1,15 @@
 <?php
 
-class Pear_date_picker_main extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_date_picker_main extends Pear_plugin
 {
 	public function __construct()
 	{
 		if (config('page.usingCDNs')) {
-			ci('page')
+			ci('page')->asset
 				->js('//cdnjs.cloudflare.com/ajax/libs/moment.js/2.9.0/moment.min.js', PAGE::PRIORITY_HIGHEST)
 				->js(['//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/js/bootstrap-datetimepicker.min.js'])
 				->css('//cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.7.14/css/bootstrap-datetimepicker.min.css');

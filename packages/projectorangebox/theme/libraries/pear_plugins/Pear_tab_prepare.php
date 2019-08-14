@@ -1,6 +1,10 @@
 <?php
 
-class Pear_tab_prepare extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_tab_prepare extends Pear_plugin
 {
 	public function render($records=null, $key=null, $sort_key=null)
 	{

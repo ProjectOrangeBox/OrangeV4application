@@ -41,6 +41,12 @@ use projectorangebox\orange\library\page\Asset;
  */
 class Page
 {
+	const PRIORITY_LOWEST = 10;
+	const PRIORITY_LOW = 20;
+	const PRIORITY_NORMAL = 50;
+	const PRIORITY_HIGH = 80;
+	const PRIORITY_HIGHEST = 90;
+
 	/**
 	 * storage for the page variables
 	 *

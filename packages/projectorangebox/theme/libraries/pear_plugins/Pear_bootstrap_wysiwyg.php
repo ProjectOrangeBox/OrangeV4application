@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /**
  *
  * https://developer.mozilla.org/en-US/docs/Rich-Text_Editing_in_Mozilla#Executing_Commands
@@ -12,7 +17,7 @@
  * @help WYSIWYG editor
  *
  */
-class Pear_bootstrap_wysiwyg extends \Pear_plugin
+class Pear_bootstrap_wysiwyg extends Pear_plugin
 {
 	public function __construct()
 	{

@@ -52,6 +52,7 @@ class FormController extends Controller {
 		var_dump(ci('errors'));
 	}
 
+	/* @httpPost ~ => *::* */
 	public function post() : void
 	{
 		echo '<pre>';

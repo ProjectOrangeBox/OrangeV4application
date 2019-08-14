@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /*
 
 @help auto add page assets based on extension and default page sections
@@ -8,7 +13,7 @@ pear::asset(['/folder/folder/javascript.js','/folder/folder/stylesheet.css']) wi
 @details
 
 */
-class Pear_asset_include extends \Pear_plugin
+class Pear_asset_include extends Pear_plugin
 {
 	public function render($array=null)
 	{

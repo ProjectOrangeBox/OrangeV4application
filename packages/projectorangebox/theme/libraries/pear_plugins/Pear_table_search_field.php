@@ -1,6 +1,10 @@
 <?php
 
-class Pear_table_search_field extends \Pear_plugin
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
+class Pear_table_search_field extends Pear_plugin
 {
 	public function __construct()
 	{
@@ -15,7 +19,7 @@ class Pear_table_search_field extends \Pear_plugin
 		$length = (isset($options['length'])) ? $options['length'] : 222;
 		$url = (isset($options['url'])) ? $options['url'] : false;
 		$placeholder = (isset($options['placeholder'])) ? $options['placeholder'] : 'search';
-		
+
 		$extra = ($url) ? 'data-url="'.$url.'" ' : '';
 
 		return '<div class="form-group has-feedback" style="display:inline-block">

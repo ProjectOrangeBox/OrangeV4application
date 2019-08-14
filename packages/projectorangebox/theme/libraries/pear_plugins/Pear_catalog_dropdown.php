@@ -1,8 +1,12 @@
 <?php
 
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 // @help create a dropdown from a models catalog data.
 
-class Pear_catalog_dropdown extends \Pear_plugin
+class Pear_catalog_dropdown extends Pear_plugin
 {
 	public function __construct()
 	{

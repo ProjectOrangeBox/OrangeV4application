@@ -1,5 +1,9 @@
 <?php
 
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /*
 Drag and Drop Sortable
 
@@ -21,7 +25,7 @@ https://github.com/RubaXa/Sortable#cdn
 </div>
 
 */
-class Pear_sortable extends \Pear_plugin
+class Pear_sortable extends Pear_plugin
 {
 	public function __construct()
 	{

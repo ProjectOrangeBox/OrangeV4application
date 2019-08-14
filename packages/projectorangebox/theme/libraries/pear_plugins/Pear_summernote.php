@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /**
  *
  * WYSIWYG editor
@@ -11,7 +16,7 @@
  * @help WYSIWYG editor
  *
  */
-class Pear_summernote extends \Pear_plugin
+class Pear_summernote extends Pear_plugin
 {
 	public function __construct()
 	{

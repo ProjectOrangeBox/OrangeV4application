@@ -105,7 +105,12 @@ function process(string $realPath) : void
 
 function format(string $request,string $url,string $controller) : string
 {
-	return ($request == 'get') ? sprintf("\$route['%s'] = '%s';",$url,$controller) : sprintf("\$route['%s']['%s'] = '%s';",$url,$request,$controller);
+	/*
+	'form/input' => 'FormController::index',
+	'products/(:num)' => ['DelEte' => 'product/delete/$1'],
+	*/
+
+	return ($request == 'get') ? sprintf("'%s' => '%s',",$url,$controller) : sprintf("'%s' => ['%s'=>'%s'],",$url,$request,$controller);
 }
 
 function println(string &$last) : void

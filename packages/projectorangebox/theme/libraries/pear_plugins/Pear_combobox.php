@@ -1,4 +1,9 @@
 <?php
+
+namespace projectorangebox\theme\library\pear_plugins;
+
+use projectorangebox\orange\library\abstracts\Pear_plugin;
+
 /**
  *
  * https://cdnjs.com/libraries/bootstrap-3-typeahead
@@ -10,7 +15,7 @@
  * this will position the icon inside on the right of the input field
  *
  */
-class Pear_combobox extends \Pear_plugin
+class Pear_combobox extends Pear_plugin
 {
 	public function __construct()
 	{
@@ -21,6 +26,8 @@ class Pear_combobox extends \Pear_plugin
 
 	public function render($name=null, $value=null, $options=[], $extra=[])
 	{
+		$html = '';
+
 		if (is_array($options)) {
 			sort($options);
 			$source = json_encode($options);
