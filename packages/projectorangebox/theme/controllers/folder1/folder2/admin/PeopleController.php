@@ -6,13 +6,11 @@ class PeopleController extends Controller {
 
 	public function index()
 	{
-		ci('config')->dotItem('foo.bar');
-
-		echo findView('cats');
-
-		$event = ci('event');
-
 		echo __METHOD__;
+
+		ci('page')->asset->js('http://www.foobar.com');
+
+		ci('page')->render('form/test');
 	}
 
 }

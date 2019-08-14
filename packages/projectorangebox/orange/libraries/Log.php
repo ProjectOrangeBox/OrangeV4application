@@ -102,7 +102,7 @@ class Log extends \CI_Log
 	{
 		$this->config = loadConfigFile('config');
 
-		$this->bootstrap();
+		$this->init();
 
 		$this->write_log('DEBUG',__METHOD__);
 	}
@@ -129,7 +129,8 @@ class Log extends \CI_Log
 		if (substr($name, 0, 4) == 'log_') {
 			$this->config[$name] = $arguments[0];
 
-			$this->bootstrap();
+			/* resetup */
+			$this->init();
 		}
 
 		return $this;
@@ -317,12 +318,12 @@ class Log extends \CI_Log
 
 	/**
 	 *
-	 * Bootstrap / reconfigure bootstrap after a configuration value change
+	 * init / reconfigure init after a configuration value change
 	 *
 	 * @access protected
 	 *
 	 */
-	protected function bootstrap() : void
+	protected function init() : void
 	{
 		if (isset($this->config['log_threshold'])) {
 			$log_threshold = $this->config['log_threshold'];

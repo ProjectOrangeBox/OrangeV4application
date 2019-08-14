@@ -78,7 +78,8 @@ return [
 	'validate_required' => '\projectorangebox\orange\library\validations\Validate_required',
 	'validate_less_than_equal_to' => '\projectorangebox\orange\library\validations\Validate_less_than_equal_to',
 
-	'#form/test_pear_plugin' => '/packages/projectorangebox/theme/views/form/test_pear_plugin.php',
+	'#form/test' => '/packages/projectorangebox/theme/views/form/test.php',
+
 	'#_templates/orange_admin' => '/packages/projectorangebox/theme/views/_templates/orange_admin.php',
 	'#_templates/access' => '/packages/projectorangebox/theme/views/_templates/access.php',
 	'#_templates/nav' => '/packages/projectorangebox/theme/views/_templates/nav.php',
@@ -90,6 +91,7 @@ return [
 	'#cats' => '/packages/projectorangebox/theme/views/cats.php',
 	'#form' => '/application/views/form.php',
 	'#welcome_message' => '/application/views/welcome_message.php',
+
 	'#errors/html/error_db' => '/application/views/errors/html/error_db.php',
 	'#errors/html/error_404' => '/application/views/errors/html/error_404.php',
 	'#errors/html/error_php' => '/application/views/errors/html/error_php.php',
@@ -100,4 +102,7 @@ return [
 	'#errors/cli/error_php' => '/application/views/errors/cli/error_php.php',
 	'#errors/cli/error_exception' => '/application/views/errors/cli/error_exception.php',
 	'#errors/cli/error_general' => '/application/views/errors/cli/error_general.php',
+
+	'#welcome/index' => '/application/views/welcome/index.php',
+	'#main/index' => '/application/views/welcome/index.php',
 ];

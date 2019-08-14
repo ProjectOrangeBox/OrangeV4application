@@ -21,7 +21,7 @@ if (!function_exists('config'))
 {
 	function config(string $dotNotation,/* mixed */ $default=NOVALUE) /* mixed */
 	{
-		$value = ci('config')->dotNotation($dotNotation, $default);
+		$value = ci('config')->item($dotNotation, $default);
 
 		/* only throw an error if nothing found and no default given */
 		if ($value === NOVALUE) {

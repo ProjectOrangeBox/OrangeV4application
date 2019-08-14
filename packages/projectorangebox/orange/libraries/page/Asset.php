@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library\page;
 
+use projectorangebox\orange\library\Page;
+
 class Asset {
 
 	const PRIORITY_LOWEST = 10;
@@ -17,6 +19,8 @@ class Asset {
 	 */
 	protected $config;
 
+	protected $page;
+
 	/**
 	 *
 	 * Constructor
@@ -26,8 +30,10 @@ class Asset {
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config=[])
+	public function __construct(Page $page, array &$config=[])
 	{
+		$this->page = &$page;
+
 		$this->config = &$config;
 
 		log_message('info', 'Page Asset Class Initialized');
@@ -129,7 +135,9 @@ class Asset {
 			extract($attr);
 		}
 
-		return $this->add('meta', '<meta '.$attr.'="'.$name.'"'.(($content) ? ' content="'.$content.'"' : '').'>'.PHP_EOL, $priority);
+		$this->page->add('meta', '<meta '.$attr.'="'.$name.'"'.(($content) ? ' content="'.$content.'"' : '').'>'.PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -150,7 +158,9 @@ class Asset {
 	 */
 	public function script(string $script, int $priority = ASSET::PRIORITY_NORMAL) : Asset
 	{
-		return $this->add('script', $script.PHP_EOL, $priority);
+		$this->page->add('script', $script.PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -171,7 +181,9 @@ class Asset {
 	 */
 	public function domready(string $script, int $priority = ASSET::PRIORITY_NORMAL) : Asset
 	{
-		return $this->add('domready', $script.PHP_EOL, $priority);
+		$this->page->add('domready', $script.PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -192,7 +204,9 @@ class Asset {
 	 */
 	public function title(string $title = '', int $priority = ASSET::PRIORITY_NORMAL) : Asset
 	{
-		return $this->add('title', $title, $priority);
+		$this->page->add('title', $title, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -213,7 +227,9 @@ class Asset {
 	 */
 	public function style(string $style, int $priority = ASSET::PRIORITY_NORMAL) : Asset
 	{
-		return $this->add('style', $style.PHP_EOL, $priority);
+		$this->page->add('style', $style.PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -243,7 +259,9 @@ class Asset {
 			return $this;
 		}
 
-		return $this->add('js', $this->script_html($file).PHP_EOL, $priority);
+		$this->page->add('js', $this->script_html($file).PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -272,7 +290,9 @@ class Asset {
 			return $this;
 		}
 
-		return $this->add('css', $this->link_html($file).PHP_EOL, $priority);
+		$this->page->add('css', $this->link_html($file).PHP_EOL, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -302,7 +322,9 @@ class Asset {
 			$value = ((is_scalar($value)) ? 'var '.$key.'="'.str_replace('"', '\"', $value).'";' : 'var '.$key.'='.json_encode($value, JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE).';');
 		}
 
-		return $this->add('js_variables', $value, $priority);
+		$this->page->add('js_variables', $value, $priority);
+
+		return $this;
 	}
 
 	/**
@@ -353,7 +375,7 @@ class Asset {
 		$classes = (is_string($class)) ? explode(' ',$class) : (array)$class;
 
 		foreach ($classes as $class) {
-			$this->add('body_class', ' '.strtolower(trim($class)), $priority);
+			$this->page->add('body_class', ' '.strtolower(trim($class)), $priority);
 		}
 
 		return $this;

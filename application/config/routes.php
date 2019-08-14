@@ -8,49 +8,58 @@
  *
  */
 
-$route['form'] = 'FormController::index';
-$route['form/test_filter'] = 'FormController::test_filter';
-$route['form/test_pear_plugin/(:any)'] = 'FormController::test_pear_plugin';
-$route['form/test_validation'] = 'FormController::test_validation';
+$config['routes'] = [
+	'form' => 'FormController',
+	'form/test_filter' => 'FormController::test_filter',
+	'form/test_pear_plugin/(:any)' => 'FormController::test_pear_plugin',
+	'form/test_validation' => 'FormController::test_validation',
 
+	'form/input' => 'FormController::index',
+	'form/output' => ['post'=>'FormController::post'],
+	'form/dn' => 'FormController::dotnotation',
 
-$route['form/input'] = 'FormController::index';
-$route['form/output']['post'] = 'FormController::post';
-$route['form/dn'] = 'FormController::dotnotation';
+	'inject' => 'FormController::inject',
 
-$route['inject'] = 'FormController::inject';
+	'search' => 'FormController::searchApplication',
 
-$route['search'] = 'FormController::searchApplication';
+	'user/drpepper' => 'don::index',
 
-$route['user/drpepper'] = 'don::index';
+	'tyson/([a-zA-Z]+)/edit/(/d+)' => '/test2/levela/levelb/admin/don/controller::method',
+	'foo/([a-zA-Z]+)/edit/(/d+)' => '/test2/levela/levelb/admin/don/index/controller::method',
+	'bar/([a-zA-Z]+)/edit/(/d+)' => '/test2/levela/levelb/admin/don/index/controller::method',
 
-$route['tyson/([a-zA-Z]+)/edit/(\d+)'] = '\test2\levela\levelb\admin\don\controller::method';
-$route['foo/([a-zA-Z]+)/edit/(\d+)'] = '\test2\levela\levelb\admin\don\index\controller::method';
-$route['bar/([a-zA-Z]+)/edit/(\d+)'] = '\test2\levela\levelb\admin/don\index\controller::method';
+	'snakes/([a-zA-Z]+)/edit/(/d+)' => ['Get'=>'forder1/folder2/admin/welcome::index'],
 
-$route['snakes/([a-zA-Z]+)/edit/(\d+)']['Get'] = 'forder1\folder2\admin\welcome::index';
+	'products/(:num)' => ['DelEte' => 'product/delete/$1'],
+	'dogss/(:num)' => ['cli' => 'product/delete/$1'],
+	'product/(:num)' => 'product/edit/$1',
+	'products/delete/(:num)' => 'product/edit$Httpmethod/$1',
 
-$route['products/(:num)']['Delete'] = 'product/delete/$1';
-$route['product/(:num)'] = 'product/edit/$1';
-$route['products/delete/(:num)'] = 'product/edit$Httpmethod/$1';
+	'welcome/index' => 'welcomeController::index',
+	'welcome/edit/(/d+)' => '/packages/projectorangebox/theme/controllers/folder1/folder2/admin/PeopleController::index',
 
-$route['welcome/index'] = 'welcomeController::index';
-$route['welcome/index2'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\PeopleController::index';
-$route['welcome/index3'] = '\packages\projectorangebox\theme\controllers\folder1\folder2\admin\PeopleController::index';
+	'welcome/index2' => '/packages/projectorangebox/theme/controllers/folder1/folder2/admin/PeopleController::index',
+	'welcome/index3' => '/packages/projectorangebox/theme/controllers/folder1/folder2/admin/PeopleController::index',
 
-$route['welcome/remap'] = '\packages\projectorangebox\theme\controllers\welcomeController::remap';
+	'welcome/remap' => '/packages/projectorangebox/theme/controllers/welcomeController::remap',
 
-$route['welcome/test'] = 'welcome::test';
+	'welcome/test' => 'welcome::test',
+];
 
-$route['']['*'] = '\packages\projectorangebox\theme\controllers\WelcomeController::index';
-$route['(.*)']['*'] = '\packages\projectorangebox\theme\controllers\WelcomeController::fourohfour';
+/* home page */
+$config['routes'][''] = ['*'=>'/packages/projectorangebox/theme/controllers/WelcomeController::index'];
+
+/* four oh four! - catch all */
+$config['routes']['(.*)'] = ['*'=>'/packages/projectorangebox/theme/controllers/WelcomeController::fourohfour'];
 
 /**
  * Middleware Request
- * Method is always request(\CI_Input &$input) : bool
+ * Method is always request(/CI_Input &$input) : bool
  */
+$config['request'] = [
+	'(.*)' => ['*'=>['/projectorangebox/theme/middleware/PrivateMiddleware','/projectorangebox/theme/middleware/PublicMiddleware']],
+];
 
-$onRequest['(.*)']['*'] = ['\projectorangebox\theme\middleware\PrivateMiddleware','\projectorangebox\theme\middleware\PublicMiddleware'];
 
 //$onRequest['(.*)']['*'] = ['name'];
 
@@ -62,33 +71,41 @@ $onRequest['(.*)']['*'] = ['\projectorangebox\theme\middleware\PrivateMiddleware
  * method is always response(string &$output) : bool
  */
 
-$onResponse['(.*)']['*'] = ['\packages\projectorangebox\theme\middleware\PublicMiddleware'];
+$config['response'] = [
+	'(.*)' => ['*'=>['/packages/projectorangebox/theme/middleware/PublicMiddleware']],
+];
 
 /*
 
 These aren't used anymore
 
-$route['default_controller'] = 'welcome';
+'default_controller' => 'welcome';
 
 now should be
 
-$route['']['*'] = 'welcome::index';
+$config[''] => ['*','/packages/projectorangebox/theme/controllers/WelcomeController::index'];
 
 and
 
-$route['404_override'] = '';
+'404_override' => '';
 
 now should be
 
-$route['(.*)']['*'] = 'welcome::fourohfour';
+$config['(.*)'] => ['*','/packages/projectorangebox/theme/controllers/WelcomeController::fourohfour'];
 
 This isn't used because ALL dashes should be underscores.
-If you need dashes then create a route for it.
+If you need dashes then you can create a route for it.
 
-$route['translate_uri_dashes'] = FALSE;
+'translate_uri_dashes'] = FALSE;
+
 */
 
-$config['root level'] = '../..';
+/* how many levels down is the __ROOT__ from APPPATH/Controllers ? */
+$config['back up levels to root'] = '../..';
+
+/* what is the default method if none is provied (which you should!) */
 $config['default method'] = 'index';
-$config['onRequest'] = true;
-$config['onResponse'] = true;
+
+/* turn on middleware */
+$config['request middleware on'] = true;
+$config['response middleware on'] = true;

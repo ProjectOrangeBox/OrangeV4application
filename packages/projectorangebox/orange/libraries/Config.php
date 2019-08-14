@@ -47,6 +47,34 @@ class Config extends \CI_Config
 	protected $lazy_loaded = false;
 
 	/**
+	 * override parent
+	 *
+	 * Fetch a config file item
+	 *
+	 * @param	string	$item	Config item name
+	 * @param	string	$index	Index name
+	 * @return	string|null	The configuration item or NULL if the item doesn't exist
+	 */
+	public function item($item, $index = '')
+	{
+		return (\strpos($item,'.') !== false) ? $this->dotNotation($item,(($index === '') ? null : $index)) : parent::item($item,$index);
+	}
+
+	/**
+	 * override parent
+	 *
+	 * Set a config file item
+	 *
+	 * @param	string	$item	Config item key
+	 * @param	string	$value	Config item value
+	 * @return	void
+	 */
+	public function set_item($item, $value)
+	{
+		return (\strpos($item,'.') !== false) ? $this->setDotNotation($item,$value) : parent::set_item($item,$value);
+	}
+
+	/**
 	 *
 	 * Provides dot notation selection of configuration values
 	 * this is the "recommended" way to make sure you get database values as well

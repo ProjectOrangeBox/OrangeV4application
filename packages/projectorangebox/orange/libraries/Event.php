@@ -5,6 +5,8 @@ namespace projectorangebox\orange\library;
 /**
  * Orange
  *
+ * Manage Events in your Application
+ *
  * An open source extensions for CodeIgniter 3.x
  *
  * This content is released under the MIT License (MIT)
@@ -18,20 +20,6 @@ namespace projectorangebox\orange\library;
  * @link	https://codeigniter.com
  */
 
-/**
- * Manage Events in your Application
- *
- * Collection of errors with multiple grouping as well as displaying of errors.
- *
- * @package CodeIgniter / Orange
- * @author Don Myers
- * @copyright 2019
- * @license http://opensource.org/licenses/MIT MIT License
- * @link https://github.com/ProjectOrangeBox
- * @version v2.0
- * @filesource
- *
- */
 class Event
 {
 	const PRIORITY_LOWEST = 10;

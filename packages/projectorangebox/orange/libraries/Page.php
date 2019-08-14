@@ -49,13 +49,6 @@ class Page
 	protected $variables = [];
 
 	/**
-	 * the view path & name of the default template
-	 *
-	 * @var string
-	 */
-	protected $default_view = '';
-
-	/**
 	 * local storage of page's configuration
 	 *
 	 * @var array
@@ -117,9 +110,8 @@ class Page
 	{
 		/* pear plugin is a static class which manages pear plugins and is loaded into the global namespace so views can use it easily */
 		require __DIR__.'/page/Pear.php';
-		require __DIR__.'/page/Asset.php';
 
-		$this->asset = new Asset($config);
+		$this->asset = new Asset($this,$config);
 
 		$this->config = &$config;
 
@@ -128,24 +120,6 @@ class Page
 		$this->event = ci('event');
 
 		log_message('info', 'Page Class Initialized');
-	}
-
-	/**
-	 *
-	 * Set the default view if a view is not provided in render
-	 *
-	 * @access public
-	 *
-	 * @param string $template
-	 *
-	 * @return Page
-	 *
-	 */
-	public function set_default_view(string $view = '') : Page
-	{
-		$this->default_view = $view;
-
-		return $this;
 	}
 
 	/**
@@ -162,15 +136,9 @@ class Page
 	 * @return Page
 	 *
 	 */
-	public function render(string $view = null, array $data = null) : Page
+	public function render(string $view, array $data = null) : Page
 	{
 		log_message('debug', 'page::render::'.$view);
-
-		$view = ($view) ?? $this->default_view;
-
-		if ($view == null) {
-			throw new \Exception('No View provided for page::render.');
-		}
 
 		/* called everytime - use with caution */
 		$this->event->trigger('page.render', $this, $view);

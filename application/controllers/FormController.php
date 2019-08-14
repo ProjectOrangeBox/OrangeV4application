@@ -23,7 +23,7 @@ class FormController extends Controller {
 	/* @httpGet ~ => *::* */
 	public function test_pear_plugin() : void
 	{
-		ci('page')->render();
+		ci('page')->render('main/index');
 
 
 	}

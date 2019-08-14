@@ -22,8 +22,6 @@ class PublicMiddleware extends middleware
 		/* this will speed it up a little bit */
 		ci('output')->parse_exec_vars = false;
 
-		ci('page')->set_default_view(str_replace('controller/','/',ci('router')->fetch_route()));
-
 		return true;
 	}
 

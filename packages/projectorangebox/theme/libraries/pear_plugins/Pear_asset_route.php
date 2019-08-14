@@ -11,13 +11,13 @@ class Pear_asset_route extends Pear_plugin
 		$pageConfigs = loadConfigFile('page');
 
 		if (isset($pageConfigs['asset_merge']) && is_array($pageConfigs['asset_merge'])) {
-			$uri = str_replace('controller/','/',ci('router')->fetch_route());
+			$uri = implode('/',ci('uri')->segments);
 
 			foreach ($pageConfigs['asset_merge'] as $regex=>$closure) {
-				if (\is_callable($closure)) {
-					if (\preg_match('#^'.$regex.'$#im', $uri)) {
+				if (\preg_match('#^'.$regex.'$#im', $uri)) {
+					if (\is_callable($closure)) {
 						if ($closure() !== null) {
-							/* if something returned do not continue processing */
+							/* if anything returned do not continue processing */
 							break;
 						}
 					}

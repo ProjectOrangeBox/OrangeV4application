@@ -6,8 +6,7 @@ class WelcomeController extends Controller {
 
 	public function index() : void
 	{
-		echo getPath('testing');
-
+		ci('page')->render('main/index');
 
 	}
 

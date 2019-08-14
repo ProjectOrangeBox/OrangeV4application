@@ -46,18 +46,18 @@ class Router {
 	protected $requestMethod = '';
 
 	/**
-	 * $isXHR
+	 * $requestType
 	 *
 	 * @var string
 	 */
-	protected $isXHR = '';
+	protected $requestType = '';
 
 	/**
-	 * $rootLevel
+	 * $backUpLevels
 	 *
 	 * @var undefined
 	 */
-	protected $rootLevel = '';
+	protected $backUpLevels = '';
 
 	/**
 	 * $defaultMethod
@@ -91,17 +91,15 @@ class Router {
 	public function __construct()
 	{
 		/* reference to CodeIgniter URI Object */
-		$uri = load_class('URI','core');
+		$uri = load_class('URI');
+		$input = load_class('Input');
 
 		$this->url = implode('/', $uri->segments);
-		$this->requestMethod = isset($_SERVER['REQUEST_METHOD']) ? strtolower($_SERVER['REQUEST_METHOD']) : 'cli';
 
-		$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
-		$isJson = (!empty($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/json') !== false);
+		$this->requestMethod = $input->get_http_method(); /* http method (get,put,post,patch,delete... or cli */
+		$this->requestType = $input->get_request_type(); /* http, cli, ajax */
 
-		$this->isXHR = ($isAjax || $isJson) ? 'Ajax' : '';
-
-    log_message('debug','Route: HTTP Method:'.$this->requestMethod.' / Is XHR:'.$this->isXHR);
+    log_message('debug','Route: HTTP Method:'.$this->requestMethod.' / Is Type:'.$this->requestType);
 
 		/* load our routes from the routes configuration file */
 		$this->loadRouterConfig();
@@ -110,9 +108,11 @@ class Router {
 		list($callback,$params) = $this->dispatch($this->getSearch('routes'));
 
 		/* if it's a closure call it */
+		/* -- not working because of cache
 		if (is_callable($callback)) {
 			$callback = call_user_func_array($callback,$params);
 		}
+		*/
 
     log_message('debug','Route: Call Back: '.$callback);
 
@@ -127,28 +127,32 @@ class Router {
 	 *
 	 * controller::method
 	 * /folder/folder/admin/controller::method
-	 * \packages\orange\module\controller\folder\folder\admin\controller::method
+	 * /packages/orange/module/controller/folder/folder/admin/controller::method
 	 *
+	 * ++ start at APPPATH/Controllers
 	 * $route['welcome/index'] = 'welcome::index';
 	 * $route['welcome/index2'] = 'folder1/folder2/admin/welcome::index';
-	 * $route['welcome/index3'] = '\packages\orange\module\controllers\folder1\folder2\admin\welcome::index';
+	 *
+	 * ++ start at __ROOT__
+	 * Notice the starting forward slash /
+	 * $route['welcome/index3'] = '/packages/orange/module/controller/folder/folder/admin/controller::method';
 	 *
 	 */
 	protected function setDirectoryClassMethod(string $callback) : void
 	{
-		if ($callback[0] == '\\') {
-			/* root level package controller folder based */
-			$segs = explode('\\',$callback);
+		if ($callback[0] == '/') {
+			/* start at the __ROOT__ level to find the controller file */
+			$segs = explode('/',$callback);
 			$classMethod = array_pop($segs);
-			$directory = $this->rootLevel.implode('/',$segs);
+			$directory = $this->backUpLevels.implode('/',$segs);
 		} else {
-			/* default CodeIgniter */
+			/* start at APPPATH Controllers folder to find the controller file */
 			$segs = explode('/',$callback);
 			$classMethod = array_pop($segs);
 			$directory = implode('/',$segs);
 		}
 
-		list($c,$m) = explode('::',$classMethod.'::'.$this->defaultMethod);
+		list($c,$m) = explode('::',$classMethod);
 
 		$this->set_directory($directory);
 		$this->set_class($c);
@@ -169,20 +173,11 @@ class Router {
 
 		/* are we in development mode or is the cache file missing */
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
-			/* we also include some default config values that can be overwritten in route.php config */
-			$config['root level'] = '../..';
+			/* setup defaults */
+			$config['back up levels to root'] = '../..';
 			$config['default method'] = 'index';
-			$config['onRequest'] = true;
-			$config['onResponse'] = true;
-
-			/* routes */
-			$route = [];
-
-			/* middleware */
-			$onRequest = [];
-			$onResponse = [];
-
-			$cached = [];
+			$config['request middleware on'] = true;
+			$config['response middleware on'] = true;
 
 			if (file_exists(APPPATH.'config/routes.php')) {
 				include(APPPATH.'config/routes.php');
@@ -192,49 +187,27 @@ class Router {
 				include(APPPATH.'config/'.ENVIRONMENT.'/routes.php');
 			}
 
-			$cached['routes'] = $this->buildArray($route,'routes');
-			$cached['request'] = $this->buildArray($onRequest,'onRequest');
-			$cached['response'] = $this->buildArray($onResponse,'onResponse');
-			$cached['config'] = [
-				'rootLevel' => $config['root level'],
-				'defaultMethod' => $config['default method'],
-				'onResponse' =>$config['onResponse'],
-				'onRequest' =>$config['onRequest'],
-			];
+			/* grab the config values */
+			$this->backUpLevels = $config['back up levels to root'];
+			$this->defaultMethod = $config['default method'];
+			$this->onRequest = $config['request middleware on'];
+			$this->onResponse = $config['response middleware on'];
+
+			/* reformat */
+			$config['routes'] = $this->buildArray($config['routes'],$this->defaultMethod);
+			$config['request'] = $this->buildArray($config['request'],'request');
+			$config['response'] = $this->buildArray($config['response'],'response');
 
 	    log_message('debug','Route: Build Router Cache File '.$cacheFilePath);
 
-			varExportFile($cacheFilePath,$cached);
+			varExportFile($cacheFilePath,$config);
 		} else {
-			$cached = include $cacheFilePath;
+			$config = include $cacheFilePath;
 		}
 
-		$this->routes['routes'] = $cached['routes'];
-		$this->routes['request'] = $cached['request'];
-		$this->routes['response'] = $cached['response'];
-
-		$this->rootLevel = $cached['config']['rootLevel'];
-		$this->defaultMethod = $cached['config']['defaultMethod'];
-		$this->onResponse = $cached['config']['onResponse'];
-		$this->onRequest = $cached['config']['onRequest'];
-	}
-
-	/**
-	 *
-	 * Get the current route
-	 *
-	 * @access public
-	 *
-	 * @return string
-	 *
-	 */
-	public function fetch_route() : string
-	{
-		$seg[] = strtolower(trim($this->fetch_directory(),'/'));
-		$seg[] = strtolower(trim($this->fetch_class(),'/'));
-		$seg[] = strtolower(trim($this->fetch_method(),'/'));
-
-		return trim(implode('/',$seg),'/');
+		$this->routes['routes'] = $config['routes'];
+		$this->routes['request'] = $config['request'];
+		$this->routes['response'] = $config['response'];
 	}
 
 	/**
@@ -244,13 +217,15 @@ class Router {
 	 * @param string $key
 	 * @return void
 	 */
-	protected function buildArray(array $routes,string $key) : array
+	protected function buildArray(array $routes,string $defaultMethod) : array
 	{
+		$attachMethod = function($input,$method) {
+			return (is_string($input) && strpos($input,'::') === false) ? $input .= '::'.$method : $input;
+		};
+
 		$built = [];
 
 		foreach ($routes as $key=>$val) {
-			$skip = false;
-
 			if (is_array($val)) {
 				$httpMethod = array_keys($val)[0];
 				$callback = $val[$httpMethod];
@@ -259,9 +234,16 @@ class Router {
 				$callback = $val;
 			}
 
-			if (!$skip) {
-				$built[strtolower($httpMethod)]['#^'.str_replace(array(':any',':num'), array('[^/]+','[0-9]+'), $key).'$#'] = $callback;
+			/* if they didn't provide a method use the default */
+			if (is_array($callback)) {
+				foreach ($callback as $idx=>$single) {
+					$callback[$idx] = $attachMethod($single,$defaultMethod);
+				}
+			} elseif (is_string($callback)) {
+				$callback = $attachMethod($callback,$defaultMethod);
 			}
+
+			$built[strtolower($httpMethod)]['#^'.str_replace(array(':any',':num'), array('[^/]+','[0-9]+'), $key).'$#'] = $callback;
 		}
 
 		return $built;
@@ -281,8 +263,11 @@ class Router {
 
 		foreach ($search as $regxUrl=>$callback) {
 			if (preg_match($regxUrl, $this->url, $params)) {
+				/* match */
+				$this->matched = $regxUrl;
+
 				/* add custom parameters */
-				$params['Ajax'] = $this->isXHR;
+				$params['RequestType'] = ucfirst($this->requestType);
 				$params['HttpMethod'] = ucfirst($this->requestMethod);
 
 				/* replace arguments with params */
@@ -394,7 +379,7 @@ class Router {
 	public function onRequest(\CI_Input &$input) : void
 	{
 		if ($this->onRequest) {
-			$this->on('request',$input);
+			$this->on($this->getSearch('request'),$input);
 		}
 	}
 
@@ -407,7 +392,7 @@ class Router {
 	public function onResponse(string &$output) : void
 	{
 		if ($this->onResponse) {
-			$this->on('response',$output);
+			$this->on($this->getSearch('response'),$output);
 		}
 	}
 
@@ -418,17 +403,17 @@ class Router {
 	 * @param mixed &$reference
 	 * @return void
 	 */
-	protected function on(string $method, &$reference) : void
+	protected function on(array $search,&$reference) : void
 	{
 		try {
-			list($callback,$params) = $this->dispatch($this->getSearch($method));
+			list($callback,$params) = $this->dispatch($search);
 
-			foreach ($callback as $classname) {
+			foreach ($callback as $classMethod) {
+				list($classname,$method) = explode('::',$classMethod,2);
 				if (class_exists($classname,true)) {
 					$middleware = new $classname();
-
 					if (method_exists($middleware,$method)) {
-						if ($middleware->$method($reference) === false) {
+						if ($middleware->$method($reference,$params) === false) {
 							break; /* break out of foreach */
 						}
 					}

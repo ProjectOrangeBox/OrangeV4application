@@ -57,21 +57,21 @@ class Input extends \CI_Input
 	 *
 	 * @var string
 	 */
-	protected $request_type = 'html';
+	protected $requestType;
 
 	/**
 	 * The input stash session key
 	 *
 	 * @var string
 	 */
-	protected $stash_key = '_input_stash_';
+	protected $stashKey = '_stash_hash_key_';
 
 	/**
-	 * Contains the current POST or PUT or PATCH request data
+	 * $requestMethod
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $stash_hash_key = '_stash_hash_key_';
+	protected $requestMethod = '';
 
 	/**
 	 *
@@ -96,12 +96,20 @@ class Input extends \CI_Input
 		/* call the parent classes constructor */
 		parent::__construct();
 
+		$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
+		$isJson = (!empty($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/json') !== false);
+		$isCli = (PHP_SAPI === 'cli' OR defined('STDIN'));
+
 		/* let's figure out the request type */
-		if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
-			$this->request_type = 'ajax';
-		} elseif (is_cli()) {
-			$this->request_type = 'cli';
+		if ($isAjax || $isJson) {
+			$this->requestType = 'ajax';
+		} elseif ($isCli) {
+			$this->requestType = 'cli';
+		} else {
+			$this->requestType = 'html';
 		}
+
+		$this->requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'cli';
 
 		log_message('debug',__METHOD__);
 	}
@@ -280,15 +288,17 @@ class Input extends \CI_Input
 	 * @param mixed bool
 	 * @return void
 	 */
-	public function requestRemap(array $remap,bool $replace = true) : array
+	public function requestRemap(array $remap,bool $replace = true) /* mixed */
 	{
-		$formData = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream);
+		$return = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream)->get();
 
 		if ($replace) {
-			$this->_request = $formData->get();
+			$this->_request = $return;
+
+			$return = $this;
 		}
 
-		return $formData->get();
+		return $return;
 	}
 
 	/**
@@ -331,16 +341,58 @@ class Input extends \CI_Input
 	 * @return \Input
 	 *
 	 */
-	public function set_request_type(string $request_type) : Input
+	public function set_request_type(string $requestType) : Input
 	{
+		$requestType = strtolower($requestType);
+
 		/* options include cli, ajax, html */
-		if (!in_array($request_type, ['cli','ajax','html'])) {
-			throw new \Exception(__METHOD__.' unknown type '.$request_type.'.');
+		if (!in_array($requestType, ['cli','ajax','html'])) {
+			throw new \Exception(__METHOD__.' unknown type '.$requestType.'.');
 		}
 
-		$this->request_type = $request_type;
+		$this->requestType = $requestType;
 
 		return $this;
+	}
+
+	/**
+	 * Manually set the current http method for testing purposes
+	 *
+	 * @param string $requestMethod
+	 * @return void
+	 */
+	public function set_http_method(string $requestMethod) : Input
+	{
+		$requestMethod = strtolower($requestMethod);
+
+		/* options include cli, ajax, html */
+		if (!in_array($requestMethod, ['cli','get','head','post','put','delete','connect','options','trace','patch'])) {
+			throw new \Exception(__METHOD__.' unknown type '.$requestMethod.'.');
+		}
+
+		$this->requestMethod = $requestMethod;
+
+		return $this;
+	}
+
+	/**
+	 * get_http_method
+	 *
+	 * @return void
+	 */
+	public function get_http_method() : string
+	{
+		return strtolower($this->requestMethod);
+	}
+
+	/**
+	 * get_request_type
+	 *
+	 * @return void
+	 */
+	public function get_request_type() : string
+	{
+		return $this->requestType;
 	}
 
 	/**
@@ -354,7 +406,7 @@ class Input extends \CI_Input
 	 */
 	public function is_ajax_request() : bool
 	{
-		return ($this->request_type == 'ajax');
+		return ($this->requestType == 'ajax');
 	}
 
 	/**
@@ -367,7 +419,7 @@ class Input extends \CI_Input
 	 */
 	public function is_cli_request() : bool
 	{
-		return ($this->request_type == 'cli');
+		return ($this->requestType == 'cli');
 	}
 
 	/**
@@ -381,7 +433,7 @@ class Input extends \CI_Input
 	{
 		/* is there even an array to store? */
 		if (is_array($this->_request)) {
-			ci('session')->set_tempdata($this->stash_key, $this->_request, 3600); /* fixed at 10 minutes */
+			ci('session')->set_tempdata($this->stashKey, $this->_request, 3600); /* fixed at 10 minutes */
 		}
 
 		return $this;
@@ -397,10 +449,10 @@ class Input extends \CI_Input
 	public function unstash() : bool
 	{
 		/* read the stashed data if any */
-		$stashed = ci('session')->tempdata($this->stash_key);
+		$stashed = ci('session')->tempdata($this->stashKey);
 
 		/* clear the stashed data */
-		ci('session')->unset_tempdata($this->stash_key);
+		ci('session')->unset_tempdata($this->stashKey);
 
 		/* set the request to the stashed data or nothing is it's not an array */
 		$this->_request = (is_array($stashed)) ? $stashed : [];
