@@ -1,6 +1,6 @@
 <?php
 
-namespace projectorangebox\orange\library;
+namespace projectorangebox\orange\library\input;
 
 use Countable;
 use ArrayAccess;

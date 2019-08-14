@@ -14,6 +14,12 @@ $config['routes'] = [
 	'form/test_pear_plugin/(:any)' => 'FormController::test_pear_plugin',
 	'form/test_validation' => 'FormController::test_validation',
 
+	'test' => 'TestController::index',
+	'test/test1' => 'TestController::test1',
+	'test/test2' => 'TestController::test2',
+	'test/test3' => 'TestController::test3',
+	'test/test4' => 'TestController::test4',
+
 	'form/input' => 'FormController::index',
 	'form/output' => ['post'=>'FormController::post'],
 	'form/dn' => 'FormController::dotnotation',

@@ -2,7 +2,7 @@
 
 namespace projectorangebox\orange\library\input;
 
-use \projectorangebox\orange\library\Dot;
+use \projectorangebox\orange\library\input\Dot;
 
 /**
 <form method="post" action="/form/output">

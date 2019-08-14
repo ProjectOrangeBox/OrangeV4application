@@ -38,7 +38,7 @@ namespace projectorangebox\orange\library\cache;
  * @config cache_url `http://www.example.com/api/cache/`
  *
  */
-class Cache_request extends \CI_Driver
+class Request
 {
 	/**
 	 * Cache storage
@@ -55,24 +55,15 @@ class Cache_request extends \CI_Driver
 	protected $config = [];
 
 	/**
-	 * Parent Cache Class
-	 *
-	 * @var \Cache
-	 */
-	protected $parent;
-
-	/**
 	 *
 	 * Constructor
 	 *
 	 * @param array &$config
-	 * @param Cache &$parent
 	 *
 	 */
-	public function __construct(&$config, &$parent)
+	public function __construct(array &$config)
 	{
 		$this->config = &$config;
-		$this->parent = &$parent;
 	}
 
 	/**

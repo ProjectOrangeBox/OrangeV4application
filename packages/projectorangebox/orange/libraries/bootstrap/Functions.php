@@ -326,7 +326,7 @@ if (!function_exists('site_url')) {
 		}
 
 		/* where is the cache file? */
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'/site_url.php';
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'site_url.php';
 
 		/* are we in development mode or is the cache file missing */
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {

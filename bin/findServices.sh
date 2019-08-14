@@ -20,8 +20,8 @@ $_ENV = array_merge($_ENV,parse_ini_file('.env',true,INI_SCANNER_TYPED));
 define('APPPATH',__ROOT__.'/application/');
 define('ENVIRONMENT', isset($_ENV['CI_ENV']) ? $_ENV['CI_ENV'] : 'development');
 
-require __ROOT__.'/packages/projectorangebox/orange/libraries/Functions.php';
-require __ROOT__.'/packages/projectorangebox/orange/libraries/Orange.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/bootstrap/Functions.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/bootstrap/Orange.php';
 
 echo 'Application Root: '.__ROOT__.PHP_EOL.PHP_EOL;
 

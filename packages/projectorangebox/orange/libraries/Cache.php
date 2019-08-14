@@ -28,40 +28,38 @@ namespace projectorangebox\orange\library;
  *
  * @config cache_path `ROOTPATH.'/var/cache/'`
  * @config cache_default `dummy`
- * @config cache_backup `dummy`
  * @config cache_ttl `60`
- * @config key_prefix `cache.`
  *
  */
-class Cache extends \CI_Cache
+class Cache
 {
-	/**
-	 * errors configuration array
-	 *
-	 * @var \Cache_request
-	 */
-	public $request;
-
-	/**
-	 * errors configuration array
-	 *
-	 * @var \Cache_export
-	 */
-	public $export;
-
-	/**
-	 * Orange Event Object
-	 *
-	 * @var \Event
-	 */
-	protected $event;
-
 	/**
 	 * configuration storage
 	 *
 	 * @var array
 	 */
 	protected $config = [];
+
+	/**
+	 * $drivers
+	 *
+	 * @var array
+	 */
+	protected $drivers = [];
+
+	/**
+	 * Reference to the driver
+	 *
+	 * @var mixed
+	 */
+	protected $adapter = 'dummy';
+
+	/**
+	 * $ttl
+	 *
+	 * @var integer
+	 */
+	static protected $ttl = 0;
 
 	/**
 	 *
@@ -72,59 +70,70 @@ class Cache extends \CI_Cache
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config=[])
+	public function __construct(array &$config = [])
 	{
-		$this->event = &ci('event');
+		/* combined config */
+		$this->config = array_replace(\orange::loadFileConfig('config'),$config);
 
-		$this->config = &array_replace(load_config('config', 'config'), (array)$config);
-
-		parent::__construct([
-			'adapter'=>$this->config['cache_default'],
-			'backup'=>$this->config['cache_backup'],
-			'key_prefix'=>$this->config['cache_key_prefix'],
-		]);
-
-		/* attach page and export to CodeIgniter cache singleton loaded above */
-		$this->request = new cache\Cache_request($this->config, $this);
-		$this->export = new cache\Cache_export($this->config, $this);
-	}
-
-	/**
-	 * Wrapper function to sue the currently loaded cache library in a closure fashion
-	 *
-	 * @param $key string cache key
-	 * @param $closure function to run IF the cached data is not found or has expired
-	 * @param $ttl integer time to live if empty it will use the default
-	 *
-	 * @return mixed cached data
-	 *
-	 */
-	/**
-	 *
-	 * Wrapper function to use the currently loaded cache library in a closure fashion
-	 *
-	 * @access public
-	 *
-	 * @param string $key
-	 * @param callable $closure
-	 * @param int $ttl null
-	 *
-	 * @return mixed
-	 *
-	 * #### Example
-	 * ```php
-	 * $cached = ci('cache')->inline('foobar',function(){ return 'cache me for 60 seconds!' },60);
-	 * ```
-	 */
-	public function inline(string $key, callable $closure, int $ttl = null)
-	{
-		if (!$cache = $this->get($key)) {
-			$cache = $closure();
-			$ttl = ($ttl) ? (int) $ttl : $this->ttl();
-			$this->save($key, $cache, $ttl);
+		if (!isset($this->config['cache_default'])) {
+			throw new \Exception('No value set for "cache_default" in config.php');
 		}
 
-		return $cache;
+		$this->adapter = $this->config['cache_default'];
+
+		// If the specified adapter isn't available switch to backup.
+		if (!$this->driver($this->adapter)->is_supported()) {
+			// Backup isn't supported either. Default to 'Dummy' driver.
+			log_message('error', 'Cache adapter "'.$this->adapter.'" is unavailable. Cache is now using "Dummy" adapter.');
+
+			$this->adapter = 'dummy';
+		}
+	}
+
+	public function __get($name)
+	{
+		/* if the driver doesn't exist the driver() method will throw a exception */
+		return $this->driver($name);
+	}
+
+	public function __call($name, $arguments)
+	{
+		/* test for supported methods */
+		if (!in_array($name,['get','save','delete','increment','decrement','clean','cache_info','get_metadata'])) {
+			throw new \Exception($name.' is a unsupported method.');
+		}
+
+		return call_user_func_array([$this->driver($this->adapter),$name],$arguments);
+	}
+
+	// ------------------------------------------------------------------------
+
+	/**
+	 * Is the requested driver supported in this environment?
+	 *
+	 * @param	string	$driver	The driver to test
+	 * @return	array
+	 */
+	public function is_supported($driver)
+	{
+		return $this->driver($driver)->is_supported();
+	}
+
+	protected function driver(string $name) /* mixed */
+	{
+		if (!isset($this->drivers[$name])) {
+			$caches = \orange::fileConfig('services.cache_drivers');
+
+			if (!isset($caches[$name])) {
+				throw new \Exception('"'.$name.'" cache server not found.');
+			}
+
+			$service = $caches[$name];
+
+			$this->drivers[$name] = new $service($this->config);
+		}
+
+		return $this->drivers[$name];
 	}
 
 	/**
@@ -138,10 +147,17 @@ class Cache extends \CI_Cache
 	 * @return int
 	 *
 	 */
-	public function ttl(bool $use_window = true) : int
+	static public function ttl(/* mixed */ $cache_ttl = null,bool $use_window = true) : int
 	{
-		/* get the cache ttl from the config file */
-		$cache_ttl = (int)$this->config['cache_ttl'];
+		if (is_bool($cache_ttl)) {
+			$use_window = $cache_ttl;
+			$cache_ttl = self::$ttl;
+		} elseif (is_null($cache_ttl)) {
+			/* get the cache ttl from the config file */
+			$cache_ttl = self::$ttl;
+		} else {
+			$cache_ttl = (int)$cache_ttl;
+		}
 
 		/* are they using the window option? */
 		if ($use_window) {
@@ -151,7 +167,7 @@ class Cache extends \CI_Cache
 			$cache_ttl += mt_rand(-$window, $window);
 		}
 
-		return (int)$cache_ttl;
+		return $cache_ttl;
 	}
 
 	/**
@@ -186,7 +202,7 @@ class Cache extends \CI_Cache
 		log_message('debug', 'delete_cache_by_tags '.implode(', ', $tags));
 
 		/* trigger a event incase somebody else needs to know send in our array of tags by reference */
-		$this->event->trigger('delete.cache.by.tags', $tags);
+		ci('event')->trigger('delete.cache.by.tags', $tags);
 
 		/* get all of the currently loaded cache driver cache keys */
 		$cached_keys = $this->cache_info();
@@ -202,4 +218,5 @@ class Cache extends \CI_Cache
 
 		return $this;
 	}
+
 } /* end class */

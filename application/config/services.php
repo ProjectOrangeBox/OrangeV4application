@@ -24,6 +24,17 @@ return [
 
 	'example_model'=>'\projectorangebox\theme\model\Example_model',
 
+	'cache_drivers'=> [
+		'apc' => 'CI_Cache_apc',
+		'dummy' => 'CI_Cache_dummy',
+		'file' => 'CI_Cache_file',
+		'memcached' => 'CI_Cache_memcached',
+		'redis' => 'CI_Cache_redis',
+		'wincache' => 'CI_Cache_wincache',
+		'export' => '\projectorangebox\orange\library\cache\Export',
+		'request' => '\projectorangebox\orange\library\cache\Request',
+	],
+
 	'filter_float' => '\projectorangebox\orange\library\filters\Filter_float',
 	'filter_filename' => '\projectorangebox\orange\library\filters\Filter_filename',
 	'filter_length' => '\projectorangebox\orange\library\filters\Filter_length',

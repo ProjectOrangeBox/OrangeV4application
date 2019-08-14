@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library\cache;
 
+use projectorangebox\orange\library\Cache;
+
 /**
  * Orange
  *
@@ -39,7 +41,7 @@ namespace projectorangebox\orange\library\cache;
  * @config cache_url `http://www.example.com/api/cache/`
  *
  */
-class Cache_export extends \CI_Driver
+class Export
 {
 	/**
 	 * Configuration array
@@ -47,13 +49,6 @@ class Cache_export extends \CI_Driver
 	 * @var array
 	 */
 	protected $config = [];
-
-	/**
-	 * Parent Cache Class
-	 *
-	 * @var \Cache
-	 */
-	protected $parent;
 
 	/**
 	 * CodeIgniter Input
@@ -74,15 +69,13 @@ class Cache_export extends \CI_Driver
 	 * Constructor
 	 *
 	 * @param array &$config
-	 * @param Cache &$parent
 	 *
 	 */
-	public function __construct(array &$config, Cache &$parent)
+	public function __construct(array &$config)
 	{
 		$this->config = &$config;
-		$this->parent = &$parent;
 
-		$this->input = &ci('input');
+		$this->input = ci('input');
 	}
 
 	/**
@@ -132,7 +125,7 @@ class Cache_export extends \CI_Driver
 	 */
 	public function save(string $id, $data, int $ttl = null, bool $include = false)
 	{
-		$ttl = ($ttl) ? $ttl : $this->parent->ttl();
+		$ttl = ($ttl) ? $ttl : cache::ttl();
 
 		if (is_array($data) || is_object($data)) {
 			$data = '<?php return '.str_replace(['Closure::__set_state','stdClass::__set_state'], '(object)', var_export($data, true)).';';

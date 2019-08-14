@@ -3,12 +3,12 @@
 define('NOVALUE','#PLEASE_THROW_AN_EXCEPTION#');
 
 /* new global functions */
-require 'Functions.php';
+require 'bootstrap/Functions.php';
 
 /* orange static functions to keep them out of "global" namespace */
-require 'Orange.php';
+require 'bootstrap/Orange.php';
 
 /* global wrappers functions */
-require 'Wrappers.php';
+require 'bootstrap/Wrappers.php';
 
 require_once BASEPATH.'core/CodeIgniter.php';

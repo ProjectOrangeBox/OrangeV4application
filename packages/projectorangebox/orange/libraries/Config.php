@@ -173,7 +173,7 @@ class Config extends \CI_Config
 
 		$this->lazy_loaded = false;
 
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'/config.php';
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.php';
 
 		return (file_exists($cacheFilePath)) ? unlink($cacheFilePath) : true;
 	}
@@ -190,7 +190,7 @@ class Config extends \CI_Config
 	protected function lazy_load() : void
 	{
 		if (!$this->lazy_loaded) {
-			$cacheFilePath = \orange::fileConfig('config.cache_path').'/config.php';
+			$cacheFilePath = \orange::fileConfig('config.cache_path').'config.php';
 
 			if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 				/**

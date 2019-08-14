@@ -20,8 +20,8 @@ $_ENV = array_merge($_ENV,parse_ini_file('.env',true,INI_SCANNER_TYPED));
 define('APPPATH',__ROOT__.'/application/');
 define('ENVIRONMENT', isset($_ENV['CI_ENV']) ? $_ENV['CI_ENV'] : 'development');
 
-require __ROOT__.'/packages/projectorangebox/orange/libraries/Functions.php';
-require __ROOT__.'/packages/projectorangebox/orange/libraries/Orange.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/bootstrap/Functions.php';
+require __ROOT__.'/packages/projectorangebox/orange/libraries/bootstrap/Orange.php';
 
 echo 'Application Root: '.__ROOT__.PHP_EOL.PHP_EOL;
 
@@ -58,14 +58,14 @@ echo '-- Cut & Paste as needed --'.PHP_EOL.PHP_EOL;
  */
 
 foreach (\orange::applicationSearch('(.*)/controllers/(.*)\.php') as $file) {
-	process($file);
+	process($file,'controller');
 }
 
 echo PHP_EOL;
 
 exit(1);
 
-function process(string $realPath) : void
+function process(string $realPath,string $stripFromControllerName) : void
 {
 	$last = '';
 	$lines = file(__ROOT__.$realPath);
@@ -86,8 +86,8 @@ function process(string $realPath) : void
 
 				$new = strtolower($pathinfo['dirname'].'/'.$pathinfo['filename']);
 
-				if (substr($new,-10) == 'controller') {
-					$new = substr($new,0,-10);
+				if (substr($new,-strlen($stripFromControllerName)) == $stripFromControllerName) {
+					$new = substr($new,0,-strlen($stripFromControllerName));
 				}
 
 				$url = substr($new,strpos($new,$controllersFolder) + strlen($controllersFolder)).'~';
