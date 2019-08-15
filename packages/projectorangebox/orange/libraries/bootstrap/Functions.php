@@ -20,26 +20,20 @@ if (!function_exists('ci'))
 		$serviceName = ($as) ?? basename(str_replace('\\','/',$name),'.php');
 
 		if ($serviceName) {
+
 			/* has this service been attached yet? */
 			if (!isset($instance->$serviceName)) {
-				/* no it has not */
+				/* try to load it's configuration but don't throw an error */
+				$config = \orange::loadFileConfig($serviceName,false);
 
 				/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
-				if ($namedService = \orange::fileConfig('services.'.$name,false)) {
+				if ($namedService = \orange::findService($name,false)) {
 					$name = $namedService;
 				}
 
 				/* try to let composer autoload load it */
 				if (class_exists($name,true)) {
-					/* found and loaded! */
-
-					/*
-					 * load the matching config if it exists then
-					 * create a new instance and
-					 * attach the singleton to the CodeIgniter super object
-					 */
-					$config = \orange::loadFileConfig($serviceName);
-
+					/* create a new instance and attach the singleton to the CodeIgniter super object */
 					$instance->$serviceName = new $name($config);
 				} else {
 					/*
@@ -50,7 +44,7 @@ if (!function_exists('ci'))
 						$instance->load->model($name,$serviceName);
 					} else {
 						/* library will take a config so let's try to find it if it exists */
-						$instance->load->library($name,\orange::loadFileConfig($serviceName));
+						$instance->load->library($name,$config);
 					}
 				}
 			}
@@ -85,7 +79,7 @@ if (!function_exists('load_class'))
 		/* our namespaced prefix */
 		$subclass_prefix = config_item('subclass_prefix');
 
-		$namedService = \orange::fileConfig('services.'.$class,false);
+		$namedService = \orange::findService($class,false);
 
 		/* are we using our name spaced prefix or CI's? */
 		if ($namedService && class_exists($namedService,true)) {

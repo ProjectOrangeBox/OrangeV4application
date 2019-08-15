@@ -30,15 +30,18 @@ class Orange {
 	 * @return array
 	 *
 	 */
-	static public function loadFileConfig(string $filename, string $variableVariable = 'config') : array
+	static public function loadFileConfig(string $filename,bool $throwException = true ,string $variableVariable = 'config') : array
 	{
 		$filename = strtolower($filename);
 
 		if (!isset(self::$fileConfigs[$filename])) {
+			$configFound = false;
+
 			/* they either return something or use the CI default $config['...'] format so set those up as empty */
 			$returnedApplicationConfig = $returnedEnvironmentConfig = $$variableVariable = [];
 
 			if (file_exists(APPPATH.'config/'.$filename.'.php')) {
+				$configFound = true;
 				$returnedApplicationConfig = require APPPATH.'config/'.$filename.'.php';
 			}
 
@@ -47,6 +50,10 @@ class Orange {
 			}
 
 			self::$fileConfigs[$filename] = (array)$returnedEnvironmentConfig + (array)$returnedApplicationConfig + (array)$$variableVariable;
+
+			if (!$configFound && $throwException) {
+				throw new \Exception(sprintf('Could not location a configuration file named "%s".',APPPATH.'config/'.$filename.'.php'));
+			}
 		}
 
 		return self::$fileConfigs[$filename];
@@ -60,22 +67,48 @@ class Orange {
 	 * @param mixed return value - if none giving it will throw an error if the array key doesn't exist
 	 * @return mixed - based on $default value
 	 *
-	 * $view = \orange::fileConfig('view.folder/controller/method');
-	 *
-	 * $service = \orange::fileConfig('service.myservice',false);
-	 *
 	 */
 	static public function fileConfig(string $dotNotation, $default = NOVALUE) /* mixed */
 	{
-		list($filename,$key) = explode('.',strtolower($dotNotation),2);
+		$dotNotation = strtolower($dotNotation);
 
-		$array = self::loadFileConfig($filename);
+		if (strpos($dotNotation,'.') === false) {
+			$value = self::loadFileConfig($filename);
+		} else {
+			list($filename,$key) = explode('.',$dotNotation,2);
 
-		if (!isset($array[$key]) && $default === NOVALUE) {
-			throw new \Exception('Find Config Key could not locate "'.$key.'" in "'.$filename.'".');
+			$array = self::loadFileConfig($filename);
+
+			if (!isset($array[$key]) && $default === NOVALUE) {
+				throw new \Exception('Find Config Key could not locate "'.$key.'" in "'.$filename.'".');
+			}
+
+			$value = (isset($array[$key])) ? $array[$key] : $default;
 		}
 
-		return (isset($array[$key])) ? $array[$key] : $default;
+		return $value;
+	}
+
+ /**
+  * findService
+  *
+  * @param string $serviceName
+  * @param mixed bool
+  * @return void
+  */
+	static public function findService(string $serviceName,bool $throwException = true) /* mixed false or string */
+	{
+		$serviceName = strtolower($serviceName);
+
+		$services = self::loadFileConfig('services');
+
+		$service = (isset($services[$serviceName])) ? $services[$serviceName] : false;
+
+		if ($throwException && !$service) {
+			throw new \Exception(sprintf('Could not locate a service named "%s".',$serviceName));
+		}
+
+		return $service;
 	}
 
  /**
@@ -180,7 +213,7 @@ class Orange {
   */
 	static public function getPackages() : array
 	{
-		$config = self::loadFileConfig('autoload','autoload');
+		$config = self::loadFileConfig('autoload',true,'autoload');
 
 		/* add application as package */
 		array_unshift($config['packages'],'application');
