@@ -3,6 +3,8 @@
 namespace projectorangebox\orange\library\cache;
 
 use projectorangebox\orange\library\Cache;
+use projectorangebox\orange\library\traits\Cache_DeleteByTag;
+use projectorangebox\orange\library\traits\Cache_inline;
 
 /**
  * Orange
@@ -43,6 +45,9 @@ use projectorangebox\orange\library\Cache;
  */
 class Export
 {
+	use Cache_DeleteByTag;
+	use Cache_inline;
+
 	/**
 	 * Configuration array
 	 *
@@ -125,7 +130,7 @@ class Export
 	 */
 	public function save(string $id, $data, int $ttl = null, bool $include = false)
 	{
-		$ttl = ($ttl) ? $ttl : cache::ttl();
+		$ttl = cache::ttl();
 
 		if (is_array($data) || is_object($data)) {
 			$data = '<?php return '.str_replace(['Closure::__set_state','stdClass::__set_state'], '(object)', var_export($data, true)).';';
@@ -276,6 +281,22 @@ class Export
 	}
 
 	/**
+	 * cache_keys
+	 *
+	 * @return array
+	 */
+	public function cache_keys() : array
+	{
+		$keys = [];
+
+		foreach (glob($this->config['cache_path'].'*.meta'.$this->suffix) as $path) {
+			$keys[] = basename($path,'.meta'.$this->suffix);
+		}
+
+		return $keys;
+	}
+
+	/**
 	 *
 	 * Handle cache delete request from another server
 	 *
@@ -308,34 +329,6 @@ class Export
 		echo $request;
 
 		exit(200);
-	}
-
-	/**
-	 *
-	 * Wrapper function to use this library in a closure fashion
-	 *
-	 * @access public
-	 *
-	 * @param string $key
-	 * @param callable $closure
-	 * @param int $ttl null
-	 *
-	 * @return mixed
-	 *
-	 * #### Example
-	 * ```php
-	 * $cached = ci('cache')->export->cache('foobar',function(){ return 'cache me for 60 seconds!' },60);
-	 * ```
-	 */
-	public function cache(string $key, callable $closure, int $ttl = null)
-	{
-		if (!$cache = $this->get($key)) {
-			$ci = ci();
-			$cache = $closure($ci);
-			$this->save($key, $cache, $ttl);
-		}
-
-		return $cache;
 	}
 
 	/**

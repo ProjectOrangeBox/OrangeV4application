@@ -2,6 +2,10 @@
 
 namespace projectorangebox\orange\library\cache;
 
+use projectorangebox\orange\library\Cache;
+use projectorangebox\orange\library\traits\Cache_DeleteByTag;
+use projectorangebox\orange\library\traits\Cache_inline;
+
 /**
  * Orange
  *
@@ -40,6 +44,9 @@ namespace projectorangebox\orange\library\cache;
  */
 class Request
 {
+	use Cache_DeleteByTag;
+	use Cache_inline;
+
 	/**
 	 * Cache storage
 	 *
@@ -238,31 +245,13 @@ class Request
 	}
 
 	/**
+	 * cache_keys
 	 *
-	 * Wrapper function to use this library in a closure fashion
-	 * of course these are request only cached items
-	 *
-	 * @access public
-	 *
-	 * @param string $key
-	 * @param callable $closure
-	 * @param int $ttl null
-	 *
-	 * @return mixed
-	 *
-	 * #### Example
-	 * ```php
-	 * $cached = ci('cache')->request->cache('foobar',function(){ return 'cache me for 60 seconds!' });
-	 * ```
+	 * @return array
 	 */
-	public function cache(string $key, callable $closure, int $ttl = null)
+	public function cache_keys() : array
 	{
-		if (!$cache = $this->get($key)) {
-			$ci = ci();
-			$cache = $closure($ci);
-			$this->save($key, $cache, $ttl);
-		}
-
-		return $cache;
+		return array_keys($this->cache);
 	}
+
 } /* end class */

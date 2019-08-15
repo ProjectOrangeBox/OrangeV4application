@@ -11,4 +11,5 @@ require 'bootstrap/Orange.php';
 /* global wrappers functions */
 require 'bootstrap/Wrappers.php';
 
+/* standard CodeIgniter */
 require_once BASEPATH.'core/CodeIgniter.php';

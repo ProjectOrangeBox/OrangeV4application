@@ -24,16 +24,14 @@ return [
 
 	'example_model'=>'\projectorangebox\theme\model\Example_model',
 
-	'cache_drivers'=> [
-		'apc' => 'CI_Cache_apc',
-		'dummy' => 'CI_Cache_dummy',
-		'file' => 'CI_Cache_file',
-		'memcached' => 'CI_Cache_memcached',
-		'redis' => 'CI_Cache_redis',
-		'wincache' => 'CI_Cache_wincache',
-		'export' => '\projectorangebox\orange\library\cache\Export',
-		'request' => '\projectorangebox\orange\library\cache\Request',
-	],
+	'cache_driver_apc' => '\projectorangebox\orange\library\cache\Apc',
+	'cache_driver_dummy' => '\projectorangebox\orange\library\cache\Dummy',
+	'cache_driver_file' => '\projectorangebox\orange\library\cache\File',
+	'cache_driver_memcached' => '\projectorangebox\orange\library\cache\Memcached',
+	'cache_driver_redis' => '\projectorangebox\orange\library\cache\Redis',
+	'cache_driver_wincache' => '\projectorangebox\orange\library\cache\Wincache',
+	'cache_driver_export' => '\projectorangebox\orange\library\cache\Export',
+	'cache_driver_request' => '\projectorangebox\orange\library\cache\Request',
 
 	'filter_float' => '\projectorangebox\orange\library\filters\Filter_float',
 	'filter_filename' => '\projectorangebox\orange\library\filters\Filter_filename',

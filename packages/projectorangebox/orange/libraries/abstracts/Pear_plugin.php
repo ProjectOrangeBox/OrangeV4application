@@ -24,6 +24,6 @@ namespace projectorangebox\orange\library\abstracts;
  *
  */
 
-class Pear_plugin
+abstract class Pear_plugin
 {
 } /* end this */

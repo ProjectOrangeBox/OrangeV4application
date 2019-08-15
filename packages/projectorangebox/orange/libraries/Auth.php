@@ -243,7 +243,7 @@ class Auth
 			unset($profile->password);
 
 			/* Attach profile object as user "service" */
-			ci('user',$profile);
+			ci()->user = $profile;
 
 			/* should we save this profile id in the session? */
 			if ($save_session) {

@@ -506,7 +506,7 @@ class Validate
 
 		if (isset($this->attached[$class_name])) {
 			$this->attached[$class_name]($field, $param);
-		} elseif ($namedService = \orange::fileConfig('services.'.$class_name,false)) {
+		} elseif ($namedService = \orange::findService($class_name,false)) {
 			(new $namedService($this->field_data))->filter($field, $param);
 		} elseif (function_exists($short_rule)) {
 			$field = ($param) ? $short_rule($field, $param) : $short_rule($field);
@@ -542,7 +542,7 @@ class Validate
 
 		if (isset($this->attached[$class_name])) {
 			$success = $this->attached[$class_name]($field, $param, $this->error_string, $this->field_data, $this);
-		} elseif ($namedService = \orange::fileConfig('services.'.$class_name,false)) {
+		} elseif ($namedService = \orange::findService($class_name,false)) {
 			$success = (new $namedService($this->field_data, $this->error_string))->validate($field, $param);
 		} elseif (function_exists($short_rule)) {
 			$success = ($param) ? $short_rule($field, $param) : $short_rule($field);
