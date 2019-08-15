@@ -148,7 +148,7 @@ class Auth
 			}
 		}
 
-		log_message('info', 'Auth Class Initialized');
+		log_message('info', 'Orange Auth Class Initialized');
 	}
 
 	/**

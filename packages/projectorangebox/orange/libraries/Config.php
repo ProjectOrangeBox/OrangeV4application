@@ -46,6 +46,14 @@ class Config extends \CI_Config
 	 */
 	protected $lazy_loaded = false;
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		log_message('info', 'Orange Config Class Initialized');
+	}
+
+
 	/**
 	 * override parent
 	 *

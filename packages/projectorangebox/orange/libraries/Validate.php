@@ -103,7 +103,7 @@ class Validate
 		/* errors are stored in well... errors */
 		$this->errors = ci('errors');
 
-		log_message('info', 'Validate Class Initialized');
+		log_message('info', 'Orange Validate Class Initialized');
 	}
 
 	/**

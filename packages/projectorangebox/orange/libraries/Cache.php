@@ -75,6 +75,8 @@ class Cache
 		}
 
 		self::$ttl = isset($this->config['cache_ttl']) ? $this->config['cache_ttl'] : 0;
+
+		log_message('info', 'Orange Cache Class Initialized');
 	}
 
 	public function __get($name)

@@ -35,6 +35,11 @@ class Event
 	 */
 	protected $listeners = [];
 
+	public function __construct()
+	{
+		log_message('info', 'Orange Event Class Initialized');
+	}
+
 	/**
 	 * Register a listener
 	 *

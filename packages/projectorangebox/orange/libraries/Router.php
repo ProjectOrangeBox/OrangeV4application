@@ -96,10 +96,12 @@ class Router {
 
 		$this->url = implode('/', $uri->segments);
 
+		log_message('info',sprintf('Route: URI: "%s".',$this->url));
+
 		$this->requestMethod = $input->get_http_method(); /* http method (get,put,post,patch,delete... or cli */
 		$this->requestType = $input->get_request_type(); /* http, cli, ajax */
 
-    log_message('debug','Route: HTTP Method:'.$this->requestMethod.' / Is Type:'.$this->requestType);
+    log_message('info',sprintf('Route: the HTTP method of "%s" is of type "%s".',$this->requestMethod,$this->requestType));
 
 		/* load our routes from the routes configuration file */
 		$this->loadRouterConfig();
@@ -114,13 +116,13 @@ class Router {
 		}
 		*/
 
-    log_message('debug','Route: Call Back: '.$callback);
+    log_message('info',sprintf('Route: the found call back is "%s".',$callback));
 
 		$this->setDirectoryClassMethod($callback);
 
 		$uri->rsegments = array_merge([1=>$this->fetch_class(),2=>$this->fetch_method()],$params);
 
-		log_message('debug',__METHOD__);
+		log_message('info', 'Orange Route Class Initialized');
 	}
 
 	/**

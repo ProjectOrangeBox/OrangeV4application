@@ -10,8 +10,6 @@ class Controller extends \CI_Controller
 		/* let the parent controller do it's work */
 		parent::__construct();
 
-		log_message('debug', __METHOD__);
-
 		/**
 		 * Is the site up?
 		 *
@@ -33,8 +31,6 @@ class Controller extends \CI_Controller
 
 	public function _output($output)
 	{
-		log_message('debug', __METHOD__);
-
 		/* we need to create a variable to pass by reference */
 		$output = (string)$output;
 

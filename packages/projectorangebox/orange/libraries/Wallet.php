@@ -120,7 +120,7 @@ class Wallet
 			$this->set_view_variable($current_messages);
 		}
 
-		log_message('info', 'Wallet Class Initialized');
+		log_message('info', 'Orange Wallet Class Initialized');
 	}
 
 	/**

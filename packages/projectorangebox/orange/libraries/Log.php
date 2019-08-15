@@ -104,7 +104,7 @@ class Log extends \CI_Log
 
 		$this->init();
 
-		$this->write_log('DEBUG',__METHOD__);
+		$this->write_log('info','Orange Log Class Initialized');
 	}
 
 	/**

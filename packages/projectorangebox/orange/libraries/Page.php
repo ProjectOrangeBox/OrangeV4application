@@ -125,7 +125,7 @@ class Page
 		$this->output = ci('output');
 		$this->event = ci('event');
 
-		log_message('info', 'Page Class Initialized');
+		log_message('info', 'Orange Page Class Initialized');
 	}
 
 	/**

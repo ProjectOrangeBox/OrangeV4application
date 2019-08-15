@@ -292,7 +292,7 @@ if (!function_exists('l'))
 		}
 
 		/* write it to the log file */
-		return file_put_contents(configFile('config.log_path').'/orange_debug.log', implode(chr(10), $log).chr(10), FILE_APPEND | LOCK_EX);
+		return file_put_contents(\orange::fileConfig('config.log_path').'/orange_debug.log', implode(chr(10), $log).chr(10), FILE_APPEND | LOCK_EX);
 	}
 }
 

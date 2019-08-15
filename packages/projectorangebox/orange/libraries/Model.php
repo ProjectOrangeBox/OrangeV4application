@@ -63,6 +63,13 @@ class Model extends \CI_Model
 	 */
 	protected $object = null;
 
+	public function __construct()
+	{
+		parent::__construct();
+
+		log_message('info', 'Orange Model Class Initialized');
+	}
+
 	/**
 	 * Get the object name
 	 *
@@ -115,7 +122,7 @@ class Model extends \CI_Model
 	 * @return \MY_Model
 	 *
 	 */
-	public function clear() : MY_Model
+	public function clear() : Model
 	{
 		log_message('debug', 'MY_Model::clear '.$this->object);
 
@@ -222,7 +229,7 @@ class Model extends \CI_Model
 	 * @return MY_Model
 	 *
 	 */
-	public function remove_columns(array &$data, $columns = []) : MY_Model
+	public function remove_columns(array &$data, $columns = []) : Model
 	{
 		log_message('debug', 'MY_Model::remove_columns');
 
@@ -252,7 +259,7 @@ class Model extends \CI_Model
 	 * @return MY_Model
 	 *
 	 */
-	public function only_columns(array &$data, $columns = []) : MY_Model
+	public function only_columns(array &$data, $columns = []) : Model
 	{
 		log_message('debug', 'MY_Model::only_columns');
 
@@ -305,7 +312,7 @@ class Model extends \CI_Model
 	 *
 	 * ```
 	 */
-	public function remap_columns(array &$data, array $rules = []) : MY_Model
+	public function remap_columns(array &$data, array $rules = []) : Model
 	{
 		log_message('debug', 'MY_Model::remap_columns');
 

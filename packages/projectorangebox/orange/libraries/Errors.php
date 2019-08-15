@@ -165,6 +165,8 @@ class Errors
 				$this->set_request_type('html');
 			}
 		}
+
+		log_message('info', 'Orange Errors Class Initialized');
 	}
 
 	/**
@@ -178,7 +180,7 @@ class Errors
 	 */
 	public function __toString() : string
 	{
-		log_message('debug', 'Errors::__toString');
+		log_message('info', 'Errors::__toString');
 
 		return $this->get();
 	}

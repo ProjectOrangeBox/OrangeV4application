@@ -73,7 +73,7 @@ class Orange {
 		$dotNotation = strtolower($dotNotation);
 
 		if (strpos($dotNotation,'.') === false) {
-			$value = self::loadFileConfig($filename);
+			$value = self::loadFileConfig($dotNotation);
 		} else {
 			list($filename,$key) = explode('.',$dotNotation,2);
 
@@ -109,6 +109,28 @@ class Orange {
 		}
 
 		return $service;
+	}
+
+ /**
+  * findView
+  *
+  * @param string $viewName
+  * @param mixed bool
+  * @return void
+  */
+	static public function findView(string $viewName,bool $throwException = true) /* mixed false or string */
+	{
+		$viewName = strtolower($viewName);
+
+		$views = self::loadFileConfig('services');
+
+		$view = (isset($views[self::$viewServicePrefix.$viewName])) ? $views[self::$viewServicePrefix.$viewName] : false;
+
+		if ($throwException && !$view) {
+			throw new \Exception(sprintf('Could not locate a view named "%s".',$viewName));
+		}
+
+		return $view;
 	}
 
  /**
@@ -154,7 +176,7 @@ class Orange {
 		ob_start();
 
 		/* bring in the view file */
-		include __ROOT__.self::fileConfig('services.'.self::$viewServicePrefix.$__view);
+		include __ROOT__.self::findView($__view);
 
 		/* return the current buffer contents and delete current output buffer */
 		return ob_get_clean();

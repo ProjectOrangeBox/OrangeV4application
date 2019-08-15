@@ -111,7 +111,7 @@ class Input extends \CI_Input
 
 		$this->requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'cli';
 
-		log_message('debug',__METHOD__);
+		log_message('info', 'Orange Input Class Initialized');
 	}
 
 	/**
