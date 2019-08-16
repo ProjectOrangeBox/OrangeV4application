@@ -114,12 +114,12 @@ class Page
 	 */
 	public function __construct(array &$config=[])
 	{
+		$this->config = &$config;
+
 		/* pear plugin is a static class which manages pear plugins and is loaded into the global namespace so views can use it easily */
 		require __DIR__.'/page/Pear.php';
 
 		$this->asset = new Asset($this,$config);
-
-		$this->config = &$config;
 
 		$this->load = ci('load');
 		$this->output = ci('output');

@@ -393,6 +393,12 @@ class Errors
 		return $this;
 	}
 
+	/**
+	 * remove
+	 *
+	 * @param string $group=null
+	 * @return void
+	 */
 	public function remove(string $group=null) : Errors
 	{
 		$switch2default = ($this->current_group == $group);

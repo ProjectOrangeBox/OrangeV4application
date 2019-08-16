@@ -28,9 +28,9 @@ namespace projectorangebox\orange\library;
  * @uses # \event - Orange Event
  * @uses # \load - CodeIgniter Loader
  *
- * @config sticky_types `['red','danger','warning','yellow']`
- * @config initial_pause `3`
- * @config pause_for_each `1000`
+ * @config sticky types `['red','danger','warning','yellow']`
+ * @config initial pause `3`
+ * @config pause for each `1000`
  *
  */
 class Wallet
@@ -40,14 +40,14 @@ class Wallet
 	 *
 	 * @var Array
 	 */
-	protected $redirect_messages = [];
+	protected $redirectMessages = [];
 
 	/**
 	 * Session key for wallet messages
 	 *
 	 * @var String
 	 */
-	protected $msg_key = 'internal::wallet::msg';
+	protected $msgKey = 'internal::wallet::msg';
 
 	/**
 	 * View variable to place the redirect messages
@@ -56,14 +56,14 @@ class Wallet
 	 *
 	 * @var String
 	 */
-	protected $view_variable = 'wallet_messages';
+	protected $viewVariable = 'wallet_messages';
 
 	/**
 	 * Servers HTTP Referer
 	 *
 	 * @var string
 	 */
-	protected $http_referer;
+	protected $httpReferer;
 
 	/**
 	 * Local reference of wallet configuration
@@ -94,6 +94,27 @@ class Wallet
 	protected $event;
 
 	/**
+	 * $stickyTypes
+	 *
+	 * @var array
+	 */
+	protected $stickyTypes = [];
+
+	/**
+	 * $initialPause
+	 *
+	 * @var integer
+	 */
+	protected $initialPause = 3;
+
+	/**
+	 * $pauseForEach
+	 *
+	 * @var integer
+	 */
+	protected $pauseForEach = 1000;
+
+	/**
 	 *
 	 * Constructor
 	 *
@@ -106,18 +127,23 @@ class Wallet
 	{
 		$this->config = &$config;
 
-		$this->session = &ci('session');
-		$this->event = &ci('event');
-		$this->load = &ci('load');
+		$this->session = ci('session');
+		$this->event = ci('event');
+		$this->load = ci('load');
 
-		$this->http_referer = ci('input')->server('HTTP_REFERER');
-		$this->sticky_types = ($this->config['sticky_types']) ?? ['red','danger','warning','yellow'];
+		/* where did we come from? */
+		$this->httpReferer = ci('input')->server('HTTP_REFERER');
+
+		/* What msg types should be considered "stickey" */
+		$this->stickyTypes = $this->config['sticky types'] ?? ['red','danger','warning','yellow'];
+		$this->initialPause = $this->config['initial pause'] ?? 3;
+		$this->pauseForEach = $this->config['pause for each'] ?? 1000;
 
 		/* set the view variable if any messages are available */
-		$current_messages = $this->session->flashdata($this->msg_key);
+		$currentMessages = $this->session->flashdata($this->msgKey);
 
-		if (is_array($current_messages)) {
-			$this->set_view_variable($current_messages);
+		if (is_array($currentMessages)) {
+			$this->setViewVariable($currentMessages);
 		}
 
 		log_message('info', 'Orange Wallet Class Initialized');
@@ -145,7 +171,7 @@ class Wallet
 	public function msg(string $msg = '', string $type = 'yellow', $redirect = null) : Wallet
 	{
 		/* is this type sticky? - use names not colors - colors support for legacy code */
-		$sticky = in_array($type, $this->sticky_types);
+		$sticky = in_array($type, $this->stickyTypes);
 
 		/* trigger a event incase they need to do something */
 		$this->event->trigger('wallet.msg', $msg, $type, $sticky, $redirect);
@@ -154,7 +180,7 @@ class Wallet
 		if (is_string($redirect)) {
 			$this->redirect($msg, $type, $sticky, $redirect);
 		} elseif ($redirect === true) {
-			$this->redirect($msg, $type, $sticky, $this->http_referer);
+			$this->redirect($msg, $type, $sticky, $this->httpReferer);
 		} else {
 			$this->add2page($msg, $type, $sticky);
 		}
@@ -208,10 +234,10 @@ class Wallet
 	protected function redirect(string $msg, string $type, bool $sticky, string $redirect) : void
 	{
 		/* add another message to any that might already be on there */
-		$this->redirect_messages[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
+		$this->redirectMessages[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
 
 		/* store this in a session variable */
-		$this->session->set_flashdata($this->msg_key, $this->redirect_messages);
+		$this->session->set_flashdata($this->msgKey, $this->redirectMessages);
 
 		redirect($redirect);
 	}
@@ -232,13 +258,13 @@ class Wallet
 	protected function add2page(string $msg, string $type, bool $sticky) : Wallet
 	{
 		/* add to the current wallet messages */
-		$current_msgs = $this->get_view_variable();
+		$currentMsgs = $this->getViewVariable();
 
 		/* add messages */
-		$current_msgs[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
+		$currentMsgs[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
 
 		/* put back in view variable */
-		$this->set_view_variable($current_msgs);
+		$this->setViewVariable($currentMsgs);
 
 		return $this;
 	}
@@ -252,13 +278,13 @@ class Wallet
 	 * @return Array
 	 *
 	 */
-	protected function get_view_variable() : array
+	protected function getViewVariable() : array
 	{
 		/* get the current messages */
-		$wallet_messages = $this->load->get_var($this->view_variable);
+		$walletMessages = $this->load->get_var($this->viewVariable);
 
 		/* we only need the messages */
-		return (array)$wallet_messages['messages'];
+		return (array)$walletMessages['messages'];
 	}
 
 	/**
@@ -272,13 +298,13 @@ class Wallet
 	 * @return \Wallet
 	 *
 	 */
-	protected function set_view_variable(array $messages) : Wallet
+	protected function setViewVariable(array $messages) : Wallet
 	{
 		/* get any flash messages in the session and add them to the view data */
-		$this->load->vars([$this->view_variable => [
+		$this->load->vars([$this->viewVariable => [
 			'messages'       => $messages,
-			'initial_pause'  => (($this->config['initial_pause']) ?? 3),
-			'pause_for_each' => (($this->config['pause_for_each']) ?? 1000),
+			'initial_pause'  => $this->initialPause,
+			'pause_for_each' => $this->pauseForEach,
 		]]);
 
 		return $this;

@@ -88,7 +88,7 @@ class Input extends \CI_Input
 		/* try to parse the input */
 		parse_str($this->_raw_input_stream, $this->_request);
 
-		/* did we get anything? if not fall back to the posted input */
+		/* did we get anything? if not fall back to the posted input if any */
 		if (!count($this->_request)) {
 			$this->_request = $_POST;
 		}
@@ -96,11 +96,11 @@ class Input extends \CI_Input
 		/* call the parent classes constructor */
 		parent::__construct();
 
+		/* setup the request type based on a few things */
 		$isAjax = (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest');
 		$isJson = (!empty($_SERVER['HTTP_ACCEPT']) && strpos(strtolower($_SERVER['HTTP_ACCEPT']),'application/json') !== false);
 		$isCli = (PHP_SAPI === 'cli' OR defined('STDIN'));
 
-		/* let's figure out the request type */
 		if ($isAjax || $isJson) {
 			$this->requestType = 'ajax';
 		} elseif ($isCli) {
@@ -109,6 +109,7 @@ class Input extends \CI_Input
 			$this->requestType = 'html';
 		}
 
+		/* get the http request method or default to cli */
 		$this->requestMethod = isset($_SERVER['REQUEST_METHOD']) ? $_SERVER['REQUEST_METHOD'] : 'cli';
 
 		log_message('info', 'Orange Input Class Initialized');
@@ -290,15 +291,16 @@ class Input extends \CI_Input
 	 */
 	public function requestRemap(array $remap,bool $replace = true) /* mixed */
 	{
-		$return = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream)->get();
+		$remapped = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream)->get();
 
 		if ($replace) {
-			$this->_request = $return;
+			$this->_request = $remapped;
 
-			$return = $this;
+			/* if remap and replace then return input instance to allow chaining */
+			$remapped = $this;
 		}
 
-		return $return;
+		return $remapped;
 	}
 
 	/**
