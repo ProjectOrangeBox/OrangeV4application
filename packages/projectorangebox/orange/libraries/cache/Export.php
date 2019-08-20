@@ -2,9 +2,9 @@
 
 namespace projectorangebox\orange\library\cache;
 
-use projectorangebox\orange\library\Cache;
 use projectorangebox\orange\library\traits\Cache_DeleteByTag;
 use projectorangebox\orange\library\traits\Cache_inline;
+use projectorangebox\orange\library\traits\Cache_ttl;
 
 /**
  * Orange
@@ -47,6 +47,7 @@ class Export
 {
 	use Cache_DeleteByTag;
 	use Cache_inline;
+	use Cache_ttl;
 
 	/**
 	 * Configuration array
@@ -80,6 +81,7 @@ class Export
 	{
 		$this->config = &$config;
 
+		/* this is used for "remote" clearing and filtering */
 		$this->input = ci('input');
 	}
 
@@ -130,7 +132,7 @@ class Export
 	 */
 	public function save(string $id, $data, int $ttl = null, bool $include = false)
 	{
-		$ttl = cache::ttl();
+		$ttl = $this->ttl($ttl);
 
 		if (is_array($data) || is_object($data)) {
 			$data = '<?php return '.str_replace(['Closure::__set_state','stdClass::__set_state'], '(object)', var_export($data, true)).';';

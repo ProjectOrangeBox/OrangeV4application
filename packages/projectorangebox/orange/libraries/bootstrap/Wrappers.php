@@ -39,16 +39,10 @@ if (!function_exists('config'))
  */
 if (!function_exists('filter'))
 {
-	function filter(string $rule, $value)
+	function filter($input, string $rules) /* mixed */
 	{
-		/* add filter_ if it's not there */
-		foreach (explode('|', $rule) as $r) {
-			$a[] = 'filter_'.str_replace('filter_', '', strtolower($r));
-		}
-
-		ci('validate')->single(implode('|', $a), $value);
-
-		return $value;
+		/* passed by reference */
+		return ci('validate')->filter($input,$rules);
 	}
 }
 
@@ -61,13 +55,9 @@ if (!function_exists('filter'))
  */
 if (!function_exists('valid'))
 {
-	function valid(string $rule, $field) : bool
+	function valid($input, string $rules) : bool
 	{
-		$success = ci('validate')->group(__METHOD__)->single($rule, $field)->success(__METHOD__);
-
-		ci('validate')->remove(__METHOD__);
-
-		return $success;
+		return ci('validate')->is_valid($input,$rules);
 	}
 }
 

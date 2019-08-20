@@ -57,7 +57,7 @@ class Input extends \CI_Input
 	 *
 	 * @var string
 	 */
-	protected $requestType;
+	protected $requestType = '';
 
 	/**
 	 * The input stash session key
@@ -83,10 +83,7 @@ class Input extends \CI_Input
 	public function __construct()
 	{
 		/* grab raw input for patch and such */
-		$this->_raw_input_stream = file_get_contents('php://input');
-
-		/* try to parse the input */
-		parse_str($this->_raw_input_stream, $this->_request);
+		$this->set_raw_input_stream(file_get_contents('php://input'),true);
 
 		/* did we get anything? if not fall back to the posted input if any */
 		if (!count($this->_request)) {
@@ -174,137 +171,6 @@ class Input extends \CI_Input
 
 	/**
 	 *
-	 * Validate input fields
-	 *
-	 * @access public
-	 *
-	 * @param $key field index
-	 * @param string $rules validation rules
-	 * @param string $human optional human readable field name
-	 *
-	 * @return Bool
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('input')->valid('first_name','required|string','First Name');
-	 * ```
-	 */
-	public function valid($key, string $rules='', string $human=null) : Bool
-	{
-		if (is_array($key)) {
-			foreach ($key as $k=>$r) {
-				if (is_array($r)) {
-					/**
-					 * Key, Rule (1), Human (0)
-					 * 'field_age'=>['Age','int|md5']]
-					 * 'name'=>'int'
-					 */
-					$this->valid($k, $r[1], $r[0]);
-				} else {
-					/**
-					 * Key, Rule
-					 */
-					$this->valid($k, $r);
-				}
-			}
-
-			return ci('validate')->success();
-		}
-
-		$field = $this->request($key);
-
-		ci('validate')->single($rules, $field, $human);
-
-		/* return the value or allow chain-ing */
-		return ci('validate')->success();
-	}
-
-	/**
-	 *
-	 * Filter request data and replace
-	 *
-	 * @access public
-	 *
-	 * @param $key null
-	 * @param string $rules
-	 *
-	 * @return Input
-	 *
-	 */
-	public function filter($key=null, string $rules='') : Input
-	{
-		if (is_array($key)) {
-			foreach ($key as $k=>$r) {
-				$this->filter($k, $r);
-			}
-
-			return $this;
-		}
-
-		$field = $this->request($key);
-
-		ci('validate')->single($rules, $field);
-
-		$this->_request[$key] = $field;
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Return filtered value but do not replace in request
-	 *
-	 * @access public
-	 *
-	 * @param $key null
-	 * @param $rules
-	 *
-	 * @return mixed
-	 *
-	 */
-	public function filtered($key=null, string $rules='')
-	{
-		if (is_array($key)) {
-			$return = [];
-
-			foreach ($key as $k=>$r) {
-				$return[$k] = $this->filtered($k, $r);
-			}
-
-			return $return;
-		}
-
-		$field = $this->request($key);
-
-		ci('validate')->single($rules, $field);
-
-		/* return the value or allow chain-ing */
-		return $field;
-	}
-
-	/**
-	 * requestRemap
-	 *
-	 * @param array $remap
-	 * @param mixed bool
-	 * @return void
-	 */
-	public function requestRemap(array $remap,bool $replace = true) /* mixed */
-	{
-		$remapped = (new RequestRemap)->processRaw($remap,$this->_raw_input_stream)->get();
-
-		if ($replace) {
-			$this->_request = $remapped;
-
-			/* if remap and replace then return input instance to allow chaining */
-			$remapped = $this;
-		}
-
-		return $remapped;
-	}
-
-	/**
-	 *
 	 * Treat cookie like request with default value
 	 *
 	 * @access public
@@ -329,6 +195,26 @@ class Input extends \CI_Input
 		$value = ($value === null) ? $default : $value;
 
 		return ($xss_clean) ? $this->security->xss_clean($value) : $value;
+	}
+
+	public function get_raw_input_stream() : string
+	{
+		return $this->_raw_input_stream;
+	}
+
+	/**
+	 * set_raw_input_stream
+	 *
+	 * @param string $rawInputStream
+	 * @return void
+	 */
+	public function set_raw_input_stream(string $rawInputStream,bool $parse = true) : void
+	{
+		$this->_raw_input_stream = $rawInputStream;
+
+		if ($parse) {
+			parse_str($this->_raw_input_stream, $this->_request);
+		}
 	}
 
 	/**

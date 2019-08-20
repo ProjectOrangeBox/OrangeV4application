@@ -117,7 +117,7 @@ class Page
 		$this->config = &$config;
 
 		/* pear plugin is a static class which manages pear plugins and is loaded into the global namespace so views can use it easily */
-		require __DIR__.'/page/Pear.php';
+		require_once __DIR__.'/page/Pear.php';
 
 		$this->asset = new Asset($this,$config);
 
@@ -145,6 +145,8 @@ class Page
 	public function render(string $view, array $data = null) : Page
 	{
 		log_message('debug', 'page::render::'.$view);
+
+		$view = trim(\stripFromEnd($view,'.php'),'/');
 
 		/* called everytime - use with caution */
 		$this->event->trigger('page.render', $this, $view);
@@ -322,7 +324,7 @@ class Page
 	 * ci('page')->add('custom_var','<p>Custom Stuff!</p>');
 	 * ```
 	 */
-	public function add(string $name, string $value, int $priority = ASSET::PRIORITY_NORMAL, bool $prevent_duplicates = true) : Page
+	public function add(string $name, string $value, int $priority = PAGE::PRIORITY_NORMAL, bool $prevent_duplicates = true) : Page
 	{
 		$key = md5($value);
 

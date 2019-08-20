@@ -98,9 +98,14 @@ class Asset {
 	 * $html = ci('page')->ary2element('a',['class'=>'bold','id'=>'id3'],'link!');
 	 * ```
 	 */
-	public function ary2element(string $element, array $attributes, string $content = '') : string
+	public function ary2element(string $element, array $attributes, string $content = '',array $data = null) : string
 	{
 		/* uses CodeIgniter Common.php _stringify_attributes function */
+		if (is_array($data)) {
+			foreach ($data as $key=>$value) {
+				$attributes['data-'.stripFromStart($key,'data-')] = $value;
+			}
+		}
 
 		return (in_array($element, ['area','base','br','col','embed','hr','img','input','link','meta','param','source','track','wbr'])) ?
 			'<'.$element._stringify_attributes($attributes).'/>' :

@@ -2,6 +2,8 @@
 
 namespace projectorangebox\orange\library;
 
+use projectorangebox\orange\library\validate\Request;
+
 /**
  * Orange
  *
@@ -84,7 +86,14 @@ class Validate
 	 *
 	 * @var \Errors
 	 */
-	protected $errors;
+	public $errors;
+
+	/**
+	 * $request
+	 *
+	 * @var undefined
+	 */
+	public $request;
 
 	/**
 	 *
@@ -103,158 +112,10 @@ class Validate
 		/* errors are stored in well... errors */
 		$this->errors = ci('errors');
 
+		/* setup the "chain" request object */
+		$this->request = new Request($this,ci('input'));
+
 		log_message('info', 'Orange Validate Class Initialized');
-	}
-
-	/**
-	 *
-	 * Set the current validation error group.
-	 * if no group name is provided then the error classes uses the current group
-	 * _Wrapper for error_
-	 *
-	 * @access public
-	 * @uses \Errors
-	 *
-	 * @param string $index null
-	 *
-	 * @return Validate
-	 *
-	 * #### Example
-	 * ```php
-	 * ci('validate')->group('user_model');
-	 * ```
-	 */
-	public function group(string $index = null) : Validate
-	{
-		$this->errors->group($index);
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Get the current validation error group name.
-	 * _Wrapper for error_
-	 *
-	 * @access public
-	 * @uses \Errors
-	 *
-	 * @return string
-	 *
-	 * #### Example
-	 * ```php
-	 * $group_name = ci('validate')->get_group();
-	 * ```
-	 */
-	public function get_group() : string
-	{
-		return $this->errors->get_group();
-	}
-
-	/**
-	 *
-	 * Clear the a error group
-	 * if no group name is provided then the error classes uses the current group
-	 * _Wrapper for error_
-	 *
-	 * @access public
-	 * @uses \Errors
-	 *
-	 * @param string $index null
-	 *
-	 * @return Validate
-	 *
-	 * #### Example
-	 * ```php
-	 *
-	 * ```
-	 */
-	public function clear(string $index = null) : Validate
-	{
-		$this->errors->clear($index);
-
-		return $this;
-	}
-
-	/**
-	 * remove
-	 *
-	 * @param mixed string
-	 * @return void
-	 */
-	public function remove(string $index = null) : Validate
-	{
-		$this->errors->remove($index);
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Add a error to the Orange Error Object
-	 *
-	 * @access protected
-	 * @uses \Errors
-	 *
-	 * @param string $fieldname null
-	 *
-	 * @return \Validate
-	 *
-	 */
-	protected function add_error(string $fieldname = null) : Validate
-	{
-		/**
-		 * sprintf argument 1 human name for field
-		 * sprintf argument 2 human version of options (computer generated)
-		 * sprintf argument 3 field value
-		 */
-
-		$this->errors->add(sprintf($this->error_string, $this->error_human, $this->error_params, $this->error_field_value), $fieldname);
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Die if there are any errors
-	 * if no group name is provided then the error classes uses the current group
-	 * _Wrapper for error_
-	 *
-	 * @access public
-	 * @uses \Errors
-	 *
-	 * @param $view 400
-	 * @param string $index null
-	 *
-	 * @return Validate
-	 *
-	 */
-	public function die_on_fail($view = '400', string $index = null) : Validate
-	{
-		/* if there is a error then you never return from this method call */
-		$this->errors->die_on_error($view, $index);
-
-		/* if there is no error */
-		return $this;
-	}
-
-	/**
-	 *
-	 * Return if a error group has a error
-	 * if no group name is provided then the error classes uses the current group
-	 * _Wrapper for error_
-	 *
-	 * @access public
-	 * @uses \Errors
-	 *
-	 * @param string $index null
-	 *
-	 * @return Bool
-	 *
-	 */
-	public function success(string $index = null) : Bool
-	{
-		return !$this->errors->has($index);
 	}
 
 	/**
@@ -276,80 +137,66 @@ class Validate
 	 */
 	public function attach(string $name, \closure $closure) : Validate
 	{
-		$this->attached[$this->_normalize_rule($name)] = $closure;
+		$this->attached[$this->_normalizeRuleName($name)] = $closure;
 
 		return $this;
 	}
 
 	/**
+	 * is_valid
 	 *
-	 * Run validation rules on a passed variable
-	 * These are best used as filters
-	 * but by following this with die_on_fail() you can use validations
+	 * Process & Return
 	 *
-	 * @access public
-	 *
-	 * @param string $rules
-	 * @param &$field
-	 * @param string $human null
-	 *
-	 * @return Validate
-	 *
-	 * #### Example
-	 * ```php
-	 *
-	 * ```
+	 * @param mixed $input
+	 * @param mixed $rules
+	 * @return void
 	 */
-	public function variable(string $rules = '', &$field, string $human = null) : Validate
+	public function is_valid($input,$rules) : bool
 	{
-		return $this->single($rules, $field, $human);
+		$this->errors->group(__METHOD__);
+
+		$this->single($rules, $input);
+
+		$success = $this->errors->success(__METHOD__);
+
+		$this->errors->remove(__METHOD__);
+
+		return $success;
 	}
 
 	/**
+	 * filter
 	 *
-	 * Run validation rules on a input field
-	 * These are best used as filters
-	 * but by following this with die_on_fail() you can use validations
-	 * this is more of a wrapper for ci('input')->request() to allow chaining
+	 * Process & Return
 	 *
-	 * @access public
-	 * @uses \Input
-	 *
-	 * @param string $rules
-	 * @param string $key
-	 * @param $human null if true then return the fields validated value
-	 *
-	 * @return mixed
-	 *
+	 * @param mixed $input
+	 * @param mixed $rules
+	 * @return void
 	 */
-	public function request(string $rules, string $key, $human = null)
+	public function filter($input,$rules) /* mixed */
 	{
-		$field = ci('input')->request($key, null);
+		/* add filter_ if it's not there */
+		foreach (explode('|', $rules) as $r) {
+			$a[] = 'filter_'.str_replace('filter_', '', strtolower($r));
+		}
 
-		$this->single($rules, $field, $human);
+		/* passed by reference */
+		$this->run(implode('|', $a), $input);
 
-		ci('input')->set_request($key, $field);
-
-		return ($human === true) ? $field : $this;
+		return $input;
 	}
 
 	/**
+	 * run
 	 *
-	 * Run validations and based on if $fields contain multiple entries (array)
-	 * determine if it's multi field or single field validation
-	 *
-	 * @access public
-	 *
-	 * @param $rules
-	 * @param &$fields
-	 * @param string $human used only on single [null]
-	 *
-	 * @return Validate
-	 *
+	 * @param mixed $rules
+	 * @param mixed &$fields
+	 * @param mixed string
+	 * @return void
 	 */
 	public function run($rules, &$fields, string $human = null) : Validate
 	{
-		return (is_array($fields)) ? $this->multiple($rules, $fields) : $this->single($rules, $fields, $human);
+		return (is_array($fields)) ? $this->_multiple($rules, $fields) : $this->_single($rules, $fields, $human);
 	}
 
 	/**
@@ -364,14 +211,14 @@ class Validate
 	 * @return Validate
 	 *
 	 */
-	public function multiple(array $rules = [], array &$fields) : Validate
+	protected function _multiple(array $rules = [], array &$fields) : Validate
 	{
 		/* save this as a reference for the validations and filters to use */
 		$this->field_data = &$fields;
 
 		/* process each field and rule as a single rule, field, and human label */
 		foreach ($rules as $fieldname=>$rule) {
-			$this->single($rule['rules'], $this->field_data[$fieldname], $rule['label']);
+			$this->_single($rule['rules'], $this->field_data[$fieldname], $rule['label']);
 		}
 
 		/* break the reference */
@@ -396,7 +243,7 @@ class Validate
 	 * @return Validate
 	 *
 	 */
-	public function single($rules, &$field, string $human = null) : Validate
+	protected function _single($rules, &$field, string $human = null) : Validate
 	{
 		/* break apart the rules */
 		if (!is_array($rules)) {
@@ -500,7 +347,7 @@ class Validate
 	 */
 	protected function _filter(&$field, string $rule, string $param = null) : bool
 	{
-		$class_name = $this->_normalize_rule($rule);
+		$class_name = $this->_normalizeRuleName($rule);
 
 		$short_rule = substr($class_name, 7);
 
@@ -534,7 +381,7 @@ class Validate
 	 */
 	protected function _validation(&$field, string $rule, string $param = null) : bool
 	{
-		$class_name = $this->_normalize_rule($rule);
+		$class_name = $this->_normalizeRuleName($rule);
 		$short_rule = substr($class_name, 9); /* chop off validate_ */
 
 		/* default error */
@@ -552,7 +399,12 @@ class Validate
 
 		/* if success is really really false then it's a error */
 		if ($success === false) {
-			$this->add_error($this->error_human);
+			/**
+			 * sprintf argument 1 human name for field
+			 * sprintf argument 2 human version of options (computer generated)
+			 * sprintf argument 3 field value
+			 */
+			$this->errors->add(sprintf($this->error_string, $this->error_human, $this->error_params, $this->error_field_value),$this->error_human);
 		} else {
 			/* not a boolean then it's something useable */
 			if (!is_bool($success)) {
@@ -579,7 +431,7 @@ class Validate
 	 * @return string
 	 *
 	 */
-	protected function _normalize_rule(string $name) : string
+	protected function _normalizeRuleName(string $name) : string
 	{
 		/* normalize to lowercase */
 		$name = strtolower($name);
@@ -589,4 +441,5 @@ class Validate
 
 		return $prefix.$name;
 	}
+
 } /* end class */

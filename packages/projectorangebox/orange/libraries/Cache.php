@@ -88,7 +88,7 @@ class Cache
 	public function __call($name, $arguments)
 	{
 		/* test for supported methods */
-		if (!in_array($name,['get','save','delete','increment','decrement','clean','cache_info','get_metadata'])) {
+		if (!in_array($name,['get','save','delete','increment','decrement','clean','cache_info','get_metadata','cache','deleteByTags','ttl'])) {
 			throw new \Exception($name.' is a unsupported method.');
 		}
 

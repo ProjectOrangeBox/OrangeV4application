@@ -106,7 +106,7 @@ class Model extends \CI_Model
 	 */
 	public function rule(string $key, $section = null)
 	{
-		log_message('debug', 'MY_Model::rule '.$key.' '.$section);
+		log_message('info', 'orange model::rule '.$key.' '.$section);
 
 		$rule = ($section) ? $this->rules[$key][$section] : $this->rules[$key];
 
@@ -119,12 +119,12 @@ class Model extends \CI_Model
 	 *
 	 * @access public
 	 *
-	 * @return \MY_Model
+	 * @return model
 	 *
 	 */
 	public function clear() : Model
 	{
-		log_message('debug', 'MY_Model::clear '.$this->object);
+		log_message('info', 'orange model::clear '.$this->object);
 
 		/* validation wrapper */
 		ci('validate')->clear($this->object);
@@ -152,7 +152,7 @@ class Model extends \CI_Model
 	 */
 	public function validate(array &$data, $rules = true) : Bool
 	{
-		log_message('debug', 'MY_Model::validate');
+		log_message('info', 'orange model::validate');
 
 		/**
 		 * if it's already a array then it's already in the format we need
@@ -190,7 +190,7 @@ class Model extends \CI_Model
 		 * Save the current group in validate
 		 * so we can put it back after this model is done validating this model
 		 */
-		$previous_error_group = ci('validate')->get_group();
+		$previousErrorGroup = ci('validate')->get_group();
 
 		/**
 		 * did we actually get any rules?
@@ -210,7 +210,7 @@ class Model extends \CI_Model
 		/**
 		 * we are done put back the previous error group
 		 */
-		ci('validate')->group($previous_error_group);
+		ci('validate')->group($previousErrorGroup);
 
 		return $success;
 	}
@@ -226,12 +226,12 @@ class Model extends \CI_Model
 	 * @param Array &$data
 	 * @param $columns []
 	 *
-	 * @return MY_Model
+	 * @return model
 	 *
 	 */
 	public function remove_columns(array &$data, $columns = []) : Model
 	{
-		log_message('debug', 'MY_Model::remove_columns');
+		log_message('info', 'orange model::remove_columns');
 
 		/**
 		 * convert string with commas to array
@@ -256,12 +256,12 @@ class Model extends \CI_Model
 	 * @param Array &$data
 	 * @param $columns []
 	 *
-	 * @return MY_Model
+	 * @return model
 	 *
 	 */
 	public function only_columns(array &$data, $columns = []) : Model
 	{
-		log_message('debug', 'MY_Model::only_columns');
+		log_message('info', 'orange model::only_columns');
 
 		/**
 		 * convert string with commas to array
@@ -283,54 +283,4 @@ class Model extends \CI_Model
 		return $this;
 	}
 
-	/**
-	 *
-	 * Remap columns in the input array (data) with the rules field names
-	 *
-	 * @access public
-	 *
-	 * @param Array &$data
-	 * @param Array $rules []
-	 *
-	 * @return MY_Model
-	 *
-	 * #### Example
-	 * ```php
-	 * $rules = [
-	 *	'id' => ['field' => 'id', 'label' => 'Id', 'rules' => 'required|integer],
-	 *	'key' => ['field' => 'key', 'label' => 'Key', 'rules' => 'required|strtolower'],
-	 *	'description' => ['field' => 'description', 'label' => 'Description', 'rules' => 'required'],
-	 *	'group' => ['field' => 'group', 'label' => 'Group', 'rules' => 'required'],
-	 *	'group_test' => ['field' => 'group'],
-	 * ];
-	 *
-	 * $data = ['id'=>123,'key'=>'cookies','description'=>'The greatest show ever','group_test'=>'live'];
-	 *
-	 * $this->my_model->remap_columns($data,$rules);
-	 *
-	 * $data now contains ['id'=>123,'key'=>'cookies','description'=>'The greatest show ever','group'=>'live']
-	 *
-	 * ```
-	 */
-	public function remap_columns(array &$data, array $rules = []) : Model
-	{
-		log_message('debug', 'MY_Model::remap_columns');
-
-		if (!$this->skip_rules && count($rules)) {
-			$remapped_data = [];
-
-			foreach ($rules as $key=>$rule) {
-				if (isset($data[$key])) {
-					$remapped_data[$rule['field']] = $data[$key];
-				}
-			}
-
-			/**
-			 * reassign the new data to the data reference
-			 */
-			$data = $remapped_data;
-		}
-
-		return $this;
-	}
 } /* end class */

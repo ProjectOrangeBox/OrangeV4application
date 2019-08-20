@@ -5,6 +5,8 @@ namespace projectorangebox\orange\library\input;
 use \projectorangebox\orange\library\input\Dot;
 
 /**
+ * $_raw_input_stream = model.id=876&model.fname=Johnny&model.lname=Appleseed&model.age=23&model.test1=%26&model.test2=%3D&model.removeme=foobar&model.moveme=movebar&model2.fname=Jenny&model2.lname=Appleseed&model2.age=21&model.repeatable.%23.fname=Albert&model.repeatable.%23.lname=Appleseed&model.repeatable.%23.age=12&model.repeatable.%23.fname=Peter&model.repeatable.%23.lname=Appleseed&model.repeatable.%23.age=13&model.repeatable.%23.fname=Lynn&model.repeatable.%23.lname=Appleseed&model.repeatable.%23.age=14
+ *
 <form method="post" action="/form/output">
 
 	Primary: <input type="text" name="model.id" value="876"><br>

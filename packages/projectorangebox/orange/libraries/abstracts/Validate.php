@@ -278,8 +278,8 @@ abstract class Validate
 		}
 
 		/* is it based off the rootpath folder? */
-		if (file_exists(ROOTPATH.'/'.$file)) {
-			return ROOTPATH.'/'.$file;
+		if (file_exists(__ROOT__.'/'.$file)) {
+			return __ROOT__.'/'.$file;
 		}
 
 		/* not sure where it is */

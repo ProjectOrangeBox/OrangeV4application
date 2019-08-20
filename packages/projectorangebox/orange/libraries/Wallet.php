@@ -40,7 +40,7 @@ class Wallet
 	 *
 	 * @var Array
 	 */
-	protected $redirectMessages = [];
+	protected $messages = [];
 
 	/**
 	 * Session key for wallet messages
@@ -115,6 +115,13 @@ class Wallet
 	protected $pauseForEach = 1000;
 
 	/**
+	 * $defaultType
+	 *
+	 * @var string
+	 */
+	protected $defaultType = 'info';
+
+	/**
 	 *
 	 * Constructor
 	 *
@@ -131,20 +138,24 @@ class Wallet
 		$this->event = ci('event');
 		$this->load = ci('load');
 
+		$this->load->helper('url');
+
 		/* where did we come from? */
 		$this->httpReferer = ci('input')->server('HTTP_REFERER');
 
-		/* What msg types should be considered "stickey" */
+		/* What msg types should be considered "sticky" */
 		$this->stickyTypes = $this->config['sticky types'] ?? ['red','danger','warning','yellow'];
 		$this->initialPause = $this->config['initial pause'] ?? 3;
 		$this->pauseForEach = $this->config['pause for each'] ?? 1000;
+		$this->defaultType = $this->config['default type'] ?? 'info';
 
-		/* set the view variable if any messages are available */
-		$currentMessages = $this->session->flashdata($this->msgKey);
-
-		if (is_array($currentMessages)) {
-			$this->setViewVariable($currentMessages);
+		/* are there any messages in cold storage? */
+		if (is_array($previousMessages = $this->session->flashdata($this->msgKey))) {
+			$this->messages = $previousMessages;
 		}
+
+		/* set the view variable for this page */
+		$this->setViewVariable();
 
 		log_message('info', 'Orange Wallet Class Initialized');
 	}
@@ -164,28 +175,52 @@ class Wallet
 	 *
 	 * #### Example
 	 * ```php
-	 * ci('wallet')->msg('Oh No!','yellow');
+	 * ci('wallet')->msg('Oh No!','info');
 	 * ci('wallet')->msg('oH No!','red','/folder/new');
 	 * ```
 	 */
-	public function msg(string $msg = '', string $type = 'yellow', $redirect = null) : Wallet
+	public function msg(string $msg = '', string $type = null) : Wallet
 	{
+		$type = ($type) ?? $this->defaultType;
+
 		/* is this type sticky? - use names not colors - colors support for legacy code */
 		$sticky = in_array($type, $this->stickyTypes);
 
 		/* trigger a event incase they need to do something */
-		$this->event->trigger('wallet.msg', $msg, $type, $sticky, $redirect);
+		$this->event->trigger('wallet.msg', $msg, $type, $sticky);
 
-		/* is this a redirect */
-		if (is_string($redirect)) {
-			$this->redirect($msg, $type, $sticky, $redirect);
-		} elseif ($redirect === true) {
-			$this->redirect($msg, $type, $sticky, $this->httpReferer);
-		} else {
-			$this->add2page($msg, $type, $sticky);
-		}
+		$this->messages[md5(trim($type.$msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
+
+		/* put in view variable incase they want to use it on this page */
+		$this->setViewVariable();
 
 		return $this;
+	}
+
+	public function redirect(string $redirect) : void
+	{
+		// /* if it starts with @ then pick up the referer *
+		if ($redirect[0] == '@') {
+			$redirect = $this->httpReferer;
+		}
+
+		/* store this in a session variable for redirect */
+		$this->session->set_flashdata($this->msgKey, $this->messages);
+
+		redirect($redirect);
+	}
+
+	/**
+	 * getMessages
+	 *
+	 * @param mixed bool
+	 * @return void
+	 */
+	public function getMessages(bool $detailed = false) : array
+	{
+		$messages = array_values($this->messages);
+
+		return ($detailed) ? ['messages'=>$messages,'count'=>count($this->messages),'initial_pause'=>$this->initialPause,'pause_for_each'=>$this->pauseForEach] : $messages;
 	}
 
 	/**
@@ -204,8 +239,10 @@ class Wallet
 	 * ci('wallet')->msgs(['Whoops!','Defcon 1'=>'red','Info']);
 	 * ```
 	 */
-	public function msgs(array $array, string $type='yellow') : Wallet
+	public function msgs(array $array, string $type = null) : Wallet
 	{
+		$type = ($type) ?? $this->defaultType;
+
 		foreach ($array as $a=>$b) {
 			if (is_numeric($a)) {
 				$this->msg($b, $type);
@@ -219,94 +256,22 @@ class Wallet
 
 	/**
 	 *
-	 * Add a message and redirect
-	 *
-	 * @access protected
-	 *
-	 * @param $msg
-	 * @param $type
-	 * @param $sticky
-	 * @param $redirect
-	 *
-	 * @return void
-	 *
-	 */
-	protected function redirect(string $msg, string $type, bool $sticky, string $redirect) : void
-	{
-		/* add another message to any that might already be on there */
-		$this->redirectMessages[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
-
-		/* store this in a session variable */
-		$this->session->set_flashdata($this->msgKey, $this->redirectMessages);
-
-		redirect($redirect);
-	}
-
-	/**
-	 *
-	 * Add message to the current pages view javascript variable
-	 *
-	 * @access protected
-	 *
-	 * @param string $msg
-	 * @param string $type
-	 * @param bool $sticky
-	 *
-	 * @return \Wallet
-	 *
-	 */
-	protected function add2page(string $msg, string $type, bool $sticky) : Wallet
-	{
-		/* add to the current wallet messages */
-		$currentMsgs = $this->getViewVariable();
-
-		/* add messages */
-		$currentMsgs[md5(trim($msg))] = ['msg' => trim($msg), 'type' => $type, 'sticky' => $sticky];
-
-		/* put back in view variable */
-		$this->setViewVariable($currentMsgs);
-
-		return $this;
-	}
-
-	/**
-	 *
-	 * Get the page view variable contents
-	 *
-	 * @access protected
-	 *
-	 * @return Array
-	 *
-	 */
-	protected function getViewVariable() : array
-	{
-		/* get the current messages */
-		$walletMessages = $this->load->get_var($this->viewVariable);
-
-		/* we only need the messages */
-		return (array)$walletMessages['messages'];
-	}
-
-	/**
-	 *
 	 * Set the page view variable
 	 *
-	 * @access protected
+	 * @access public
 	 *
 	 * @param $messages
 	 *
 	 * @return \Wallet
 	 *
 	 */
-	protected function setViewVariable(array $messages) : Wallet
+	public function setViewVariable(string $variable = null) : Wallet
 	{
-		/* get any flash messages in the session and add them to the view data */
-		$this->load->vars([$this->viewVariable => [
-			'messages'       => $messages,
-			'initial_pause'  => $this->initialPause,
-			'pause_for_each' => $this->pauseForEach,
-		]]);
+		$variable = ($variable) ?? $this->viewVariable;
+
+		$this->load->vars([$variable => $this->getMessages(true)]);
 
 		return $this;
 	}
+
 } /* end class */

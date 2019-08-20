@@ -4,6 +4,7 @@ namespace projectorangebox\orange\library\cache;
 
 use projectorangebox\orange\library\traits\Cache_DeleteByTag;
 use projectorangebox\orange\library\traits\Cache_inline;
+use projectorangebox\orange\library\traits\Cache_ttl;
 
 /* wrapper */
 
@@ -11,6 +12,7 @@ class Redis extends \CI_Cache_redis
 {
 	use Cache_DeleteByTag;
 	use Cache_inline;
+	use Cache_ttl;
 
 	/**
 	 * cache_keys

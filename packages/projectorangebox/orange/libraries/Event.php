@@ -188,22 +188,26 @@ class Event
 	 * @access public
 	 *
 	 * @param string $name
-	 * @param $listener
+	 * @param $matches
 	 *
 	 * @return bool
 	 *
 	 */
-	public function unregister(string $name, $listener) : bool
+	public function unregister(string $name,$matches = null) : bool
 	{
 		/* clean up the name */
 		$name = $this->_normalize_name($name);
 
 		$removed = false;
 
-		if (!($listener instanceof Closure)) {
-			if (isset($this->listeners[$name])) {
+		if (isset($this->listeners[$name])) {
+			if ($matches == null) {
+				unset($this->listeners[$name]);
+
+				$removed = true;
+			} else {
 				foreach ($this->listeners[$name][2] as $index=>$check) {
-					if ($check === $listener) {
+					if ($check === $matches) {
 						unset($this->listeners[$name][1][$index]);
 						unset($this->listeners[$name][2][$index]);
 
@@ -230,16 +234,9 @@ class Event
 	 * @return \Event
 	 *
 	 */
-	public function unregister_all(string $name = '') : Event
+	public function unregisterAll() : Event
 	{
-		/* clean up the name */
-		$name = $this->_normalize_name($name);
-
-		if (!empty($name)) {
-			unset($this->listeners[$name]);
-		} else {
-			$this->listeners = [];
-		}
+		$this->listeners = [];
 
 		/* allow chaining */
 		return $this;

@@ -47,7 +47,7 @@ class FormController extends Controller {
 
 		$input = 'This # is a @test';
 
-		ci('validate')->single('alpha', $input);
+		ci('validate')->run('alpha', $input);
 
 		var_dump(ci('errors'));
 	}

@@ -58,6 +58,11 @@ $config['routes'][''] = ['*'=>'/packages/projectorangebox/theme/controllers/Welc
 /* four oh four! - catch all */
 $config['routes']['(.*)'] = ['*'=>'/packages/projectorangebox/theme/controllers/WelcomeController::fourohfour'];
 
+/* PHP Unit test controller location */
+if (isset($_ENV['PHPUNIT'])) {
+	$config['routes']['(.*)'] = ['cli'=>'/tests/support/PHPUnitController::index'];
+}
+
 /**
  * Middleware Request
  * Method is always request(/CI_Input &$input) : bool

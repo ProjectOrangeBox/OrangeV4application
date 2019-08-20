@@ -28,7 +28,7 @@ trait Cache_inline {
 	{
 		if (!$value = $this->get($key)) {
 			$value = $closure();
-			$this->save($key, $value,cache::ttl($ttl));
+			$this->save($key, $value, $this->ttl($ttl));
 		}
 
 		return $value;

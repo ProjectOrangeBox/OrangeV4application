@@ -1,5 +1,11 @@
 <?php
 
+use Closure;
+use RegexIterator;
+use RecursiveIteratorIterator;
+use RecursiveDirectoryIterator;
+use projectorangebox\orange\library\input\RequestRemap;
+
 // namespace ;
 
 /* static methods in global namespace */
@@ -111,6 +117,11 @@ class Orange {
 		return $service;
 	}
 
+	static public function addService(string $serviceName, string $class) : void
+	{
+		self::$fileConfigs['services'][$serviceName] = $class;
+	}
+
  /**
   * findView
   *
@@ -172,11 +183,14 @@ class Orange {
 		/* import variables into the current symbol table from an only prefix invalid/numeric variable names with _ 	*/
 		extract($__data, EXTR_PREFIX_INVALID, '_');
 
+		/* if the view isn't there then findView will throw an error BEFORE output buffering is turned on */
+		$__path = __ROOT__.self::findView($__view);
+
 		/* turn on output buffering */
 		ob_start();
 
 		/* bring in the view file */
-		include __ROOT__.self::findView($__view);
+		include $__path;
 
 		/* return the current buffer contents and delete current output buffer */
 		return ob_get_clean();
@@ -205,6 +219,7 @@ class Orange {
   */
 	static public function getAppPath(string $path) : string
 	{
+		/* remove anything below the __ROOT__ folder from the passed path */
 		return stripFromStart($path,__ROOT__);
 	}
 
@@ -218,6 +233,7 @@ class Orange {
 	{
 		$found = [];
 
+		/* get the packages from the configuration folder autoload packages key */
 		foreach (self::getPackages() as $package) {
 			foreach (new RegexIterator(new RecursiveIteratorIterator(new RecursiveDirectoryIterator(__ROOT__.'/'.$package)),'#^('.__ROOT__.'/)'.$regex.'$#Di') as $file) {
 				$found[self::getAppPath($file->getRealPath())] = true;
@@ -410,6 +426,20 @@ class Orange {
 		}
 
 		return $template;
+	}
+
+ /**
+  * remapInputStream
+	*
+	* Preprocess the raw input stream
+  *
+  * @param array $rules
+  * @param mixed bool
+  * @return void
+  */
+	static public function remapInputStream(array $rules) /* mixed */
+	{
+		ci('input')->set_request((new RequestRemap)->processRaw($rules,ci('input')->get_raw_input_stream())->get(),true);
 	}
 
 } /* end class */

@@ -11,7 +11,8 @@
 			"projectorangebox\\orange\\model\\": "packages/projectorangebox/orange/models",
 			"projectorangebox\\theme\\middleware\\": "packages/projectorangebox/theme/middleware",
 			"projectorangebox\\theme\\library\\": "packages/projectorangebox/theme/libraries",
-			"projectorangebox\\theme\\model\\": "packages/projectorangebox/theme/models"
+			"projectorangebox\\theme\\model\\": "packages/projectorangebox/theme/models",
+			"tests\\mocks\\": "tests/mocks"
     }
 	},
 	"require": {

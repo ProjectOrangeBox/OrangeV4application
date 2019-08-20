@@ -220,7 +220,7 @@ class Config extends \CI_Config
 				}
 
 				/* load the database configs (settings) if the value is set in  */
-				if (isset($this->config['database_settings']) && $this->config['database_settings'] === true) {
+				if (isset($this->config['database_settings']) && $this->config['database_settings'] !== false) {
 					$modelName = (is_bool($this->config['database_settings'])) ? 'o_setting_model' : $this->config['database_settings'];
 
 					$config = ci($modelName)->get_enabled();

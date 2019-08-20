@@ -22,4 +22,15 @@ class Dummy extends \CI_Cache_dummy
 		return [];
 	}
 
+	/**
+	 * ttl
+	 *
+	 * @param mixed int
+	 * @return void
+	 */
+	public function ttl(int $ttl = null) : int
+	{
+		return 0;
+	}
+
 } /* end class */

@@ -2,7 +2,6 @@
 
 namespace projectorangebox\orange\library\cache;
 
-use projectorangebox\orange\library\Cache;
 use projectorangebox\orange\library\traits\Cache_DeleteByTag;
 use projectorangebox\orange\library\traits\Cache_inline;
 
@@ -71,6 +70,11 @@ class Request
 	public function __construct(array &$config)
 	{
 		$this->config = &$config;
+	}
+
+	public function ttl(int $ttl = null) : int
+	{
+		return 0;
 	}
 
 	/**

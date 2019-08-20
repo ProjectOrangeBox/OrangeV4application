@@ -345,17 +345,19 @@ class Errors
 	 * ```
 	 *
 	 */
-	public function add(string $msg, string $fieldname = null) : Errors
+	public function add(string $msg, string $fieldname = null, string $group = null) : Errors
 	{
-		log_message('debug', 'Errors::add::'.$msg.' '.$this->current_group);
+		$group = ($group) ?? $this->current_group;
 
-		$dup_key = md5($this->current_group.$msg.$fieldname);
+		log_message('debug', 'Errors::add::'.$msg.' '.$group);
+
+		$dup_key = md5($group.$msg.$fieldname);
 
 		if (!isset($this->duplicates[$dup_key])) {
 			if ($fieldname) {
-				$this->errors[$this->current_group][$fieldname] = $msg; /* field based keys */
+				$this->errors[$group][$fieldname] = $msg; /* field based keys */
 			} else {
-				$this->errors[$this->current_group][] = $msg; /* number based keys auto incremented */
+				$this->errors[$group][] = $msg; /* number based keys auto incremented */
 			}
 
 			$this->duplicates[$dup_key] = true;
