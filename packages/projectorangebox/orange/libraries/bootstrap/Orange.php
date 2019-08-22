@@ -446,7 +446,7 @@ class Orange {
   * @param mixed $default
   * @return void
   */
-	static public function getDotNotation(array $array,string $notation, $default = null)
+	static public function getDotNotation(array $array,string $notation, $default = null) /* mixed */
 	{
 		$value = $default;
 
@@ -472,7 +472,8 @@ class Orange {
 		return $value;
 	}
 
-	static public function setDotNotation(array &$array,string $notation, $value) {
+	static public function setDotNotation(array &$array,string $notation, $value) : void
+	{
     $keys = explode('.', $notation);
 
 		while(count($keys) > 1) {

@@ -16,14 +16,13 @@ if (!function_exists('ci'))
 		/* get a instance of CodeIgniter */
 		$instance = get_instance();
 
-		/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
-		$serviceName = ($as) ?? basename(str_replace('\\','/',$name),'.php');
+		if ($name) {
+			/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
+			$serviceName = strtolower(($as) ?? basename(str_replace('\\','/',$name),'.php'));
 
-		if ($serviceName) {
 			/* has this service been attached yet? */
 			if (!isset($instance->$serviceName)) {
 				/* try to load it's configuration but don't throw an error */
-
 				$config = $instance->config->item($serviceName);
 
 				/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
@@ -59,6 +58,8 @@ if (!function_exists('ci'))
 
 if (!function_exists('factory')) {
 	function factory(string $serviceName,array $customConfig = []) {
+		$instance = get_instance();
+
 		$config = $instance->config->item($serviceName);
 
 		if (is_array($config)) {

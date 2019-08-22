@@ -6,7 +6,9 @@ class WelcomeController extends Controller {
 
 	public function index() : void
 	{
-		ci('page')->render('welcome_message');
+		$example = ci('config')->item('foo.bar');
+
+		ci('page')->render('welcome_message',['example'=>$example]);
 	}
 
 	public function fourohfour() : void

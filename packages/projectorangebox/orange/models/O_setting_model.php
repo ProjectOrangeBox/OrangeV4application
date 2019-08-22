@@ -23,6 +23,33 @@ use projectorangebox\orange\model\Database_model;
  * functions:
  *
  */
+
+/*
+CREATE TABLE `orange_settings` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+  `created_on` datetime NOT NULL DEFAULT current_timestamp(),
+  `created_by` int(11) unsigned NOT NULL DEFAULT 1,
+  `created_ip` varchar(16) DEFAULT NULL,
+  `updated_on` datetime DEFAULT NULL,
+  `updated_by` int(11) unsigned DEFAULT 0,
+  `updated_ip` varchar(16) DEFAULT NULL,
+  `read_role_id` int(11) unsigned NOT NULL DEFAULT 1,
+  `edit_role_id` int(11) unsigned NOT NULL DEFAULT 1,
+  `delete_role_id` int(11) unsigned NOT NULL DEFAULT 1,
+  `group` varchar(128) DEFAULT NULL,
+  `name` varchar(128) CHARACTER SET latin1 NOT NULL,
+  `value` text CHARACTER SET latin1 NOT NULL,
+  `enabled` tinyint(1) unsigned NOT NULL DEFAULT 1,
+  `help` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
+  `options` text DEFAULT NULL,
+  `migration` varchar(128) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_group` (`group`) USING BTREE,
+  KEY `idx_enabled` (`enabled`) USING BTREE,
+  KEY `idx_name` (`name`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+*/
+
 class O_setting_model extends Database_model
 {
 	protected $table = 'orange_settings';

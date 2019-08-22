@@ -109,7 +109,7 @@ class Database_model extends Model
 	 *
 	 * @var array
 	 */
-	protected $has = [
+	protected $has_defaults = [
 		'read_role'=>false,
 		'edit_role'=>false,
 		'delete_role'=>false,
@@ -124,6 +124,8 @@ class Database_model extends Model
 		'deleted_ip'=>false,
 		'is_deleted'=>false,
 	];
+
+	protected $has = [];
 
 	/**
 	 * internal storage of formatted cache prefixes
@@ -242,6 +244,8 @@ class Database_model extends Model
 		/* setup MY_Model */
 		parent::__construct();
 
+		$this->has = \array_replace($this->has_defaults,$this->has);
+
 		if (empty($this->table)) {
 			throw new \Exception('Database model table not specified.');
 		}
@@ -352,7 +356,6 @@ class Database_model extends Model
 		$this->ignore_delete_role = false;
 		$this->skip_rules = false;
 		$this->limit_to = false;
-
 		$this->deleted_where_clause = [$this->has['is_deleted'] => 0];
 
 		return $this;

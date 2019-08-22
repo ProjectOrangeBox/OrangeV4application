@@ -46,16 +46,31 @@ class Config extends \CI_Config
 	 */
 	protected $lazyLoaded = false;
 
+	/**
+	 * $hasDatabase
+	 *
+	 * @var mixed string|bool
+	 */
 	protected $hasDatabase = false;
 
+	/**
+	 * $databaseReady
+	 *
+	 * @var boolean
+	 */
 	protected $databaseReady = false;
 
+	/**
+	 * __construct
+	 *
+	 * @return void
+	 */
 	public function __construct()
 	{
 		parent::__construct();
 
 		if (isset($this->config['database_settings']) && $this->config['database_settings'] !== false) {
-			$this->hasDatabase = true;
+			$this->hasDatabase = $this->config['database_settings'];
 		}
 
 		log_message('info', 'Orange Config Class Initialized');
@@ -212,7 +227,7 @@ class Config extends \CI_Config
 	protected function _lazyLoad() : void
 	{
 		/* if this has a database model and the database is attached to CI then we can load again this time with the database */
-		if ($this->hasDatabase && isset(ci()->database)) {
+		if ($this->hasDatabase && function_exists('DB')) {
 			$this->databaseReady = true;
 			$this->lazyLoaded = false;
 		}
@@ -227,9 +242,9 @@ class Config extends \CI_Config
 			}
 
 			$this->lazyLoaded = true;
-		}
 
-		$this->config = \array_replace($fileConfig,$databaseConfig);
+			$this->config = \array_replace($fileConfig,$databaseConfig);
+		}
 	}
 
 	protected function _getFileConfig() : array
@@ -272,9 +287,7 @@ class Config extends \CI_Config
 		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
 
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
-			$modelName = (is_bool($this->config['database_settings'])) ? 'o_setting_model' : $this->config['database_settings'];
-
-			$config = ci($modelName)->get_enabled();
+			$config = ci($this->hasDatabase)->get_enabled();
 
 			if (is_array($config)) {
 				foreach ($config as $record) {
