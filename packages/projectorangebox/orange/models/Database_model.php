@@ -1555,6 +1555,13 @@ class Database_model extends Model
 		return $this->where_can_delete($data);
 	}
 
+	protected function _test_user_connected()
+	{
+		if (!is_object(ci()->user)) {
+			throw new \Exception('User not attached to application.');
+		}
+	}
+
 	/**
 	 *
 	 * Get the current user id
@@ -1566,6 +1573,8 @@ class Database_model extends Model
 	 */
 	protected function get_user_id() : int
 	{
+		$this->_test_user_connected();
+
 		return (int)ci()->user->id;
 	}
 
@@ -1582,6 +1591,8 @@ class Database_model extends Model
 	 */
 	protected function get_user_roles() : array
 	{
+		$this->_test_user_connected();
+
 		$roles = ci()->user->roles();
 
 		/* we must return something for the in clause or every record will match which is not what we want */
@@ -1607,6 +1618,8 @@ class Database_model extends Model
 	 */
 	protected function get_user_read_role_id() : int
 	{
+		$this->_test_user_connected();
+
 		return (int)ci()->user->user_read_role_id;
 	}
 
@@ -1621,6 +1634,8 @@ class Database_model extends Model
 	 */
 	protected function get_user_edit_role_id() : int
 	{
+		$this->_test_user_connected();
+
 		return (int)ci()->user->user_edit_role_id;
 	}
 
@@ -1635,6 +1650,8 @@ class Database_model extends Model
 	 */
 	protected function get_user_delete_role_id() : int
 	{
+		$this->_test_user_connected();
+
 		return (int)ci()->user->user_delete_role_id;
 	}
 

@@ -44,15 +44,22 @@ class Config extends \CI_Config
 	 *
 	 * @var boolean
 	 */
-	protected $lazy_loaded = false;
+	protected $lazyLoaded = false;
+
+	protected $hasDatabase = false;
+
+	protected $databaseReady = false;
 
 	public function __construct()
 	{
 		parent::__construct();
 
+		if (isset($this->config['database_settings']) && $this->config['database_settings'] !== false) {
+			$this->hasDatabase = true;
+		}
+
 		log_message('info', 'Orange Config Class Initialized');
 	}
-
 
 	/**
 	 * override parent
@@ -103,9 +110,10 @@ class Config extends \CI_Config
 	{
 		log_message('debug', 'Config::dotNotation::'.$setting);
 
-		$this->lazy_load();
+		$this->_lazyLoad();
 
 		$value = $default;
+
 		$section = false;
 
 		if (strpos($setting, '.')) {
@@ -151,7 +159,7 @@ class Config extends \CI_Config
 	{
 		log_message('debug', 'Config::setDotNotation::'.$setting);
 
-		$this->lazy_load();
+		$this->_lazyLoad();
 
 		list($file, $key) = explode('.', strtolower($setting), 2);
 
@@ -179,11 +187,17 @@ class Config extends \CI_Config
 	{
 		log_message('debug', 'Config::flush');
 
-		$this->lazy_loaded = false;
+		$this->lazyLoaded = false;
 
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.php';
+		$cacheDatabaseFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
 
-		return (file_exists($cacheFilePath)) ? unlink($cacheFilePath) : true;
+		if (\file_exists($cacheDatabaseFilePath)) {
+			\unlink($cacheDatabaseFilePath);
+		}
+
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
+
+		return (\file_exists($cacheFilePath)) ? \unlink($cacheFilePath) : true;
 	}
 
 	/**
@@ -195,50 +209,85 @@ class Config extends \CI_Config
 	 * @return void
 	 *
 	 */
-	protected function lazy_load() : void
+	protected function _lazyLoad() : void
 	{
-		if (!$this->lazy_loaded) {
-			$cacheFilePath = \orange::fileConfig('config.cache_path').'config.php';
-
-			if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
-				/**
-				 * The application config folder has 1 of every
-				 * known config file so using this and a combination of
-				 * loadConfig we can as load the environmental
-				 * configuration files
-				 */
-				foreach (glob(APPPATH.'/config/*.php') as $filepath) {
-					$basename = basename($filepath, '.php');
-
-					$config = \orange::loadFileConfig($basename);
-
-					if (is_array($config)) {
-						foreach ($config as $key=>$value) {
-							$this->config[$this->_normalizeSection($basename)][$this->_normalizeKey($key)] = $value;
-						}
-					}
-				}
-
-				/* load the database configs (settings) if the value is set in  */
-				if (isset($this->config['database_settings']) && $this->config['database_settings'] !== false) {
-					$modelName = (is_bool($this->config['database_settings'])) ? 'o_setting_model' : $this->config['database_settings'];
-
-					$config = ci($modelName)->get_enabled();
-
-					if (is_array($config)) {
-						foreach ($config as $record) {
-							$this->config[$this->_normalizeSection($record->group)][$this->_normalizeKey($record->name)] = convert_to_real($record->value);
-						}
-					}
-				}
-
-				\orange::var_export_file($cacheFilePath,$this->config);
-
-				$this->lazy_loaded = true;
-			} else {
-				$this->config = include $cacheFilePath;
-			}
+		/* if this has a database model and the database is attached to CI then we can load again this time with the database */
+		if ($this->hasDatabase && isset(ci()->database)) {
+			$this->databaseReady = true;
+			$this->lazyLoaded = false;
 		}
+
+		if (!$this->lazyLoaded) {
+			$fileConfig = $this->_getFileConfig();
+
+			if ($this->databaseReady) {
+				$databaseConfig = $this->_getDatabaseConfig();
+			} else {
+				$databaseConfig = [];
+			}
+
+			$this->lazyLoaded = true;
+		}
+
+		$this->config = \array_replace($fileConfig,$databaseConfig);
+	}
+
+	protected function _getFileConfig() : array
+	{
+		$fileConfig = [];
+
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
+
+		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
+			/**
+			 * The application config folder has 1 of every
+			 * known config file so using this and a combination of
+			 * loadConfig we can as load the environmental
+			 * configuration files
+			 */
+			foreach (glob(APPPATH.'/config/*.php') as $filepath) {
+				$basename = basename($filepath, '.php');
+
+				$config = \orange::loadFileConfig($basename);
+
+				if (is_array($config)) {
+					foreach ($config as $key=>$value) {
+						$fileConfig[$this->_normalizeSection($basename)][$this->_normalizeKey($key)] = $value;
+					}
+				}
+			}
+
+			\orange::var_export_file($cacheFilePath,$fileConfig);
+		} else {
+			$fileConfig = include $cacheFilePath;
+		}
+
+		return $fileConfig;
+	}
+
+	protected function _getDatabaseConfig() : array
+	{
+		$databaseConfig = [];
+
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
+
+		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
+			$modelName = (is_bool($this->config['database_settings'])) ? 'o_setting_model' : $this->config['database_settings'];
+
+			$config = ci($modelName)->get_enabled();
+
+			if (is_array($config)) {
+				foreach ($config as $record) {
+					$databaseConfig[$this->_normalizeSection($record->group)][$this->_normalizeKey($record->name)] = convert_to_real($record->value);
+				}
+			}
+
+			\orange::var_export_file($cacheFilePath,$databaseConfig);
+		} else {
+			$databaseConfig = include $cacheFilePath;
+		}
+
+		return $databaseConfig;
 	}
 
 	protected function _normalizeSection(string $string) : string

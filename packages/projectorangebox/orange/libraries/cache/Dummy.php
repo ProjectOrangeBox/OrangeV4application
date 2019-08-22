@@ -2,15 +2,13 @@
 
 namespace projectorangebox\orange\library\cache;
 
-use projectorangebox\orange\library\traits\Cache_DeleteByTag;
-use projectorangebox\orange\library\traits\Cache_inline;
-
 /* wrapper */
 
 class Dummy extends \CI_Cache_dummy
 {
-	use Cache_DeleteByTag;
-	use Cache_inline;
+	use DeleteByTag;
+	use Inline;
+	use Ttl;
 
 	/**
 	 * cache_keys

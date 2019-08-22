@@ -2,9 +2,6 @@
 
 namespace projectorangebox\orange\library\cache;
 
-use projectorangebox\orange\library\traits\Cache_DeleteByTag;
-use projectorangebox\orange\library\traits\Cache_inline;
-
 /**
  * Orange
  *
@@ -43,8 +40,9 @@ use projectorangebox\orange\library\traits\Cache_inline;
  */
 class Request
 {
-	use Cache_DeleteByTag;
-	use Cache_inline;
+	use DeleteByTag;
+	use Inline;
+	use Ttl;
 
 	/**
 	 * Cache storage

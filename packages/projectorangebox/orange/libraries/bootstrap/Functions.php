@@ -20,11 +20,11 @@ if (!function_exists('ci'))
 		$serviceName = ($as) ?? basename(str_replace('\\','/',$name),'.php');
 
 		if ($serviceName) {
-
 			/* has this service been attached yet? */
 			if (!isset($instance->$serviceName)) {
 				/* try to load it's configuration but don't throw an error */
-				$config = \orange::loadFileConfig($serviceName,false);
+
+				$config = $instance->config->item($serviceName);
 
 				/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
 				if ($namedService = \orange::findService($name,false)) {
@@ -54,6 +54,22 @@ if (!function_exists('ci'))
 		}
 
 		return $instance;
+	}
+}
+
+if (!function_exists('factory')) {
+	function factory(string $serviceName,array $customConfig = []) {
+		$config = $instance->config->item($serviceName);
+
+		if (is_array($config)) {
+			$config = array_replace($config,$customConfig);
+		} else {
+			$config = $customConfig;
+		}
+
+		$serviceClass = \orange::findService($serviceName,true);
+
+		return new $serviceClass($config);
 	}
 }
 

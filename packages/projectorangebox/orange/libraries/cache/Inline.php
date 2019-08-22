@@ -2,9 +2,7 @@
 
 namespace projectorangebox\orange\library\traits;
 
-use projectorangebox\orange\library\Cache;
-
-trait Cache_inline {
+trait Inline {
 
 	/**
 	 *

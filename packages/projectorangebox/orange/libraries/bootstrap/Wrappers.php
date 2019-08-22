@@ -57,7 +57,7 @@ if (!function_exists('valid'))
 {
 	function valid($input, string $rules) : bool
 	{
-		return ci('validate')->is_valid($input,$rules);
+		return ci('validate')->variable($input,$rules);
 	}
 }
 

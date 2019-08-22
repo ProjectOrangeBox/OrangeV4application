@@ -1,9 +1,5 @@
 <?php
 
-use Closure;
-use RegexIterator;
-use RecursiveIteratorIterator;
-use RecursiveDirectoryIterator;
 use projectorangebox\orange\library\input\RequestRemap;
 
 // namespace ;
@@ -440,6 +436,58 @@ class Orange {
 	static public function remapInputStream(array $rules) /* mixed */
 	{
 		ci('input')->set_request((new RequestRemap)->processRaw($rules,ci('input')->get_raw_input_stream())->get(),true);
+	}
+
+ /**
+  * getDotNotation
+  *
+  * @param array $array
+  * @param string $notation
+  * @param mixed $default
+  * @return void
+  */
+	static public function getDotNotation(array $array,string $notation, $default = null)
+	{
+		$value = $default;
+
+		if (is_array($array) && array_key_exists($notation,$array)) {
+			$value = $array[$notation];
+		} elseif (is_object($array) && property_exists($array,$notation)) {
+			$value = $array->$notation;
+		} else {
+			$segments = explode('.',$notation);
+
+			foreach ($segments as $segment) {
+				if (is_array($array) && array_key_exists($segment,$array)) {
+					$value = $array = $array[$segment];
+				} elseif (is_object($array) && property_exists($array,$segment)) {
+					$value = $array = $array->$segment;
+				} else {
+					$value = $default;
+					break;
+				}
+			}
+		}
+
+		return $value;
+	}
+
+	static public function setDotNotation(array &$array,string $notation, $value) {
+    $keys = explode('.', $notation);
+
+		while(count($keys) > 1) {
+			$key = array_shift($keys);
+
+			if (!isset($array[$key])) {
+				$array[$key] = array();
+			}
+
+			$array = &$array[$key];
+    }
+
+    $key = reset($keys);
+
+		$array[$key] = $value;
 	}
 
 } /* end class */

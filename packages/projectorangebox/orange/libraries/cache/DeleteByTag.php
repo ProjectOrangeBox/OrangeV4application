@@ -2,7 +2,7 @@
 
 namespace projectorangebox\orange\library\traits;
 
-trait Cache_DeleteByTag {
+trait DeleteByTag {
 
 	/**
 	 *

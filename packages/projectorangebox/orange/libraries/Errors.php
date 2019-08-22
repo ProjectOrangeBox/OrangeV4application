@@ -367,6 +367,17 @@ class Errors
 		return $this;
 	}
 
+	public function collect(object $errors,string $group) : Errors
+	{
+		if (!method_exists($errors,'errors')) {
+			throw new \Exception('Errors could not collect from "'.get_class($errors).'" because it does not have a errors method.');
+		}
+
+		$this->errors[$group] = $errors->errors();
+
+		return $this;
+	}
+
 	/**
 	 *
 	 * Clear the specified group or current group
@@ -647,7 +658,7 @@ class Errors
 	 */
 	public function die_on_error($view = 400, string $group = null) : Errors
 	{
-		$group = ($group) ? $group : $this->current_group;
+		$group = ($group) ?? $this->current_group;
 
 		log_message('debug', 'Errors::die_on_error::'.$view.' '.$group);
 
@@ -729,12 +740,15 @@ class Errors
 			case 'cli':
 				$this->set_request_type('cli');
 				$view_folder = 'cli';
+				$mime_type = '';
+				$charset = 'utf-8';
 			break;
 			case 'json':
 			case 'ajax':
 				$this->set_request_type('ajax');
 				$view_folder = 'ajax';
 				$mime_type   = 'application/json';
+				$charset = 'utf-8';
 			break;
 			default:
 				$this->set_request_type('html');
@@ -749,8 +763,8 @@ class Errors
 		/* get "as" using __toString */
 		$data['message'] = (string)$this;
 
-		$charset     = $override['charset'] ?? $charset;
-		$mime_type   = $override['mime_type'] ?? $mime_type;
+		$charset = isset($override['charset']) ? $override['charset'] : $charset;
+		$mime_type = isset($override['mime_type']) ? $override['mime_type'] : $mime_type;
 
 		$status_code = abs($status_code);
 

@@ -4,7 +4,7 @@ namespace projectorangebox\orange\library\traits;
 
 use projectorangebox\orange\library\Cache;
 
-trait Cache_ttl {
+trait Ttl {
 
 	/**
 	 *

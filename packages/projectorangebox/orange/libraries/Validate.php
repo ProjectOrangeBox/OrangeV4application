@@ -2,7 +2,8 @@
 
 namespace projectorangebox\orange\library;
 
-use projectorangebox\orange\library\validate\Request;
+use projectorangebox\orange\library\abstracts\Validate as ProjectorangeboxValidate;
+use projectorangebox\orange\library\validate\Input;
 
 /**
  * Orange
@@ -24,10 +25,6 @@ use projectorangebox\orange\library\validate\Request;
  * @license http://opensource.org/licenses/MIT MIT License
  * @link https://github.com/ProjectOrangeBox
  * @version v2.0
- *
- * @uses # \Errors - Orange errors
- *
- * @config ~ preset filters
  *
  */
 class Validate
@@ -84,16 +81,22 @@ class Validate
 	/**
 	 * Local reference of Orange Error Object
 	 *
-	 * @var \Errors
 	 */
-	public $errors;
+	protected $errors = [];
 
 	/**
 	 * $request
 	 *
 	 * @var undefined
 	 */
-	public $request;
+	public $input;
+
+	/**
+	 * $rules
+	 *
+	 * @var array
+	 */
+	protected $rules = [];
 
 	/**
 	 *
@@ -109,11 +112,8 @@ class Validate
 		/* my config */
 		$this->config = &$config;
 
-		/* errors are stored in well... errors */
-		$this->errors = ci('errors');
-
 		/* setup the "chain" request object */
-		$this->request = new Request($this,ci('input'));
+		$this->input = new Input($this,ci('input'));
 
 		log_message('info', 'Orange Validate Class Initialized');
 	}
@@ -143,7 +143,7 @@ class Validate
 	}
 
 	/**
-	 * is_valid
+	 * variable - one time validation
 	 *
 	 * Process & Return
 	 *
@@ -151,21 +151,19 @@ class Validate
 	 * @param mixed $rules
 	 * @return void
 	 */
-	public function is_valid($input,$rules) : bool
+	public function variable($input,$rules) : bool
 	{
-		$this->errors->group(__METHOD__);
+		/* one time validation */
+		$local = new Validate();
 
-		$this->single($rules, $input);
+		$data = is_array($input) ? $input : ['input'=>$input];
+		$rules = is_array($rules) ? $rules : ['input'=>$rules];
 
-		$success = $this->errors->success(__METHOD__);
-
-		$this->errors->remove(__METHOD__);
-
-		return $success;
+		return $local->set_data($data)->set_rules($rules)->run()->success();
 	}
 
 	/**
-	 * filter
+	 * filter - one time filter
 	 *
 	 * Process & Return
 	 *
@@ -175,15 +173,15 @@ class Validate
 	 */
 	public function filter($input,$rules) /* mixed */
 	{
-		/* add filter_ if it's not there */
-		foreach (explode('|', $rules) as $r) {
-			$a[] = 'filter_'.str_replace('filter_', '', strtolower($r));
-		}
+		/* one time validation */
+		$local = new Validate();
 
-		/* passed by reference */
-		$this->run(implode('|', $a), $input);
+		$data = is_array($input) ? $input : ['input'=>$input];
+		$rules = is_array($rules) ? $rules : ['input'=>$rules];
 
-		return $input;
+		$local->set_data($data)->set_rules($rules)->run();
+
+		return $data['input'];
 	}
 
 	/**
@@ -194,40 +192,63 @@ class Validate
 	 * @param mixed string
 	 * @return void
 	 */
-	public function run($rules, &$fields, string $human = null) : Validate
+	public function run(string $namedGroup = 'default') : Validate
 	{
-		return (is_array($fields)) ? $this->_multiple($rules, $fields) : $this->_single($rules, $fields, $human);
+		if (!isset($this->rules[$namedGroup])) {
+			throw new \Exception('Validate rule group "'.$namedGroup.'" was not found.');
+		}
+
+		/* process each field and rule as a single rule, field, and human label */
+		foreach ($this->rules[$namedGroup] as $info) {
+			$this->_single($info['field'],$info['rule'],$info['human']);
+		}
+
+		return $this;
+	}
+
+	public function set_data(array &$fields) : Validate
+	{
+		$this->field_data = &$fields;
+
+		return $this;
+	}
+
+	public function set_rules(array $rules,string $key='default') : Validate
+	{
+		foreach ($rules as $k=>$v) {
+			$rulesToUse = (isset($v['rules'])) ? $v['rules'] : $v;
+
+			$humanToUse = (isset($v['label'])) ? $v['label'] : $k;
+			$humanToUse = (isset($v['human'])) ? $v['human'] : $humanToUse;
+
+			$fieldToUse = (isset($v['field'])) ? $v['field'] : $k;
+
+			$this->rules[$key][$fieldToUse] = ['rule'=>$rulesToUse,'human'=>$humanToUse,'field'=>$fieldToUse];
+		}
+
+		return $this;
 	}
 
 	/**
+	 * success
 	 *
-	 * Run Multiple validation rules over multiple fields
-	 *
-	 * @access public
-	 *
-	 * @param array $rules []
-	 * @param array &$fields []
-	 *
-	 * @return Validate
-	 *
+	 * @return void
 	 */
-	protected function _multiple(array $rules = [], array &$fields) : Validate
+	public function success() : bool
 	{
-		/* save this as a reference for the validations and filters to use */
-		$this->field_data = &$fields;
+		return count($this->errors) == 0;
+	}
 
-		/* process each field and rule as a single rule, field, and human label */
-		foreach ($rules as $fieldname=>$rule) {
-			$this->_single($rule['rules'], $this->field_data[$fieldname], $rule['label']);
-		}
-
-		/* break the reference */
-		unset($this->field_data);
-
-		/* now set it to empty */
-		$this->field_data = [];
+	public function reset() : Validate
+	{
+		$this->errors = [];
 
 		return $this;
+	}
+
+	public function errors() : array
+	{
+		return array_values($this->errors);
 	}
 
 	/**
@@ -243,90 +264,77 @@ class Validate
 	 * @return Validate
 	 *
 	 */
-	protected function _single($rules, &$field, string $human = null) : Validate
+	protected function _single(string $key, string $rules, string $human = null) : Validate
 	{
-		/* break apart the rules */
-		if (!is_array($rules)) {
-			/* is this a preset set in the configuration array? */
-			$rules = (isset($this->config[$rules])) ? $this->config[$rules] : $rules;
-
-			/* split these into individual rules */
-			if (is_string($rules)) {
-				$rules = explode('|', $rules);
-			}
-		}
+		$rules = explode('|', $rules);
 
 		/* do we have any rules? */
 		if (count($rules)) {
 			/* field value before any validations / filters */
-			$this->error_field_value = $field;
+			if (!isset($this->field_data[$key])) {
+				$this->field_data[$key] = null;
+			}
 
-			/* yes - for each rule...*/
+			$this->error_field_value =  $this->field_data[$key];
+
 			foreach ($rules as $rule) {
-				log_message('debug', 'Validate Rule '.$rule.' "'.$field.'" '.$human);
-
-				/* no rule? exit processing of the $rules array */
-				if (empty($rule)) {
-					log_message('debug', 'Validate no validation rule.');
-
-					$success = true;
-					break;
-				}
-
-				/* do we have this special rule? */
-				if ($rule == 'allow_empty') {
-					log_message('debug', 'Validate allow_empy skipping the rest if empty.');
-
-					if (empty($field)) {
-						/* end processing of the $rules array */
-						break;
-					} else {
-						/* skip the rest of the current foreach but don't stop processing the $rules array  */
-						continue;
-					}
-				}
-
-				/* setup default of no parameters */
-				$param = '';
-
-				/* do we have parameters if so split them out */
-				if (preg_match("/(.*?)\[(.*?)\]/", $rule, $match)) {
-					$rule  = $match[1];
-					$param = $match[2];
-				}
-
-				/* do we have a human readable field name? if not then try to make one */
-				$this->error_human = ($human) ? $human : strtolower(str_replace('_', ' ', $rule));
-
-				log_message('debug', 'Validate '.$rule.'['.$param.'] > '.$this->error_human);
-
-				/* try to format the parameters into something human readable incase they need this in there error message  */
-				if (strpos($param, ',') !== false) {
-					$this->error_params = str_replace(',', ', ', $param);
-
-					if (($pos = strrpos($this->error_params, ', ')) !== false) {
-						$this->error_params = substr_replace($this->error_params, ' or ', $pos, 2);
-					}
-				} else {
-					$this->error_params = $param;
-				}
-
-				/* hopefully error_params looks presentable now? */
-
-				/* take action on a validation or filter - filters MUST always start with "filter_" */
-				$success = (substr(strtolower($rule), 0, 7) == 'filter_') ? $this->_filter($field, $rule, $param) : $this->_validation($field, $rule, $param);
-
-				log_message('debug', 'Validate Success '.$success);
-
-				/* bail on first failure */
-				if ($success === false) {
-					/* end processing of the $rules array */
-					return $this;
+				if ($this->_process_rule($key,$rule,$human) === false) {
+					break; /* break from for each */
 				}
 			}
 		}
 
 		return $this;
+	}
+
+	protected function _process_rule(string $key, string $rule, string $human) : bool
+	{
+		/* no rule? exit processing of the $rules array */
+		if (empty($rule)) {
+			log_message('debug', 'No rule provied to validate against.');
+
+			return false;
+		}
+
+		/* do we have this special rule? */
+		if ($rule == 'allow_empty' && empty($this->field_data[$key])) {
+			log_message('debug', 'Allow Empty validation rule skipping the rest because the field is empty.');
+
+			return false;
+		}
+
+		$param = '';
+
+		if (preg_match(';(?<rule>.*)\[(?<param>.*)\];', $rule, $matches, PREG_OFFSET_CAPTURE, 0)) {
+			$rule = $matches['rule'];
+			$param = $matches['param'];
+		}
+
+		$this->_makeHumanLookNice($human,$rule);
+		$this->_makeParamsLookNice($param);
+
+		/* take action on a validation or filter - filters MUST always start with "filter_" */
+		return (substr(strtolower($rule), 0, 7) == 'filter_') ? $this->_filter($key, $rule, $param) : $this->_validation($key, $rule, $param);
+	}
+
+	protected function _makeHumanLookNice($human,$rule)
+	{
+		/* do we have a human readable field name? if not then try to make one */
+		$this->error_human = ($human) ? $human : strtolower(str_replace('_', ' ', $rule));
+	}
+
+	protected function _makeParamsLookNice($param)
+	{
+		/* try to format the parameters into something human readable incase they need this in there error message  */
+		if (strpos($param, ',') !== false) {
+			$this->error_params = str_replace(',', ', ', $param);
+
+			if (($pos = strrpos($this->error_params, ', ')) !== false) {
+				$this->error_params = substr_replace($this->error_params, ' or ', $pos, 2);
+			}
+		} else {
+			$this->error_params = $param;
+		}
 	}
 
 	/**
@@ -345,20 +353,21 @@ class Validate
 	 * @return bool
 	 *
 	 */
-	protected function _filter(&$field, string $rule, string $param = null) : bool
+	protected function _filter(string $key, string $rule, string $param = null) : bool
 	{
 		$class_name = $this->_normalizeRuleName($rule);
 
+		/* chop off filter_ */
 		$short_rule = substr($class_name, 7);
 
 		if (isset($this->attached[$class_name])) {
-			$this->attached[$class_name]($field, $param);
+			$this->attached[$class_name]($this->field_data[$key], $param);
 		} elseif ($namedService = \orange::findService($class_name,false)) {
-			(new $namedService($this->field_data))->filter($field, $param);
+			(new $namedService($this->field_data))->filter($this->field_data[$key], $param);
 		} elseif (function_exists($short_rule)) {
-			$field = ($param) ? $short_rule($field, $param) : $short_rule($field);
+			$this->field_data[$key] = ($param) ? $short_rule($this->field_data[$key], $param) : $short_rule($this->field_data[$key]);
 		} else {
-			throw new \Exception('Could not filter '.$rule);
+			throw new \Exception('Could not locate the filter named "'.$rule.'".');
 		}
 
 		/* filters don't fail */
@@ -379,22 +388,23 @@ class Validate
 	 * @return bool
 	 *
 	 */
-	protected function _validation(&$field, string $rule, string $param = null) : bool
+	protected function _validation(string $key, string $rule, string $param = null) : bool
 	{
 		$class_name = $this->_normalizeRuleName($rule);
+
 		$short_rule = substr($class_name, 9); /* chop off validate_ */
 
 		/* default error */
 		$this->error_string = '%s is not valid.';
 
 		if (isset($this->attached[$class_name])) {
-			$success = $this->attached[$class_name]($field, $param, $this->error_string, $this->field_data, $this);
+			$success = $this->attached[$class_name]($this->field_data[$key], $param, $this->error_string, $this->field_data, $this);
 		} elseif ($namedService = \orange::findService($class_name,false)) {
-			$success = (new $namedService($this->field_data, $this->error_string))->validate($field, $param);
+			$success = (new $namedService($this->field_data, $this->error_string))->validate($this->field_data[$key], $param);
 		} elseif (function_exists($short_rule)) {
-			$success = ($param) ? $short_rule($field, $param) : $short_rule($field);
+			$success = ($param) ? $short_rule($this->field_data[$key], $param) : $short_rule($this->field_data[$key]);
 		} else {
-			throw new \Exception('Could not validate '.$rule);
+			throw new \Exception('Could not locate the validate rule "'.$rule.'".');
 		}
 
 		/* if success is really really false then it's a error */
@@ -404,11 +414,11 @@ class Validate
 			 * sprintf argument 2 human version of options (computer generated)
 			 * sprintf argument 3 field value
 			 */
-			$this->errors->add(sprintf($this->error_string, $this->error_human, $this->error_params, $this->error_field_value),$this->error_human);
+			$this->errors[$this->error_human] = sprintf($this->error_string, $this->error_human, $this->error_params, $this->error_field_value);
 		} else {
 			/* not a boolean then it's something useable */
 			if (!is_bool($success)) {
-				$field = $success;
+				$this->field_data[$key] = $success;
 
 				$success = true;
 			}

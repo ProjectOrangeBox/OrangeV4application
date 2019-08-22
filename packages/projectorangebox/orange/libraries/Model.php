@@ -57,15 +57,29 @@ class Model extends \CI_Model
 	protected $rule_sets = [];
 
 	/**
-	 * Name of the object
+	 * "Name" of this object / model
 	 *
 	 * @var String
 	 */
 	protected $object = null;
 
+	/**
+	 * Reference to personal validation library
+	 *
+	 * @var null
+	 */
+	public $validate = null;
+
+	/**
+	 * __construct
+	 *
+	 * @return void
+	 */
 	public function __construct()
 	{
 		parent::__construct();
+
+		$this->validate = factory('validate');
 
 		log_message('info', 'Orange Model Class Initialized');
 	}
@@ -78,7 +92,7 @@ class Model extends \CI_Model
 	 * @return String
 	 *
 	 */
-	public function object() : String
+	public function object() : string
 	{
 		return $this->object;
 	}
@@ -99,37 +113,22 @@ class Model extends \CI_Model
 	/**
 	 * Get a rule by column name or column name and section
 	 *
-	 * @param $key column name
-	 * @param $section column section
+	 * @param string $dotNotation
 	 *
 	 * @return mixed
-	 */
-	public function rule(string $key, $section = null)
-	{
-		log_message('info', 'orange model::rule '.$key.' '.$section);
-
-		$rule = ($section) ? $this->rules[$key][$section] : $this->rules[$key];
-
-		return ($rule === null) ? false : $rule;
-	}
-
-	/**
-	 *
-	 * Clear any validation errors for this object
-	 *
-	 * @access public
-	 *
-	 * @return model
 	 *
 	 */
-	public function clear() : Model
+	public function rule(string $dotNotation) : string
 	{
-		log_message('info', 'orange model::clear '.$this->object);
+		log_message('info', 'orange model::rule '.$dotNotation);
 
-		/* validation wrapper */
-		ci('validate')->clear($this->object);
+		$value = \Orange::getDotNotation($this->rules,$dotNotation,NOVALUE);
 
-		return $this;
+		if ($value == NOVALUE) {
+			throw new \Exception(sprintf('No rule found in "%s" for "%s".',$this->object,$dotNotation));
+		}
+
+		return $value;
 	}
 
 	/**
@@ -150,7 +149,7 @@ class Model extends \CI_Model
 	 * @return Bool Success
 	 *
 	 */
-	public function validate(array &$data, $rules = true) : Bool
+	public function validate(array &$data,/* mixed array|string|bool */ $rules = true) : bool
 	{
 		log_message('info', 'orange model::validate');
 
@@ -187,32 +186,29 @@ class Model extends \CI_Model
 		$this->only_columns($data, $rules);
 
 		/**
-		 * Save the current group in validate
-		 * so we can put it back after this model is done validating this model
-		 */
-		$previousErrorGroup = ci('validate')->get_group();
-
-		/**
 		 * did we actually get any rules?
 		 */
 		if (count($rules)) {
 			/**
 			 * run the rules on the data array
 			 */
-			ci('validate')->group($this->object)->multiple($rules, $data);
+			$this->validate->set_data($data)->set_rules($rules)->run();
 		}
 
 		/**
 		 * return if we got any errors
 		 */
-		$success = ci('validate')->success($this->object);
+		return $this->validate->success();
+	}
 
-		/**
-		 * we are done put back the previous error group
-		 */
-		ci('validate')->group($previousErrorGroup);
-
-		return $success;
+	/**
+	 * errors
+	 *
+	 * @return void
+	 */
+	public function errors() : array
+	{
+		return $this->validate->errors();
 	}
 
 	/**
@@ -229,7 +225,7 @@ class Model extends \CI_Model
 	 * @return model
 	 *
 	 */
-	public function remove_columns(array &$data, $columns = []) : Model
+	public function remove_columns(array &$data,/* mixed string|array */ $columns = []) : model
 	{
 		log_message('info', 'orange model::remove_columns');
 
@@ -259,7 +255,7 @@ class Model extends \CI_Model
 	 * @return model
 	 *
 	 */
-	public function only_columns(array &$data, $columns = []) : Model
+	public function only_columns(array &$data,/* mixed string|array */ $columns = []) : model
 	{
 		log_message('info', 'orange model::only_columns');
 
