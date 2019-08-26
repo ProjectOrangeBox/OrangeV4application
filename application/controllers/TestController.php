@@ -7,9 +7,36 @@ class TestController extends Controller {
 	/* @httpGet ~ => *::* */
 	public function index() : void
 	{
+		echo '<pre>';
+
 		$input = 'Foo this & ksdjfl #*7987 8797657#$%^645 Bar';
 
 		$output = ci('validate')->filter($input,'filter_slug');
+
+		var_dump($output);
+
+
+		$input = 'Foo this & ksdjfl #*7987 8797657#$%^645 Bar';
+
+		$output = ci('validate')->filter($input,'filter_number');
+
+		var_dump($output);
+
+		$input = 'Foo this & ksdjfl #*7987 8797657#$%^645 Bar';
+
+		$output = ci('validate')->filter($input,'filter_slug|filter_number');
+
+		var_dump($output);
+
+		$input = 'Foo this & ksdjfl #*7987 8797657#$%^645 Bar';
+
+		$output = ci('validate')->isValid($input,'required|alpha');
+
+		var_dump($output);
+
+		$input = 'Foothis';
+
+		$output = ci('validate')->isValid($input,'required|alpha');
 
 		var_dump($output);
 	}

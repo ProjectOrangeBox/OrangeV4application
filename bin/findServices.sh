@@ -37,9 +37,9 @@ echo '-- Cut & Paste as needed --'.PHP_EOL;
 
 echo PHP_EOL;
 
-foreach (\orange::applicationSearch('(.*)/filters/(.*)\.php') as $file) {
+foreach (\orange::applicationSearch('(.*)/validate/filters/(.*)\.php') as $file) {
 	if (preg_match('/namespace (.*);/m', file_get_contents(__ROOT__.$file), $matches, PREG_OFFSET_CAPTURE, 0)) {
-		echo "'".strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
+		echo "'".\orange::servicePrefix('input_filter').strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
 	}
 }
 
@@ -47,15 +47,15 @@ echo PHP_EOL;
 
 foreach (\orange::applicationSearch('(.*)/pear_plugins/(.*)\.php') as $file) {
 	if (preg_match('/namespace (.*);/m', file_get_contents(__ROOT__.$file), $matches, PREG_OFFSET_CAPTURE, 0)) {
-		echo "'".strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
+		echo "'".\orange::servicePrefix('pear_plugin').strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
 	}
 }
 
 echo PHP_EOL;
 
-foreach (\orange::applicationSearch('(.*)/validations/(.*)\.php') as $file) {
+foreach (\orange::applicationSearch('(.*)/validate/rules/(.*)\.php') as $file) {
 	if (preg_match('/namespace (.*);/m', file_get_contents(__ROOT__.$file), $matches, PREG_OFFSET_CAPTURE, 0)) {
-		echo "'".strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
+		echo "'".\orange::servicePrefix('validation_rule').strtolower(basename($file,'.php'))."' => '".'\\'.$matches[1][0].'\\'.basename($file,'.php')."',".PHP_EOL;
 	}
 }
 
@@ -63,7 +63,7 @@ echo PHP_EOL;
 
 foreach (\orange::applicationSearch('(.*)/views/(.*)\.php') as $file) {
 	if (preg_match('%(.*)/views/(.*).php%',$file, $matches, PREG_OFFSET_CAPTURE, 0)) {
-		echo "'".orange::viewServicePrefix().strtolower($matches[2][0])."' => '".$matches[0][0]."',".PHP_EOL;
+		echo "'".\orange::servicePrefix('view').strtolower($matches[2][0])."' => '".$matches[0][0]."',".PHP_EOL;
 	}
 }
 

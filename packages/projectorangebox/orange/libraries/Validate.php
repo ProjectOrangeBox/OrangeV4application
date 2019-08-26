@@ -2,7 +2,6 @@
 
 namespace projectorangebox\orange\library;
 
-use projectorangebox\orange\library\abstracts\Validate as ProjectorangeboxValidate;
 use projectorangebox\orange\library\validate\Input;
 
 /**
@@ -98,6 +97,9 @@ class Validate
 	 */
 	protected $rules = [];
 
+	protected $ruleServicePrefix;
+	protected $filterServicePrefix;
+
 	/**
 	 *
 	 * Constructor
@@ -115,6 +117,9 @@ class Validate
 
 		/* setup the "chain" request object */
 		$this->input = new Input($this,ci('input'));
+
+		$this->filterServicePrefix = \orange::servicePrefix('input_filter');
+		$this->ruleServicePrefix = \orange::servicePrefix('validation_rule');
 
 		log_message('info', 'Orange Validate Class Initialized');
 	}
@@ -138,7 +143,7 @@ class Validate
 	 */
 	public function attach(string $name, \closure $closure) : Validate
 	{
-		$this->attached[$this->_normalizeRuleName($name)] = $closure;
+		$this->attached[$this->_servicePrefix($name)] = $closure;
 
 		return $this;
 	}
@@ -152,7 +157,7 @@ class Validate
 	 * @param mixed $rules
 	 * @return void
 	 */
-	public function variable($input,$rules) : bool
+	public function isValid($input,$rules) : bool
 	{
 		/* one time validation */
 		$local = new Validate();
@@ -200,8 +205,8 @@ class Validate
 		}
 
 		/* process each field and rule as a single rule, field, and human label */
-		foreach ($this->rules[$namedGroup] as $info) {
-			$this->_single($info['field'],$info['rule'],$info['human']);
+		foreach ($this->rules[$namedGroup] as $rule) {
+			$this->_single($rule['field'],$rule['rule'],$rule['human']);
 		}
 
 		return $this;
@@ -356,17 +361,15 @@ class Validate
 	 */
 	protected function _filter(string $key, string $rule, string $param = null) : bool
 	{
-		$class_name = $this->_normalizeRuleName($rule);
+		$shortRule = substr($rule,7); /* filters start with filter_ */
+		$className = $this->_servicePrefix($rule);
 
-		/* chop off filter_ */
-		$short_rule = substr($class_name, 7);
-
-		if (isset($this->attached[$class_name])) {
-			$this->attached[$class_name]($this->field_data[$key], $param);
-		} elseif ($namedService = \orange::findService($class_name,false)) {
+		if (isset($this->attached[$className])) {
+			$this->attached[$className]($this->field_data[$key], $param);
+		} elseif ($namedService = \orange::findService($className,false)) {
 			(new $namedService($this->field_data))->filter($this->field_data[$key], $param);
-		} elseif (function_exists($short_rule)) {
-			$this->field_data[$key] = ($param) ? $short_rule($this->field_data[$key], $param) : $short_rule($this->field_data[$key]);
+		} elseif (function_exists($shortRule)) {
+			$this->field_data[$key] = ($param) ? $shortRule($this->field_data[$key], $param) : $shortRule($this->field_data[$key]);
 		} else {
 			throw new \Exception('Could not locate the filter named "'.$rule.'".');
 		}
@@ -391,19 +394,18 @@ class Validate
 	 */
 	protected function _validation(string $key, string $rule, string $param = null) : bool
 	{
-		$class_name = $this->_normalizeRuleName($rule);
-
-		$short_rule = substr($class_name, 9); /* chop off validate_ */
+		$shortRule = $rule; /* rules don't start with anything */
+		$className = $this->_servicePrefix($rule);
 
 		/* default error */
 		$this->error_string = '%s is not valid.';
 
-		if (isset($this->attached[$class_name])) {
-			$success = $this->attached[$class_name]($this->field_data[$key], $param, $this->error_string, $this->field_data, $this);
-		} elseif ($namedService = \orange::findService($class_name,false)) {
+		if (isset($this->attached[$className])) {
+			$success = $this->attached[$className]($this->field_data[$key], $param, $this->error_string, $this->field_data, $this);
+		} elseif ($namedService = \orange::findService($className,false)) {
 			$success = (new $namedService($this->field_data, $this->error_string))->validate($this->field_data[$key], $param);
-		} elseif (function_exists($short_rule)) {
-			$success = ($param) ? $short_rule($this->field_data[$key], $param) : $short_rule($this->field_data[$key]);
+		} elseif (function_exists($shortRule)) {
+			$success = ($param) ? $shortRule($this->field_data[$key], $param) : $shortRule($this->field_data[$key]);
 		} else {
 			throw new \Exception('Could not locate the validate rule "'.$rule.'".');
 		}
@@ -428,29 +430,9 @@ class Validate
 		return $success;
 	}
 
-	/**
-	 *
-	 * normalize the rule name.
-	 * if they send in a rule without a prefix then it's a validate rule
-	 * because they don't need a prefix
-	 * filters must always include filter_
-	 *
-	 * @access protected
-	 *
-	 * @param string $name
-	 *
-	 * @return string
-	 *
-	 */
-	protected function _normalizeRuleName(string $name) : string
+	protected function _servicePrefix($rule) : string
 	{
-		/* normalize to lowercase */
-		$name = strtolower($name);
-
-		/* if validate or filter is already prepended */
-		$prefix = (substr($name, 0, 9) != 'validate_' && (substr($name, 0, 7) != 'filter_')) ? 	'validate_' : '';
-
-		return $prefix.$name;
+		return (substr($rule,0,7) == 'filter_') ? $this->filterServicePrefix.substr($rule,7) : $this->ruleServicePrefix.$rule;
 	}
 
 } /* end class */

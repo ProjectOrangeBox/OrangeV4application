@@ -7,19 +7,19 @@ use projectorangebox\orange\library\input\RequestRemap;
 /* static methods in global namespace */
 
 class Orange {
+	static protected $prefixes = [
+		'view'=>'#',
+		'pear_plugin'=>'plugin_',
+		'validation_rule'=>'validation_',
+		'input_filter'=>'filter_',
+	];
+
  /**
   * $fileConfigs
   *
   * @var array
   */
 	static protected $fileConfigs = [];
-
- /**
-  * $viewServicePrefix
-  *
-  * @var string
-  */
-	static protected $viewServicePrefix = '#';
 
 	/**
 	 *
@@ -131,7 +131,9 @@ class Orange {
 
 		$views = self::loadFileConfig('services');
 
-		$view = (isset($views[self::$viewServicePrefix.$viewName])) ? $views[self::$viewServicePrefix.$viewName] : false;
+		$key = self::servicePrefix('view').$viewName;
+
+		$view = (isset($views[$key])) ? $views[$key] : false;
 
 		if ($throwException && !$view) {
 			throw new \Exception(sprintf('Could not locate a view named "%s".',$viewName));
@@ -198,13 +200,9 @@ class Orange {
   * @param mixed string
   * @return void
   */
-	static public function viewServicePrefix(string $prefix = null) : string
+	static public function servicePrefix(string $key) : string
 	{
-		if ($prefix) {
-			self::$viewServicePrefix = $prefix;
-		}
-
-		return self::$viewServicePrefix;
+		return (isset(self::$prefixes[$key])) ? self::$prefixes[$key] : '';
 	}
 
  /**
