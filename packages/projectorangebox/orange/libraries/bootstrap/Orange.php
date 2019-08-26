@@ -7,7 +7,7 @@ use projectorangebox\orange\library\input\RequestRemap;
 /* static methods in global namespace */
 
 class Orange {
-	static protected $prefixes = [
+	static protected $servicePrefixes = [
 		'view'=>'#',
 		'pear_plugin'=>'plugin_',
 		'validation_rule'=>'validation_',
@@ -70,7 +70,7 @@ class Orange {
 	 * @return mixed - based on $default value
 	 *
 	 */
-	static public function fileConfig(string $dotNotation, $default = NOVALUE) /* mixed */
+	static public function getFileConfig(string $dotNotation, $default = NOVALUE) /* mixed */
 	{
 		$dotNotation = strtolower($dotNotation);
 
@@ -98,13 +98,15 @@ class Orange {
   * @param mixed bool
   * @return void
   */
-	static public function findService(string $serviceName,bool $throwException = true) /* mixed false or string */
+	static public function findService(string $serviceName,bool $throwException = true,string $prefix = '') /* mixed false or string */
 	{
 		$serviceName = strtolower($serviceName);
 
 		$services = self::loadFileConfig('services');
 
-		$service = (isset($services[$serviceName])) ? $services[$serviceName] : false;
+		$key = self::servicePrefix($prefix).$serviceName;
+
+		$service = (isset($services[$key])) ? $services[$key] : false;
 
 		if ($throwException && !$service) {
 			throw new \Exception(sprintf('Could not locate a service named "%s".',$serviceName));
@@ -115,31 +117,7 @@ class Orange {
 
 	static public function addService(string $serviceName, string $class) : void
 	{
-		self::$fileConfigs['services'][$serviceName] = $class;
-	}
-
- /**
-  * findView
-  *
-  * @param string $viewName
-  * @param mixed bool
-  * @return void
-  */
-	static public function findView(string $viewName,bool $throwException = true) /* mixed false or string */
-	{
-		$viewName = strtolower($viewName);
-
-		$views = self::loadFileConfig('services');
-
-		$key = self::servicePrefix('view').$viewName;
-
-		$view = (isset($views[$key])) ? $views[$key] : false;
-
-		if ($throwException && !$view) {
-			throw new \Exception(sprintf('Could not locate a view named "%s".',$viewName));
-		}
-
-		return $view;
+		self::$fileConfigs['services'][strtolower($serviceName)] = $class;
 	}
 
  /**
@@ -182,7 +160,7 @@ class Orange {
 		extract($__data, EXTR_PREFIX_INVALID, '_');
 
 		/* if the view isn't there then findView will throw an error BEFORE output buffering is turned on */
-		$__path = __ROOT__.self::findView($__view);
+		$__path = __ROOT__.self::findService($__view,true,'view');
 
 		/* turn on output buffering */
 		ob_start();
@@ -202,7 +180,7 @@ class Orange {
   */
 	static public function servicePrefix(string $key) : string
 	{
-		return (isset(self::$prefixes[$key])) ? self::$prefixes[$key] : '';
+		return (isset(self::$servicePrefixes[$key])) ? self::$servicePrefixes[$key] : '';
 	}
 
  /**
@@ -214,7 +192,7 @@ class Orange {
 	static public function getAppPath(string $path) : string
 	{
 		/* remove anything below the __ROOT__ folder from the passed path */
-		return stripFromStart($path,__ROOT__);
+		return (substr($path,0,strlen(__ROOT__)) == __ROOT__) ? substr($path,strlen(__ROOT__)) : $path;
 	}
 
  /**

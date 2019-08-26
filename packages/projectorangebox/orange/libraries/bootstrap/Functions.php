@@ -315,7 +315,7 @@ if (!function_exists('l'))
 		}
 
 		/* write it to the log file */
-		return file_put_contents(\orange::fileConfig('config.log_path').'/orange_debug.log', implode(chr(10), $log).chr(10), FILE_APPEND | LOCK_EX);
+		return file_put_contents(\orange::getFileConfig('config.log_path').'/orange_debug.log', implode(chr(10), $log).chr(10), FILE_APPEND | LOCK_EX);
 	}
 }
 
@@ -343,7 +343,7 @@ if (!function_exists('site_url')) {
 		}
 
 		/* where is the cache file? */
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'site_url.php';
+		$cacheFilePath = \orange::getFileConfig('config.cache_path').'site_url.php';
 
 		/* are we in development mode or is the cache file missing */
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
