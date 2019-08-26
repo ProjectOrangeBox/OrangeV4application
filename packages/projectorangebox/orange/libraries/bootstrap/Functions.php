@@ -11,23 +11,32 @@
  */
 if (!function_exists('ci'))
 {
-	function ci(string $name = null, /* mixed */ $as = null,array $config = []) /* mixed */
+	function ci(string $name = null,array $userConfig = null,/* mixed */ $as = null) /* mixed */
 	{
-		/* Are we looking for a named service */
-		if ($name) {
-			/* Are we looking for a factory or singleton? */
-			$service = ($as === true) ? ci_factory($name,$config) : ci_singleton($name,$as);
-		} else {
-			/* They must be looking for the CodeIgniter "super" object */
-			$service = get_instance();
-		}
+		/**
+		 * Supports:
+		 *
+		 * $foo = ci('factory',$myconfig,true);
+		 *
+		 * $bar = ci('bar',$myconfig);
+		 * $foobar = ci('foo',$myconfig,'foobar');
+		 * $fb = ci('fb');
+		 *
+		 * $ci = ci();
+		 *
+		 */
 
-		return $service;
+		/**
+		 * Are we looking for a named service?
+		 * Are we looking for a factory or singleton?
+		 * Nope! than we must be looking for the CodeIgniter "super" object
+		 */
+		return ($name) ? ($as === true) ? ci_factory($name,$userConfig) : ci_singleton($name,$userConfig,$as) : get_instance();
 	}
 }
 
 if (!function_exists('ci_singleton')) {
-	function ci_singleton(string $name,string $as = null) {
+	function ci_singleton(string $name,array $userConfig = null,string $as = null) {
 		$instance = get_instance();
 
 		/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
@@ -35,8 +44,10 @@ if (!function_exists('ci_singleton')) {
 
 		/* has this service been attached yet? */
 		if (!isset($instance->$serviceName)) {
-			/* try to load it's configuration but don't throw an error */
-			$config = $instance->config->item($serviceName);
+			/* try to load it's configuration */
+			$serviceConfig = $instance->config->item($serviceName);
+
+			$config = array_replace((array)$serviceConfig,(array)$userConfig);
 
 			/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
 			if ($namedService = \orange::findService($name,false)) {
@@ -67,12 +78,12 @@ if (!function_exists('ci_singleton')) {
 }
 
 if (!function_exists('ci_factory')) {
-	function ci_factory(string $serviceName,array $userConfig = []) {
+	function ci_factory(string $serviceName,array $userConfig = null) {
 		$serviceClass = \orange::findService($serviceName,true);
 
 		$serviceConfig = get_instance()->config->item($serviceName);
 
-		$config = merge_config($serviceConfig,$userConfig);
+		$config = array_replace((array)$serviceConfig,(array)$userConfig);
 
 		return new $serviceClass($config);
 	}
