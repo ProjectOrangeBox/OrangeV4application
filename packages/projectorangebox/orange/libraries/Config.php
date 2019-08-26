@@ -45,8 +45,6 @@ class Config extends \CI_Config
 	protected $databaseCache = [];
 	protected $databaseLoaded = false;
 
-	protected $cacheFilePath = '';
-
 	/**
 	 * $hasDatabase
 	 *
@@ -73,8 +71,6 @@ class Config extends \CI_Config
 		if (isset($this->config['database_settings']) && $this->config['database_settings'] !== false) {
 			$this->hasDatabase = $this->config['database_settings'];
 		}
-
-		$this->cacheFilePath = \orange::fileConfig('config.cache_path');
 
 		log_message('info', 'Orange Config Class Initialized');
 	}
@@ -126,7 +122,7 @@ class Config extends \CI_Config
 		log_message('debug', 'Config::flush');
 
 		/* delete the database configs if they are there */
-		$cacheDatabaseFilePath = $this->cacheFilePath.'config.database.php';
+		$cacheDatabaseFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
 
 		if (\file_exists($cacheDatabaseFilePath)) {
 			\unlink($cacheDatabaseFilePath);
@@ -136,7 +132,7 @@ class Config extends \CI_Config
 			}
 		}
 
-		$cacheFilePath = $this->cacheFilePath.'config.file.php';
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
 
 		/* delete the file configs */
 		if ($clearThisSession) {
@@ -179,7 +175,7 @@ class Config extends \CI_Config
 	{
 		$fileConfig = [];
 
-		$cacheFilePath = $this->cacheFilePath.'config.file.php';
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
 
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 			/**
@@ -212,7 +208,7 @@ class Config extends \CI_Config
 	{
 		$databaseConfig = [];
 
-		$cacheFilePath = $this->cacheFilePath.'config.database.php';
+		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
 
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 			$config = ci($this->hasDatabase)->get_enabled();

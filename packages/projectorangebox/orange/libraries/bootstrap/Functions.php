@@ -11,66 +11,64 @@
  */
 if (!function_exists('ci'))
 {
-	function ci(string $name = null, string $as = null) /* mixed */
+	function ci(string $name = null, /* mixed */ $as = null,array $config = []) /* mixed */
 	{
 		/* get a instance of CodeIgniter */
 		$instance = get_instance();
 
+		/* Are we looking for a named service */
 		if ($name) {
-			/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
-			$serviceName = strtolower(($as) ?? basename(str_replace('\\','/',$name),'.php'));
-
-			/* has this service been attached yet? */
-			if (!isset($instance->$serviceName)) {
-				/* try to load it's configuration but don't throw an error */
-				$config = $instance->config->item($serviceName);
-
-				/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
-				if ($namedService = \orange::findService($name,false)) {
-					$name = $namedService;
-				}
-
-				/* try to let composer autoload load it */
-				if (class_exists($name,true)) {
-					/* create a new instance and attach the singleton to the CodeIgniter super object */
-					$instance->$serviceName = new $name($config);
-				} else {
-					/*
-					else try to let CodeIgniter load it the old fashion way
-					using the _model suffix we can assume it's a model we are trying to load
-					*/
-					if (substr($name,-6) == '_model') {
-						$instance->load->model($name,$serviceName);
-					} else {
-						/* library will take a config so let's try to find it if it exists */
-						$instance->load->library($name,$config);
-					}
-				}
-			}
-
-			/* now grab the reference */
-			$instance = $instance->$serviceName;
+			/* Are we looking for a factory or singleton? */
+			$instance = ($as === true) ? _ci_factory($instance,$name,$config) : _ci_singleton($instance,$name,$as);
 		}
 
 		return $instance;
 	}
 }
 
-if (!function_exists('factory')) {
-	function factory(string $serviceName,array $customConfig = []) {
-		$instance = get_instance();
+if (!function_exists('_ci_singleton')) {
+	function _ci_singleton($instance,string $name,string $as = null) {
+		/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
+		$serviceName = strtolower(($as) ?? basename(str_replace('\\','/',$name),'.php'));
 
-		$config = $instance->config->item($serviceName);
+		/* has this service been attached yet? */
+		if (!isset($instance->$serviceName)) {
+			/* try to load it's configuration but don't throw an error */
+			$config = $instance->config->item($serviceName);
 
-		if (is_array($config)) {
-			$config = array_replace($config,$customConfig);
-		} else {
-			$config = $customConfig;
+			/* is it a named service? if it is use the namespaced name instead of the name sent into the function */
+			if ($namedService = \orange::findService($name,false)) {
+				$name = $namedService;
+			}
+
+			/* try to let composer autoload load it */
+			if (class_exists($name,true)) {
+				/* create a new instance and attach the singleton to the CodeIgniter super object */
+				$instance->$serviceName = new $name($config);
+			} else {
+				/*
+				else try to let CodeIgniter load it the old fashion way
+				using the _model suffix we can assume it's a model we are trying to load
+				*/
+				if (substr($name,-6) == '_model') {
+					$instance->load->model($name,$serviceName);
+				} else {
+					/* library will take a config so let's try to find it if it exists */
+					$instance->load->library($name,$config);
+				}
+			}
 		}
 
+		/* now grab the reference */
+		return $instance->$serviceName;
+	}
+}
+
+if (!function_exists('_ci_factory')) {
+	function _ci_factory($instance,string $serviceName,array $customConfig = []) {
 		$serviceClass = \orange::findService($serviceName,true);
 
-		return new $serviceClass($config);
+		return new $serviceClass(merge_config($serviceName,$customConfig));
 	}
 }
 
@@ -360,5 +358,13 @@ if (!function_exists('site_url')) {
 
 		/* return the merge str replace */
 		return str_replace($array['keys'], $array['values'], $uri);
+	}
+}
+
+if (!function_exists('merge_config')) {
+	function merge_config(string $service,array $customConfig = []) {
+		$config = ci('config')->item($service);
+
+		return (is_array($config)) ? array_replace($config,$customConfig) : $customConfig;
 	}
 }
