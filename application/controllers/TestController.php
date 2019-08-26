@@ -7,7 +7,11 @@ class TestController extends Controller {
 	/* @httpGet ~ => *::* */
 	public function index() : void
 	{
+		$input = 'Foo this & ksdjfl #*7987 8797657#$%^645 Bar';
 
+		$output = ci('validate')->filter($input,'filter_slug');
+
+		var_dump($output);
 	}
 
 	/* @httpGet ~ => *::* */

@@ -79,7 +79,7 @@ class Model extends \CI_Model
 	{
 		parent::__construct();
 
-		$this->validate = factory('validate');
+		$this->validate = ci('validate',true);
 
 		log_message('info', 'Orange Model Class Initialized');
 	}

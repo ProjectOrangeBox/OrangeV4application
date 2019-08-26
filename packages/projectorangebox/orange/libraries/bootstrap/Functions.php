@@ -360,11 +360,3 @@ if (!function_exists('site_url')) {
 		return str_replace($array['keys'], $array['values'], $uri);
 	}
 }
-
-if (!function_exists('merge_config')) {
-	function merge_config(string $service,array $customConfig = []) {
-		$config = ci('config')->item($service);
-
-		return (is_array($config)) ? array_replace($config,$customConfig) : $customConfig;
-	}
-}
