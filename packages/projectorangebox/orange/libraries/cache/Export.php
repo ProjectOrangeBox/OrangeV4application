@@ -41,9 +41,9 @@ namespace projectorangebox\orange\library\cache;
  */
 class Export
 {
-	use DeleteByTag;
-	use Inline;
-	use Ttl;
+	use traits\DeleteByTag;
+	use traits\Inline;
+	use traits\Ttl;
 
 	/**
 	 * Configuration array

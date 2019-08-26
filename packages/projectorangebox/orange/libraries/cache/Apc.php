@@ -6,9 +6,9 @@ namespace projectorangebox\orange\library\cache;
 
 class Apc extends \CI_Cache_apc
 {
-	use DeleteByTag;
-	use Inline;
-	use Ttl;
+	use traits\DeleteByTag;
+	use traits\Inline;
+	use traits\Ttl;
 
 	/**
 	 * cache_info

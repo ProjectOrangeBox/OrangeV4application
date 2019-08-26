@@ -1,6 +1,6 @@
 <?php
 
-namespace projectorangebox\orange\library\traits;
+namespace projectorangebox\orange\library\cache\traits;
 
 use projectorangebox\orange\library\Cache;
 

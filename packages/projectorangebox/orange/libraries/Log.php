@@ -105,7 +105,7 @@ class Log extends \CI_Log
 		}
 
 		/* combined config */
-		$this->config = array_replace(orange::loadFileConfig('config'),$this->config);
+		$this->config = array_replace(\orange::loadFileConfig('config'),$this->config);
 
 		$this->init();
 

@@ -18,7 +18,7 @@ if (!function_exists('ci'))
 			/* Are we looking for a factory or singleton? */
 			$service = ($as === true) ? ci_factory($name,$config) : ci_singleton($name,$as);
 		} else {
-			/* get a instance of CodeIgniter */
+			/* They must be looking for the CodeIgniter "super" object */
 			$service = get_instance();
 		}
 
@@ -81,50 +81,41 @@ if (!function_exists('ci_factory')) {
 /* override the CodeIgniter loader to use composer and our services send in the file based config array */
 if (!function_exists('load_class'))
 {
-	function &load_class(string $class)
+	/*
+	 * Loaded by load_class() in order
+	 *
+	 * Benchmark
+	 * Hooks
+	 * Config
+	 * Log
+	 * Utf8
+	 * URI
+	 * Router
+	 * Input
+	 * Security
+	 * Output
+	 * Lang
+	 * Loader
+	 */
+	function &load_class(string $class) : object
 	{
 		/* exists only in a local function scope */
 		static $_classes = [];
 
 		/* has it already been loaded? */
-		if (isset($_classes[$class])) {
-			return $_classes[$class];
+		if (!isset($_classes[$class])) {
+			$name = \orange::findService($class,true);
+
+			/**
+			 * Tell CI is_loaded function
+			 * so these can be attach to the Controller
+			 * once it's built
+			 * then they can be accessed using $this-> syntax in the controller
+			 */
+			is_loaded($class);
+
+			$_classes[$class] = new $name();
 		}
-
-		/* let's assume nothing is found */
-		$name = false;
-
-		/* fixed CI filename prefix */
-		$ci_prefix = 'CI_';
-
-		/* our namespaced prefix */
-		$subclass_prefix = config_item('subclass_prefix');
-
-		$namedService = \orange::findService($class,false);
-
-		/* are we using our name spaced prefix or CI's? */
-		if ($namedService && class_exists($namedService,true)) {
-			$name = $namedService;
-		} elseif (class_exists($subclass_prefix.ucfirst($class),true)) {
-			$name = $subclass_prefix.ucfirst($class);
-		} elseif (class_exists($ci_prefix.ucfirst($class),true)) {
-			$name = $ci_prefix.ucfirst($class);
-		}
-
-		if (!$name) {
-			set_status_header(503);
-
-			throw new \Exception('Unable to locate the specified class: "'.$class.'.php"');
-		}
-
-		/* Tell CI is_loaded function
-		 * so these can be attach to the Controller
-		 * once it's built
-		 * then they can be accessed using $this-> syntax in the controller
-		 */
-		is_loaded($class);
-
-		$_classes[$class] = new $name();
 
 		return $_classes[$class];
 	}

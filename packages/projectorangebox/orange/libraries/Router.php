@@ -2,6 +2,7 @@
 
 namespace projectorangebox\orange\library;
 
+/* Total Rewrite therefore we are NOT extending */
 class Router {
 	/**
 	 * Current class name

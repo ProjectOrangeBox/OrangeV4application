@@ -40,9 +40,9 @@ namespace projectorangebox\orange\library\cache;
  */
 class Request
 {
-	use DeleteByTag;
-	use Inline;
-	use Ttl;
+	use traits\DeleteByTag;
+	use traits\Inline;
+	use traits\Ttl;
 
 	/**
 	 * Cache storage

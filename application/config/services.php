@@ -5,6 +5,15 @@
  */
 
 return [
+	'exceptions'=>'\projectorangebox\orange\library\Exceptions',
+	'benchmark'=>'\projectorangebox\orange\library\Benchmark',
+	'hooks'=>'\projectorangebox\orange\library\Hooks',
+	'utf8'=>'\projectorangebox\orange\library\Utf8',
+	'uri'=>'\projectorangebox\orange\library\Uri',
+	'security'=>'\projectorangebox\orange\library\Security',
+	'lang'=>'\projectorangebox\orange\library\Lang',
+	'loader'=>'\projectorangebox\orange\library\Loader',
+
 	'auth'=>'\projectorangebox\orange\library\Auth',
 	'cache'=>'\projectorangebox\orange\library\Cache',
 	'errors'=>'\projectorangebox\orange\library\Errors',

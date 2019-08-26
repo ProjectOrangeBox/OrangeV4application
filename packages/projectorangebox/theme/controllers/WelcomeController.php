@@ -6,20 +6,11 @@ class WelcomeController extends Controller {
 
 	public function index() : void
 	{
-		echo '<pre>';
+		$example = '';
 
-		var_dump(ci('config')->item('config.permitted_uri_chars'));
+		ci('cache')->apc->save('example','This is a test');
 
-		ci('config')->set_item('config.permitted_uri_chars','foobar');
-		ci('config')->set_item('config.new','foobar1');
-		ci('config')->set_item('cats.new','foobar2');
-
-		var_dump(ci('config')->item('config.permitted_uri_chars'));
-		var_dump(ci('config')->item('config.new'));
-		var_dump(ci('config')->item('cats.new'));
-
-
-		$example = 'foobar';
+		$example = ci('cache')->apc->get('example');
 
 		ci('page')->render('welcome_message',['example'=>$example]);
 	}

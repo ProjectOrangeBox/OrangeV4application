@@ -6,9 +6,9 @@ namespace projectorangebox\orange\library\cache;
 
 class Dummy extends \CI_Cache_dummy
 {
-	use DeleteByTag;
-	use Inline;
-	use Ttl;
+	use traits\DeleteByTag;
+	use traits\Inline;
+	use traits\Ttl;
 
 	/**
 	 * cache_keys
