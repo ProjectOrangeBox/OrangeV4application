@@ -63,10 +63,14 @@ class Cache
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config = [])
+	public function __construct(array &$config=null)
 	{
+		if (is_array($config)) {
+			$this->config = &$config;
+		}
+
 		/* combined config */
-		$this->config = array_replace(orange::loadFileConfig('config'),$config);
+		$this->config = array_replace(orange::loadFileConfig('config'),$this->config);
 
 		$this->adapter = isset($this->config['cache_default']) ? $this->config['cache_default'] : 'dummy';
 

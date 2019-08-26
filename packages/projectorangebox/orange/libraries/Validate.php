@@ -107,10 +107,11 @@ class Validate
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config=[])
+	public function __construct(array &$config=null)
 	{
-		/* my config */
-		$this->config = &$config;
+		if (is_array($config)) {
+			$this->config = &$config;
+		}
 
 		/* setup the "chain" request object */
 		$this->input = new Input($this,ci('input'));

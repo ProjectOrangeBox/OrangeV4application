@@ -139,9 +139,11 @@ class Errors
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config = [])
+	public function __construct(array &$config=null)
 	{
-		$this->config = &$config;
+		if (is_array($config)) {
+			$this->config = &$config;
+		}
 
 		$this->input = ci('input');
 		$this->output = ci('output');

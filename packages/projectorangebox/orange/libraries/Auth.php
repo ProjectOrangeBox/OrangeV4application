@@ -115,9 +115,11 @@ class Auth
 	 * @param array $config []
 	 *
 	 */
-	public function __construct(array &$config=[])
+	public function __construct(array &$config=null)
 	{
-		$this->config = &$config;
+		if (is_array($config)) {
+			$this->config = &$config;
+		}
 
 		$this->session = ci('session');
 		$this->event = ci('event');

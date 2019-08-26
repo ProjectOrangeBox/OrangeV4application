@@ -13,21 +13,23 @@ if (!function_exists('ci'))
 {
 	function ci(string $name = null, /* mixed */ $as = null,array $config = []) /* mixed */
 	{
-		/* get a instance of CodeIgniter */
-		$instance = get_instance();
-
 		/* Are we looking for a named service */
 		if ($name) {
 			/* Are we looking for a factory or singleton? */
-			$instance = ($as === true) ? _ci_factory($instance,$name,$config) : _ci_singleton($instance,$name,$as);
+			$service = ($as === true) ? ci_factory($name,$config) : ci_singleton($name,$as);
+		} else {
+			/* get a instance of CodeIgniter */
+			$service = get_instance();
 		}
 
-		return $instance;
+		return $service;
 	}
 }
 
-if (!function_exists('_ci_singleton')) {
-	function _ci_singleton($instance,string $name,string $as = null) {
+if (!function_exists('ci_singleton')) {
+	function ci_singleton(string $name,string $as = null) {
+		$instance = get_instance();
+
 		/* if the name has segments (namespaced or folder based) we only need the last which is the service name */
 		$serviceName = strtolower(($as) ?? basename(str_replace('\\','/',$name),'.php'));
 
@@ -64,15 +66,19 @@ if (!function_exists('_ci_singleton')) {
 	}
 }
 
-if (!function_exists('_ci_factory')) {
-	function _ci_factory($instance,string $serviceName,array $customConfig = []) {
+if (!function_exists('ci_factory')) {
+	function ci_factory(string $serviceName,array $userConfig = []) {
 		$serviceClass = \orange::findService($serviceName,true);
 
-		return new $serviceClass(merge_config($serviceName,$customConfig));
+		$serviceConfig = get_instance()->config->item($serviceName);
+
+		$config = merge_config($serviceConfig,$userConfig);
+
+		return new $serviceClass($config);
 	}
 }
 
-/* override the CodeIgniter loader to use composer and our services */
+/* override the CodeIgniter loader to use composer and our services send in the file based config array */
 if (!function_exists('load_class'))
 {
 	function &load_class(string $class)

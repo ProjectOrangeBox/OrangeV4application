@@ -98,9 +98,14 @@ class Log extends \CI_Log
 	 * @access public
 	 *
 	 */
-	public function __construct()
+	public function __construct(array &$config=null)
 	{
-		$this->config = \orange::loadFileConfig('config');
+		if (is_array($config)) {
+			$this->config = &$config;
+		}
+
+		/* combined config */
+		$this->config = array_replace(orange::loadFileConfig('config'),$this->config);
 
 		$this->init();
 
