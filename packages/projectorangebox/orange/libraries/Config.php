@@ -39,12 +39,13 @@ namespace projectorangebox\orange\library;
 
 class Config extends \CI_Config
 {
-	/**
-	 * track if the combined cached configuration has been lazy loaded
-	 *
-	 * @var boolean
-	 */
-	protected $lazyLoaded = false;
+	protected $fileCache = [];
+	protected $fileLoaded = false;
+
+	protected $databaseCache = [];
+	protected $databaseLoaded = false;
+
+	protected $cacheFilePath = '';
 
 	/**
 	 * $hasDatabase
@@ -73,6 +74,8 @@ class Config extends \CI_Config
 			$this->hasDatabase = $this->config['database_settings'];
 		}
 
+		$this->cacheFilePath = \orange::fileConfig('config.cache_path');
+
 		log_message('info', 'Orange Config Class Initialized');
 	}
 
@@ -87,7 +90,9 @@ class Config extends \CI_Config
 	 */
 	public function item($item, $index = '')
 	{
-		return (\strpos($item,'.') !== false) ? $this->dotNotation($item,(($index === '') ? null : $index)) : parent::item($item,$index);
+		$this->_lazyLoad();
+
+		return (\strpos($item,'.') !== false) ? \orange::getDotNotation($this->config,$item,$index) : parent::item($item,$index);
 	}
 
 	/**
@@ -101,91 +106,9 @@ class Config extends \CI_Config
 	 */
 	public function set_item($item, $value)
 	{
-		return (\strpos($item,'.') !== false) ? $this->setDotNotation($item,$value) : parent::set_item($item,$value);
-	}
-
-	/**
-	 *
-	 * Provides dot notation selection of configuration values
-	 * this is the "recommended" way to make sure you get database values as well
-	 *
-	 * #### Example
-	 * ```php
-	 * $value = ci('config')->dot_item('email.protocol','sendmail');
-	 * ```
-	 * @access public
-	 *
-	 * @param string $setting filename.key
-	 * @param $default null
-	 *
-	 * @return mixed
-	 *
-	 */
-	public function dotNotation(string $setting, $default=null)
-	{
-		log_message('debug', 'Config::dotNotation::'.$setting);
-
 		$this->_lazyLoad();
 
-		$value = $default;
-
-		$section = false;
-
-		if (strpos($setting, '.')) {
-			list($file, $key) = explode('.', $setting, 2);
-		} else {
-			$file = $setting;
-			$key = false;
-		}
-
-		$file = $this->_normalizeSection($file);
-
-		if (isset($this->config[$file])) {
-			$section = $this->config[$file];
-		}
-
-		if ($key) {
-			$key = $this->_normalizeKey($key);
-
-			if (isset($section[$key])) {
-				$value = $section[$key];
-			}
-		} elseif ($section) {
-			$value = $section;
-		}
-
-		return $value;
-	}
-
-	/**
-	 *
-	 * Change or Add a dot notation config value
-	 * NOT Saved between requests
-	 *
-	 * @access public
-	 *
-	 * @param string $setting
-	 * @param $value null
-	 *
-	 * @return Config
-	 *
-	 */
-	public function setDotNotation(string $setting, $value=null) : Config
-	{
-		log_message('debug', 'Config::setDotNotation::'.$setting);
-
-		$this->_lazyLoad();
-
-		list($file, $key) = explode('.', strtolower($setting), 2);
-
-		if ($key) {
-			$this->config[$this->_normalizeSection($file)][$this->_normalizeKey($key)] = $value;
-		} else {
-			$this->config[$this->_normalizeSection($file)] = $value;
-		}
-
-		/* allow chaining */
-		return $this;
+		return (\strpos($item,'.') !== false) ? \orange::setDotNotation($this->config,$item,$value) : parent::set_item($item,$value);
 	}
 
 	/**
@@ -198,19 +121,27 @@ class Config extends \CI_Config
 	 * @return bool
 	 *
 	 */
-	public function flush() : bool
+	public function flush(bool $clearThisSession = false) : bool
 	{
 		log_message('debug', 'Config::flush');
 
-		$this->lazyLoaded = false;
-
-		$cacheDatabaseFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
+		/* delete the database configs if they are there */
+		$cacheDatabaseFilePath = $this->cacheFilePath.'config.database.php';
 
 		if (\file_exists($cacheDatabaseFilePath)) {
 			\unlink($cacheDatabaseFilePath);
+
+			if ($clearThisSession) {
+				$this->databaseLoaded = false;
+			}
 		}
 
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
+		$cacheFilePath = $this->cacheFilePath.'config.file.php';
+
+		/* delete the file configs */
+		if ($clearThisSession) {
+			$this->fileLoaded = false;
+		}
 
 		return (\file_exists($cacheFilePath)) ? \unlink($cacheFilePath) : true;
 	}
@@ -226,24 +157,21 @@ class Config extends \CI_Config
 	 */
 	protected function _lazyLoad() : void
 	{
-		/* if this has a database model and the database is attached to CI then we can load again this time with the database */
-		if ($this->hasDatabase && function_exists('DB')) {
-			$this->databaseReady = true;
-			$this->lazyLoaded = false;
+		if (!$this->fileLoaded) {
+			$this->fileCached = $this->_getFileConfig();
+
+			$this->config = \array_replace($this->config,$this->fileCached);
+
+			$this->fileLoaded = true;
 		}
 
-		if (!$this->lazyLoaded) {
-			$fileConfig = $this->_getFileConfig();
+		/* if this has a database model and the database is attached to CI then we can load again this time with the database */
+		if ($this->hasDatabase && function_exists('DB') && !$this->databaseLoaded) {
+			$this->databaseCached = $this->_getDatabaseConfig();
 
-			if ($this->databaseReady) {
-				$databaseConfig = $this->_getDatabaseConfig();
-			} else {
-				$databaseConfig = [];
-			}
+			$this->config = \array_replace($this->config,$this->databaseCached);
 
-			$this->lazyLoaded = true;
-
-			$this->config = \array_replace($fileConfig,$databaseConfig);
+			$this->databaseLoaded = true;
 		}
 	}
 
@@ -251,7 +179,7 @@ class Config extends \CI_Config
 	{
 		$fileConfig = [];
 
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.file.php';
+		$cacheFilePath = $this->cacheFilePath.'config.file.php';
 
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 			/**
@@ -267,7 +195,7 @@ class Config extends \CI_Config
 
 				if (is_array($config)) {
 					foreach ($config as $key=>$value) {
-						$fileConfig[$this->_normalizeSection($basename)][$this->_normalizeKey($key)] = $value;
+						$fileConfig[$this->_normalize($basename)][$this->_normalize($key)] = $value;
 					}
 				}
 			}
@@ -284,14 +212,14 @@ class Config extends \CI_Config
 	{
 		$databaseConfig = [];
 
-		$cacheFilePath = \orange::fileConfig('config.cache_path').'config.database.php';
+		$cacheFilePath = $this->cacheFilePath.'config.database.php';
 
 		if (ENVIRONMENT == 'development' || !file_exists($cacheFilePath)) {
 			$config = ci($this->hasDatabase)->get_enabled();
 
 			if (is_array($config)) {
 				foreach ($config as $record) {
-					$databaseConfig[$this->_normalizeSection($record->group)][$this->_normalizeKey($record->name)] = convert_to_real($record->value);
+					$databaseConfig[$this->_normalize(str_replace(' ','_',$record->group))][$this->_normalize($record->name)] = convert_to_real($record->value);
 				}
 			}
 
@@ -303,12 +231,7 @@ class Config extends \CI_Config
 		return $databaseConfig;
 	}
 
-	protected function _normalizeSection(string $string) : string
-	{
-		return str_replace(['_','-'], ' ', strtolower($string));
-	}
-
-	protected function _normalizeKey(string $string) : string
+	protected function _normalize(string $string) : string
 	{
 		return strtolower($string);
 	}

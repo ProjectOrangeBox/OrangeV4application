@@ -525,4 +525,4 @@ $config['rewrite_short_tags'] = FALSE;
 $config['proxy_ips'] = '';
 
 
-$config['database_settings'] = 'projectorangebox\orange\model\O_setting_model';
+$config['database_settings'] = false; //'projectorangebox\orange\model\O_setting_model';

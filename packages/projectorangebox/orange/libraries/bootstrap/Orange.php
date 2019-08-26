@@ -476,11 +476,11 @@ class Orange {
 	{
     $keys = explode('.', $notation);
 
-		while(count($keys) > 1) {
+		while (count($keys) > 1) {
 			$key = array_shift($keys);
 
 			if (!isset($array[$key])) {
-				$array[$key] = array();
+				$array[$key] = [];
 			}
 
 			$array = &$array[$key];

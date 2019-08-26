@@ -19,16 +19,9 @@
  */
 if (!function_exists('config'))
 {
-	function config(string $dotNotation,/* mixed */ $default=NOVALUE) /* mixed */
+	function config(string $arg1,/* mixed */ $arg2 = '') /* mixed */
 	{
-		$value = ci('config')->item($dotNotation, $default);
-
-		/* only throw an error if nothing found and no default given */
-		if ($value === NOVALUE) {
-			throw new \Exception('The config variable "'.$dotNotation.'" is not set and no default was provided.');
-		}
-
-		return $value;
+		return ci('config')->item($arg1, $arg2);
 	}
 }
 
