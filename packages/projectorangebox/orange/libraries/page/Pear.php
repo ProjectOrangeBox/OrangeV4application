@@ -132,7 +132,7 @@ class Pear
 	public static function plugin(string $name, bool $throwError = true) : void
 	{
 		if (!isset(self::$loadedPlugins[$name])) {
-			$className = \orange::findService('pear_'.str_replace('pear_', '', strtolower($name)),false);
+			$className = \orange::findService(str_replace('pear_', '',strtolower($name)),false,'pear_plugin');
 
 			if (class_exists($className, true)) {
 				self::$loadedPlugins[$name] = new $className;
