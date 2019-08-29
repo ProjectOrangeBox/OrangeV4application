@@ -198,8 +198,9 @@ class Router {
 
 			/* reformat */
 			$config['routes'] = $this->buildArray($config['routes'],$this->defaultMethod);
-			$config['request'] = $this->buildArray($config['request'],'request');
-			$config['response'] = $this->buildArray($config['response'],'response');
+
+			$config['request'] = (!isset($config['request'])) ? [] : $this->buildArray($config['request'],'request');
+			$config['response'] = (!isset($config['response'])) ? [] : $this->buildArray($config['response'],'response');
 
 	    log_message('debug','Route: Build Router Cache File '.$cacheFilePath);
 

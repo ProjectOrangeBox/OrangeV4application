@@ -40,7 +40,7 @@ class Output extends \CI_Output
 	 *
 	 * @var int
 	 */
-	protected $json_options = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
+	protected $jsonOptions = JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_QUOT | JSON_HEX_AMP | JSON_UNESCAPED_UNICODE;
 
 	/**
 	 * Send a JSON responds
@@ -69,13 +69,13 @@ class Output extends \CI_Output
 		} elseif ($raw && $data !== null) {
 			$json = '{"'.$data.'":'.$val.'}';
 		} elseif (is_array($data) || is_object($data)) {
-			$json = json_encode($data, $this->json_options);
+			$json = json_encode($data, $this->jsonOptions);
 		} elseif (is_string($data) && $val === null) {
 			$json = $data;
 		} elseif ($data === null && $val === null) {
-			$json = json_encode(ci()->load->get_vars(), $this->json_options);
+			$json = json_encode(ci()->load->get_vars(), $this->jsonOptions);
 		} else {
-			$json = json_encode([$data => $val], $this->json_options);
+			$json = json_encode([$data => $val], $this->jsonOptions);
 		}
 
 		$this
@@ -87,6 +87,12 @@ class Output extends \CI_Output
 		return $this;
 	}
 
+	public function setJsonOptions(int $options) : Output
+	{
+		$this->jsonOptions = $options;
+
+		return $this;
+	}
 
 	/**
 	 *

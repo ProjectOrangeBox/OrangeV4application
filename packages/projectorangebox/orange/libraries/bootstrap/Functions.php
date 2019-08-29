@@ -4,33 +4,22 @@
  * ci
  *
  * Brand new heavy lifter
+ * Supports:
  *
- * @param mixed string service name to load
- * @param mixed string when attaching it to the CodeIgniter super object attach it as
- * @return mixed
+ * $foo = ci('factory',$myconfig,true);
+ *
+ * $bar = ci('bar',$myconfig);
+ * $foobar = ci('foo',$myconfig,'foobar');
+ * $fb = ci('fb');
+ *
+ * $ci = ci();
+ *
  */
 if (!function_exists('ci'))
 {
-	function ci(string $name = null,array $userConfig = null,/* mixed */ $as = null) /* mixed */
+	function ci(string $name = null,array $userConfig = null,/* string|bool */ $as = null) /* mixed */
 	{
-		/**
-		 * Supports:
-		 *
-		 * $foo = ci('factory',$myconfig,true);
-		 *
-		 * $bar = ci('bar',$myconfig);
-		 * $foobar = ci('foo',$myconfig,'foobar');
-		 * $fb = ci('fb');
-		 *
-		 * $ci = ci();
-		 *
-		 */
-
-		/**
-		 * Are we looking for a named service?
-		 * Are we looking for a factory or singleton?
-		 * Nope! than we must be looking for the CodeIgniter "super" object
-		 */
+		/* Are we looking for a named service? factory or singleton? CodeIgniter "super" object? */
 		return ($name) ? ($as === true) ? ci_factory($name,$userConfig) : ci_singleton($name,$userConfig,$as) : get_instance();
 	}
 }
@@ -93,7 +82,7 @@ if (!function_exists('ci_factory')) {
 if (!function_exists('load_class'))
 {
 	/*
-	 * Loaded by load_class() in order
+	 * CodeIgniter Startup Load Order
 	 *
 	 * Benchmark
 	 * Hooks
@@ -125,7 +114,7 @@ if (!function_exists('load_class'))
 			 */
 			is_loaded($class);
 
-			$_classes[$class] = new $name();
+			$_classes[$class] = new $name;
 		}
 
 		return $_classes[$class];
