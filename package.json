@@ -9,11 +9,11 @@
     "@polymer/iron-localstorage": "^3.0.1"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
+    "@babel/core": "^7.7.2",
     "babel-polyfill": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
-    "bootbox": "^5.2.0",
-    "bootstrap-select": "^1.13.10",
+    "bootbox": "^5.3.4",
+    "bootstrap-select": "^1.13.12",
     "bootstrap3": "^3.3.5",
     "del": "^4.1.1",
     "font-awesome": "^4.7.0",
@@ -28,11 +28,11 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-uglify": "^3.0.2",
-    "handlebars": "^4.1.2",
+    "handlebars": "^4.5.2",
     "jquery": "^3.4.1",
     "jstorage": "^0.4.8",
     "keymaster": "^1.6.2",
-    "popper.js": "^1.15.0",
+    "popper.js": "^1.16.0",
     "roboto-fontface": "^0.10.0",
     "tinysort": "^3.2.5"
   },
